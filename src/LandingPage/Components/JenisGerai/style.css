@@ -1,0 +1,17 @@
+/* Pastikan pagination benar-benar di bawah card */
+.swiper-pagination {
+  position: static !important;
+  margin-top: 16px;
+}
+
+/* Optional: styling biar modern */
+.swiper-pagination-bullet {
+  background-color: #d1d5db;
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #ef4444;
+  width: 25px;
+  border-radius: 999px;
+}
