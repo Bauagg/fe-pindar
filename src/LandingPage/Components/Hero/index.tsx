@@ -9,7 +9,7 @@ const categories = [
   {
     title: "Kartu Kredit",
     image: "/images/kartu2.png",
-    link: "/cc",
+    link: "/kartukredit",
   },
   {
     title: "Pinjaman Bank",
