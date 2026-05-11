@@ -44,7 +44,7 @@ const CreditCardDetail = () => {
     };
 
     fetchDetail();
-  }, [id]);
+  }, [id, baseURL]);
 
   const formatRupiah = (value: string | number | null) => {
     if (!value) return "Rp 0";
