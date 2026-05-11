@@ -1,4 +1,5 @@
-FROM node:18-alpine
+# Stage 1: Build
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -10,13 +11,17 @@ COPY . .
 ARG REACT_APP_API_BASE_URL
 ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 
-# Build production
 RUN npm run build
 
-# Install serve untuk serve static files
+# Stage 2: Serve
+FROM node:18-alpine
+
+WORKDIR /app
+
 RUN npm install -g serve
+
+COPY --from=builder /app/build ./build
 
 EXPOSE 8888
 
-# Jalankan serve untuk production
 CMD ["serve", "-s", "build", "-l", "8888"]

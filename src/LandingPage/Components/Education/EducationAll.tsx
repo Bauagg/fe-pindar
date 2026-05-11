@@ -64,7 +64,7 @@ const EducationList = () => {
     };
 
     fetchData();
-  }, []);
+  }, [baseURL]);
 
   const filteredContents = useMemo(() => {
     let filtered = contents;

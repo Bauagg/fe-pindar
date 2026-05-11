@@ -45,7 +45,7 @@ const TrendingEducation = () => {
     };
 
     fetchContents();
-  }, []);
+  }, [baseURL]);
 
   const formatDate = (date: string) => {
     return new Intl.DateTimeFormat("id-ID", {

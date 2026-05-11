@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ArrowRight, BadgeCheck, CreditCard, FileText, Info, ShieldCheck, Sparkles, Wallet, Layers3, Building2, Percent, CalendarClock, User, Banknote } from "lucide-react";
+import { ArrowRight, BadgeCheck, CreditCard, FileText, Info, ShieldCheck, Wallet, Layers3, Building2, Banknote } from "lucide-react";
 
 import Navbar from "../../Components/Navbar";
 import RedirectModal from "../../Components/Riderect/RiderectModal";

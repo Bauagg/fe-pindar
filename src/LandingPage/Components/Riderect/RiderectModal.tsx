@@ -36,7 +36,7 @@ const RedirectModal = ({ open, onClose, lenderName, lenderImage, redirectUrl }: 
     }, 100);
 
     return () => clearInterval(interval);
-  }, [open]);
+  }, [open, onClose, redirectUrl]);
 
   if (!open) return null;
 

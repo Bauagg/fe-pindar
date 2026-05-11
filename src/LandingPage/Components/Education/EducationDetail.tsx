@@ -65,7 +65,7 @@ const EducationDetail = () => {
     if (id) {
       fetchData();
     }
-  }, [id]);
+  }, [id, baseURL]);
 
   const formatDate = (date: string) => {
     return new Intl.DateTimeFormat("id-ID", {

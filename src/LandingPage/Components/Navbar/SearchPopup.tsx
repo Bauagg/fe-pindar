@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +24,7 @@ const SearchPopup = ({ open, onClose }: Props) => {
 
   const baseURL = process.env.REACT_APP_API_BASE_URL;
 
-  const fetchLenders = async (keyword = "") => {
+  const fetchLenders = useCallback(async (keyword = "") => {
     try {
       setLoading(true);
 
@@ -42,14 +42,14 @@ const SearchPopup = ({ open, onClose }: Props) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [baseURL]);
 
   // OPEN POPUP => LOAD DEFAULT
   useEffect(() => {
     if (!open) return;
 
     fetchLenders("");
-  }, [open]);
+  }, [open, fetchLenders]);
 
   // SEARCH DEBOUNCE
   useEffect(() => {
@@ -60,7 +60,7 @@ const SearchPopup = ({ open, onClose }: Props) => {
     }, 500);
 
     return () => clearTimeout(debounce);
-  }, [search]);
+  }, [search, open, fetchLenders]);
 
   // CLOSE ESC
   useEffect(() => {
@@ -73,7 +73,7 @@ const SearchPopup = ({ open, onClose }: Props) => {
     window.addEventListener("keydown", handleEsc);
 
     return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+  }, [onClose]);
 
   if (!open) return null;
 

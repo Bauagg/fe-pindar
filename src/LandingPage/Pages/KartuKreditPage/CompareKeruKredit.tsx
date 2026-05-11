@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ExternalLink, CreditCard, Wallet, BadgeCheck, Building2, Layers3, Sparkles } from "lucide-react";
+import { ArrowRight, ExternalLink, CreditCard, Wallet, BadgeCheck, Layers3, Sparkles } from "lucide-react";
 
 import Navbar from "../../Components/Navbar";
 import RedirectModal from "../../Components/Riderect/RiderectModal";

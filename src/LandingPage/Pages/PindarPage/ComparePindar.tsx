@@ -1,6 +1,6 @@
 // pages/PindarCompare.tsx
 
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ExternalLink, Wallet, Clock3, CreditCard, FileText, Info, Scale } from "lucide-react";
 
@@ -77,7 +77,7 @@ const PindarCompare = () => {
     };
 
     fetchAllDetails();
-  }, []);
+  }, [baseURL]);
 
   const formatRupiah = (value: number) => {
     if (!value) return "Rp 0";
