@@ -5,10 +5,10 @@ import Footer from "../Components/Footer";
 import Navbar from "../Components/Navbar";
 import Satuan from "../Components/About/Satuan";
 import JenisGerai from "../Components/JenisGerai";
-import Gallery from "./galeri/galeri";
 
 import HeroSection from "../Components/Hero";
 import RekomendasiApp from "../Components/pinjamanDaring/RecomentPinjaman";
+import EducationLanding from "../Components/Education/EducationLanding";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -27,7 +27,7 @@ const LandingPageUdin: React.FC = () => {
           </div>
 
           <div>
-            <Gallery />
+            <EducationLanding />
           </div>
 
           <div>

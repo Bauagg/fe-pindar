@@ -176,12 +176,12 @@ const PindarDetail = () => {
             {/* RIGHT */}
             <div className="flex justify-center lg:justify-end">
               <div className="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md">
-                <div className="w-40 h-40 mx-auto rounded-[2rem] bg-gray-50 border border-gray-100 flex items-center justify-center p-8">
+                <div className=" mx-auto rounded-[2rem]  flex items-center justify-center p-2">
                   <img src={`${baseURL}/api${data.imageLink}`} alt={data.lenderName} className="w-full h-full object-contain" />
                 </div>
 
-                <div className="mt-8 text-center">
-                  <h2 className="text-3xl font-black text-gray-800">{data.lenderName}</h2>
+                <div className="mt-4 text-center">
+                  {/* <h2 className="text-3xl font-black text-gray-800">{data.lenderName}</h2> */}
 
                   <div className="mt-4 inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold">
                     <ShieldCheck className="w-4 h-4" />

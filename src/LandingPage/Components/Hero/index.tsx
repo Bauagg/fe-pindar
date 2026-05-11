@@ -14,7 +14,7 @@ const categories = [
   {
     title: "Pinjaman Bank",
     image: "/images/kartu.png",
-    link: "#",
+    link: "/pinjamanbank",
   },
 ];
 
@@ -85,20 +85,20 @@ p-6 sm:p-6 md:p-12
           text-md sm:text-xl md:text-3xl
           leading-tight
         ">
-                Trending Products
+                Trending Education
               </h2>
               <p
                 className="
           mt-1 text-white/80
           text-xs sm:text-sm
         ">
-                Last Date 29/02/2025
+                Last Date 11/05/2026
               </p>
             </div>
 
             {/* RIGHT BUTTON */}
             <NavLink
-              to="/products"
+              to="/education/trending"
               className="
         shrink-0
         inline-flex items-center gap-2
