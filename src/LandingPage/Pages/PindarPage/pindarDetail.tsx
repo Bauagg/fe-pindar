@@ -55,7 +55,7 @@ const PindarDetail = () => {
     };
 
     fetchDetail();
-  }, [id]);
+  }, [id, baseURL]);
 
   const formatRupiah = (value: number) => {
     if (!value) return "Rp 0";
