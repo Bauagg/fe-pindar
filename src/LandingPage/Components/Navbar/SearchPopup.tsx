@@ -29,7 +29,7 @@ const SearchPopup = ({ open, onClose }: Props) => {
       try {
         setLoading(true);
 
-        const endpoint = keyword.trim() ? `${baseURL}/api/lender/list?search=${encodeURIComponent(keyword)}` : `${baseURL}/api/lender/list?limit=3`;
+        const endpoint = keyword.trim() ? `${baseURL}/api/lender/list?search=${encodeURIComponent(keyword)}` : `${baseURL}/api/lender/list?limit=2`;
 
         const response = await fetch(endpoint);
 
