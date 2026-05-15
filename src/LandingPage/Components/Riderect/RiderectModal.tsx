@@ -87,9 +87,9 @@ const RedirectModal = ({ open, onClose, lenderName, lenderImage, redirectUrl }: 
           </div>
 
           {/* TITLE */}
-          <h2 className="text-3xl font-black text-gray-900">{lenderName}</h2>
+          <h2 className="text-xl md:text-3xl font-black text-gray-900">{lenderName}</h2>
 
-          <p className="mt-3 text-gray-500 leading-relaxed">Anda akan dialihkan menuju halaman aplikasi resmi dalam beberapa detik</p>
+          <p className="mt-3 text-gray-500 leading-relaxed max-sm:text-sm">Anda akan dialihkan menuju halaman aplikasi resmi dalam beberapa detik</p>
 
           {/* PROGRESS */}
           <div className="mt-8">
@@ -127,6 +127,7 @@ const RedirectModal = ({ open, onClose, lenderName, lenderImage, redirectUrl }: 
               to-red-700
               text-white
               font-bold
+              max-sm:text-sm
               shadow-lg
               hover:scale-[1.02]
               transition-all duration-300

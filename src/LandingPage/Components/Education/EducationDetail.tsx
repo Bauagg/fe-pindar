@@ -82,12 +82,12 @@ const EducationDetail = () => {
 
         <div className="flex items-center justify-center h-[70vh]">
           <div className="flex flex-col items-center gap-5">
-            <div className="w-16 h-16 border-[6px] border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+            <div className="w-14 md:w-16 h-14 md:h-16 border-[6px] border-red-200 border-t-red-600 rounded-full animate-spin"></div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-800">Memuat Edukasi</h2>
+              <h2 className="text-xl md:text-2xl font-black text-gray-800">Memuat Edukasi</h2>
 
-              <p className="text-gray-500 mt-2">Sedang mengambil detail konten...</p>
+              <p className="text-gray-500 mt-2 text-sm md:text-base">Sedang mengambil detail konten...</p>
             </div>
           </div>
         </div>
@@ -106,12 +106,12 @@ const EducationDetail = () => {
               <ShieldAlert className="w-12 h-12 text-red-500" />
             </div>
 
-            <h2 className="mt-6 text-3xl font-black text-gray-800">Konten Tidak Ditemukan</h2>
+            <h2 className="mt-6 text-xl md:text-3xl font-black text-gray-800">Konten Tidak Ditemukan</h2>
 
             <button
               onClick={() => navigate(-1)}
               className="
-                mt-8 w-full py-4 rounded-2xl
+                mt-8 w-full py-3 md:py-4 rounded-2xl
                 bg-gradient-to-r from-red-500 to-red-600
                 text-white font-bold
               ">
@@ -143,21 +143,21 @@ const EducationDetail = () => {
                 bg-white/20 border border-white/20
                 backdrop-blur-md
                 px-4 py-2 rounded-full
-                text-white font-semibold mb-6
+                text-white font-semibold mb-6 text-sm md:text-base
               ">
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-3 md:w-4 h-3 md:h-4" />
               Edukasi Finansial
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">{detail.title}</h1>
+            <h1 className="text-2xl md:text-4xl lg:text-6xl font-black text-white leading-tight">{detail.title}</h1>
 
             <div className="flex flex-wrap items-center gap-5 mt-6 text-white/90">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-sm md:text-base">
                 <CalendarDays className="w-5 h-5" />
                 {detail.categoryName}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-sm md:text-base">
                 <Eye className="w-5 h-5" />
                 Artikel Edukasi
               </div>
@@ -195,6 +195,7 @@ const EducationDetail = () => {
                   prose-ol:pl-5
                   prose-li:marker:text-red-500
                   prose-code:text-red-500
+                  text-sm md:text-base
                 "
                 dangerouslySetInnerHTML={{
                   __html: detail.contentDetail,
@@ -214,7 +215,7 @@ const EducationDetail = () => {
                 <div>
                   <p className="text-red-500 font-bold uppercase text-xs">Edukasi</p>
 
-                  <h2 className="text-2xl font-black text-gray-800">Edukasi Lainnya</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-gray-800">Edukasi Lainnya</h2>
                 </div>
               </div>
 

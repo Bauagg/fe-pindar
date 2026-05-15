@@ -48,9 +48,9 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
         <div className="p-5 space-y-4">
           {/* TITLE */}
           <div>
-            <h3 className="text-lg max-md:text-2xl font-bold text-gray-800 line-clamp-2">{data.title}</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800 line-clamp-2">{data.title}</h3>
 
-            <p className="mt-2 text-red-500 font-black text-xl max-md:text-2xl">Rp {Number(data.yearlyFee).toLocaleString("id-ID")}</p>
+            <p className="mt-2 text-red-500 font-black text-xl md:text-2xl">Rp {Number(data.yearlyFee).toLocaleString("id-ID")}</p>
 
             <p className="text-sm text-gray-500 mt-1">{data.detailYearlyFee}</p>
           </div>
@@ -62,7 +62,7 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
                 key={index}
                 className="
                   flex items-center gap-2
-                  text-sm max-md:text-base
+                  text-sm md:text-base
                   text-gray-700
                 ">
                 <span
@@ -98,7 +98,7 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
               onClick={() => setOpenRedirect(true)}
               className="
                 w-full py-3 rounded-xl
-                text-sm max-md:text-lg
+                text-sm md:text-lg
                 font-semibold text-white
                 bg-gradient-to-r
                 from-rose-600 via-red-600 to-red-700
@@ -114,7 +114,7 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
               onClick={handleDetail}
               className="
                 px-4 py-3 rounded-xl
-                text-sm max-md:text-lg
+                text-sm md:text-lg
                 font-semibold
                 bg-gray-100 text-gray-700
                 hover:bg-gray-200

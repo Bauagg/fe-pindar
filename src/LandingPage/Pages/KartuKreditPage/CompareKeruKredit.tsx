@@ -179,17 +179,18 @@ const CreditCardCompare = () => {
                 mb-6
                 max-sm:mt-10
                 mt-10
+                text-sm md:text-base
               ">
               <CreditCard className="w-4 h-4" />
               Komparasi Kartu Kredit
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">
               Bandingkan
               <span className="block">Kartu Kredit Terbaik</span>
             </h1>
 
-            <p className="mt-6 text-white/90 text-lg leading-relaxed max-w-2xl">Lihat perbedaan iuran tahunan, benefit, fitur, dan informasi penting lainnya dalam satu tampilan modern.</p>
+            <p className="mt-6 text-white/90 text-base md:text-lg leading-relaxed max-w-2xl">Lihat perbedaan iuran tahunan, benefit, fitur, dan informasi penting lainnya dalam satu tampilan modern.</p>
           </div>
         </div>
       </section>

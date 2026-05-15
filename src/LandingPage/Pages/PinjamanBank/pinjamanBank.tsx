@@ -7,7 +7,14 @@ const BankLoanMaintenance = () => {
     <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-white font-signika overflow-hidden">
       <Navbar />
 
-      <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 py-24">
+      <section
+        className="
+          relative
+          min-h-screen
+          flex items-center justify-center
+          px-4 lg:px-8
+          py-16 sm:py-20 lg:py-24
+        ">
         {/* BACKGROUND */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-80 h-80 bg-red-300/20 rounded-full blur-3xl" />
@@ -17,7 +24,7 @@ const BankLoanMaintenance = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-100/30 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
+        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           {/* LEFT */}
           <div className="text-center lg:text-left animate-fadeIn">
             {/* BADGE */}
@@ -25,9 +32,12 @@ const BankLoanMaintenance = () => {
               className="
                 inline-flex items-center gap-2
                 bg-red-100 text-red-600
-                px-5 py-3 rounded-full
-                font-bold text-sm
+                px-4 py-2.5
+                rounded-full
+                font-bold
+                text-xs sm:text-sm
                 shadow-lg
+                mt-10
               ">
               <Sparkles className="w-4 h-4" />
               Coming Soon
@@ -36,8 +46,10 @@ const BankLoanMaintenance = () => {
             {/* TITLE */}
             <h1
               className="
-                mt-7
-                text-4xl md:text-5xl lg:text-7xl
+                mt-6
+                text-3xl
+                sm:text-4xl
+                lg:text-6xl
                 font-black
                 leading-tight
                 text-gray-900
@@ -50,8 +62,10 @@ const BankLoanMaintenance = () => {
             {/* DESC */}
             <p
               className="
-                mt-6
-                text-lg md:text-xl
+                mt-5
+                text-sm
+                sm:text-base
+                lg:text-lg
                 text-gray-600
                 leading-relaxed
                 max-w-2xl
@@ -62,8 +76,9 @@ const BankLoanMaintenance = () => {
 
             <p
               className="
-                mt-4
-                text-base md:text-lg
+                mt-3
+                text-sm
+                sm:text-base
                 text-gray-500
                 leading-relaxed
                 max-w-2xl
@@ -73,12 +88,13 @@ const BankLoanMaintenance = () => {
             </p>
 
             {/* INFO */}
-            <div className="mt-8 grid sm:grid-cols-2 gap-4">
+            <div className="mt-7 grid sm:grid-cols-2 gap-4">
+              {/* CARD */}
               <div
                 className="
                   bg-white
                   border border-gray-100
-                  rounded-3xl
+                  rounded-2xl sm:rounded-3xl
                   p-5
                   shadow-lg
                   hover:-translate-y-1
@@ -86,7 +102,9 @@ const BankLoanMaintenance = () => {
                 ">
                 <div
                   className="
-                    w-12 h-12 rounded-2xl
+                    w-11 h-11
+                    sm:w-12 sm:h-12
+                    rounded-2xl
                     bg-red-50
                     flex items-center justify-center
                     mx-auto lg:mx-0
@@ -94,16 +112,33 @@ const BankLoanMaintenance = () => {
                   <ShieldCheck className="w-5 h-5 text-red-500" />
                 </div>
 
-                <h3 className="mt-4 font-black text-gray-800 text-lg">Aman & Terpercaya</h3>
+                <h3
+                  className="
+                    mt-4
+                    font-black
+                    text-gray-800
+                    text-base sm:text-lg
+                  ">
+                  Aman & Terpercaya
+                </h3>
 
-                <p className="mt-2 text-gray-600 leading-relaxed text-sm">Informasi produk akan berasal dari partner terpercaya dan legal.</p>
+                <p
+                  className="
+                    mt-2
+                    text-gray-600
+                    leading-relaxed
+                    text-sm
+                  ">
+                  Informasi produk akan berasal dari partner terpercaya dan legal.
+                </p>
               </div>
 
+              {/* CARD */}
               <div
                 className="
                   bg-white
                   border border-gray-100
-                  rounded-3xl
+                  rounded-2xl sm:rounded-3xl
                   p-5
                   shadow-lg
                   hover:-translate-y-1
@@ -111,7 +146,9 @@ const BankLoanMaintenance = () => {
                 ">
                 <div
                   className="
-                    w-12 h-12 rounded-2xl
+                    w-11 h-11
+                    sm:w-12 sm:h-12
+                    rounded-2xl
                     bg-red-50
                     flex items-center justify-center
                     mx-auto lg:mx-0
@@ -119,21 +156,41 @@ const BankLoanMaintenance = () => {
                   <Clock3 className="w-5 h-5 text-red-500" />
                 </div>
 
-                <h3 className="mt-4 font-black text-gray-800 text-lg">Segera Hadir</h3>
+                <h3
+                  className="
+                    mt-4
+                    font-black
+                    text-gray-800
+                    text-base sm:text-lg
+                  ">
+                  Segera Hadir
+                </h3>
 
-                <p className="mt-2 text-gray-600 leading-relaxed text-sm">Tim kami sedang melakukan pengembangan dan penyempurnaan sistem.</p>
+                <p
+                  className="
+                    mt-2
+                    text-gray-600
+                    leading-relaxed
+                    text-sm
+                  ">
+                  Tim kami sedang melakukan pengembangan dan penyempurnaan sistem.
+                </p>
               </div>
             </div>
 
             {/* BUTTON */}
-            <div className="mt-10">
+            <div className="mt-8">
               <button
                 className="
                   inline-flex items-center gap-3
-                  px-7 py-4 rounded-2xl
+                  px-5 sm:px-7
+                  py-3 sm:py-4
+                  rounded-xl sm:rounded-2xl
                   bg-gradient-to-r
                   from-red-500 to-red-600
-                  text-white font-black
+                  text-white
+                  text-sm sm:text-base
+                  font-black
                   shadow-xl
                   hover:scale-[1.03]
                   transition-all duration-300
@@ -152,34 +209,54 @@ const BankLoanMaintenance = () => {
                 w-full max-w-lg
                 bg-white/90 backdrop-blur-xl
                 border border-white
-                rounded-[3rem]
+                rounded-[2rem] sm:rounded-[3rem]
                 shadow-2xl
-                p-8 md:p-10
+                p-5 sm:p-8 md:p-10
               ">
               {/* ICON */}
               <div className="flex justify-center">
                 <div
                   className="
-                    w-28 h-28 rounded-[2rem]
+                    w-24 h-24
+                    sm:w-28 sm:h-28
+                    rounded-[2rem]
                     bg-gradient-to-br
                     from-red-500 to-red-600
                     flex items-center justify-center
                     shadow-2xl
                     animate-pulse
                   ">
-                  <Wrench className="w-14 h-14 text-white" />
+                  <Wrench className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
                 </div>
               </div>
 
               {/* TEXT */}
-              <div className="mt-8 text-center">
-                <h2 className="text-3xl md:text-4xl font-black text-gray-900">Under Maintenance</h2>
+              <div className="mt-7 text-center">
+                <h2
+                  className="
+                    text-2xl
+                    sm:text-3xl
+                    md:text-4xl
+                    font-black
+                    text-gray-900
+                  ">
+                  Under Maintenance
+                </h2>
 
-                <p className="mt-4 text-gray-600 leading-relaxed text-lg">Halaman pinjaman bank sedang dalam tahap pengembangan untuk memberikan pengalaman yang lebih maksimal bagi pengguna.</p>
+                <p
+                  className="
+                    mt-3
+                    text-sm
+                    sm:text-base
+                    text-gray-600
+                    leading-relaxed
+                  ">
+                  Halaman pinjaman bank sedang dalam tahap pengembangan untuk memberikan pengalaman yang lebih maksimal bagi pengguna.
+                </p>
               </div>
 
               {/* STATUS */}
-              <div className="mt-8 space-y-4">
+              <div className="mt-7 space-y-3">
                 {["Pengembangan fitur perbandingan bank", "Optimasi tampilan mobile & desktop", "Integrasi data partner bank", "Peningkatan keamanan & performa"].map((item, index) => (
                   <div
                     key={index}
@@ -188,7 +265,7 @@ const BankLoanMaintenance = () => {
                       bg-red-50
                       border border-red-100
                       rounded-2xl
-                      px-5 py-4
+                      px-4 py-3
                       hover:bg-red-100/60
                       transition-all duration-300
                     ">
@@ -200,14 +277,14 @@ const BankLoanMaintenance = () => {
                       "
                     />
 
-                    <p className="text-gray-700 font-semibold">{item}</p>
+                    <p className="text-sm sm:text-base text-gray-700 font-semibold">{item}</p>
                   </div>
                 ))}
               </div>
 
               {/* FOOTER */}
-              <div className="mt-8 text-center">
-                <p className="text-sm text-gray-400">© 2026 Pindar — Better Financial Experience</p>
+              <div className="mt-7 text-center">
+                <p className="text-xs sm:text-sm text-gray-400">© 2026 Pindar — Better Financial Experience</p>
               </div>
             </div>
           </div>

@@ -188,17 +188,17 @@ const PindarCompare = () => {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 text-white font-medium mb-6 max-sm:mt-10 mt-10">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 text-white font-medium mb-6 max-sm:mt-10 mt-10 taxt-xs md:text-base">
               <Scale className="w-4 h-4" />
               Komparasi Pindar
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl lg:text-6xl font-black text-white leading-tight">
               Bandingkan
               <span className="block">Pinjaman Terbaik</span>
             </h1>
 
-            <p className="mt-6 text-white/90 text-lg leading-relaxed max-w-2xl">Lihat perbedaan limit, tenor, jenis pembayaran, dan informasi penting lainnya dalam satu tampilan modern.</p>
+            <p className="mt-6 text-white/90 text-base md:text-lg leading-relaxed max-w-2xl">Lihat perbedaan limit, tenor, jenis pembayaran, dan informasi penting lainnya dalam satu tampilan modern.</p>
           </div>
         </div>
       </section>
@@ -229,13 +229,13 @@ const PindarCompare = () => {
                           <h3 className="mt-5 text-2xl font-black text-gray-800">{item.lenderName}</h3>
 
                           <div className="flex gap-3 mt-5 w-full">
-                            <button onClick={() => handleDetail(item)} className="flex-1 py-3 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold transition">
+                            <button onClick={() => handleDetail(item)} className="flex-1 py-3 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold transition  text-sm md:text-base">
                               Detail
                             </button>
 
                             <button
                               onClick={() => handleRedirect(item)}
-                              className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:scale-[1.03] transition-all duration-300">
+                              className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:scale-[1.03] transition-all duration-300 text-base">
                               Ajukan
                               <ArrowRight className="w-4 h-4" />
                             </button>
@@ -317,11 +317,11 @@ const PindarCompare = () => {
                     <h2 className="mt-4 text-2xl font-black">{item.lenderName}</h2>
 
                     <div className="flex gap-3 w-full mt-5">
-                      <button onClick={() => handleDetail(item)} className="flex-1 bg-white/20 backdrop-blur-md py-3 rounded-2xl font-bold">
-                        Detail
+                      <button onClick={() => handleDetail(item)} className="flex-1 bg-white/20 backdrop-blur-md py-2 rounded-2xl font-bold">
+                        <span className="text-sm">Detail</span>
                       </button>
 
-                      <button onClick={() => handleRedirect(item)} className="flex-1 bg-white text-red-500 py-3 rounded-2xl font-black flex items-center justify-center gap-2 hover:scale-[1.03] transition-all duration-300">
+                      <button onClick={() => handleRedirect(item)} className="flex-1 bg-white text-red-500 py-2 rounded-2xl font-black flex items-center justify-center gap-2 hover:scale-[1.03] transition-all duration-300 text-sm">
                         Ajukan
                         <ArrowRight className="w-4 h-4" />
                       </button>

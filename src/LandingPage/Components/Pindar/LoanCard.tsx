@@ -16,8 +16,8 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
   const navigate = useNavigate();
   return (
     <div className="bg-gray-50 rounded-2xl shadow-lg hover:shadow-xl transition overflow-hidden">
-      <div className="h-40 max-md:h-60 bg-gray-100 flex items-center justify-center border-b border-gray-200">
-        <img src={`${process.env.REACT_APP_API_BASE_URL}${data.imagelink}`} alt={data.lendername} className="object-contain w-full h-full bg-white" />
+      <div className="h-32 md:h-60 bg-gray-100 flex items-center justify-center border-b border-gray-200">
+        <img src={`${process.env.REACT_APP_API_BASE_URL}${data.imagelink}`} alt={data.lendername} className="object-contain w-full h-full   bg-white" />
       </div>
 
       <div className="p-5 space-y-3">

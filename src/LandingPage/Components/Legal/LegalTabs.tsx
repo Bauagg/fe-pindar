@@ -37,9 +37,10 @@ const LegalTabs = ({ activeTab, setActiveTab }: Props) => {
               flex items-center gap-2
               px-5 py-3 rounded-2xl
               font-bold transition-all duration-300
+              text-sm md:text-base
               ${activeTab === tab.id ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}
             `}>
-            <Icon className="w-5 h-5" />
+            <Icon className="w-3 md:w-5 h-3 md:h-5" />
             {tab.label}
           </button>
         );

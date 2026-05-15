@@ -62,10 +62,10 @@ const TrendingEducation = () => {
 
         <div className="flex items-center justify-center h-[70vh]">
           <div className="flex flex-col items-center gap-5">
-            <div className="w-16 h-16 border-[6px] border-red-200 border-t-red-500 rounded-full animate-spin"></div>
+            <div className="w-14 md:w-16 h-14 md:h-16 border-[6px] border-red-200 border-t-red-500 rounded-full animate-spin"></div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-800">Memuat Trending</h2>
+              <h2 className="text-xl md:text-2xl font-black text-gray-800 ">Memuat Trending</h2>
 
               <p className="text-gray-500 mt-2">Sedang mengambil edukasi trending...</p>
             </div>
@@ -95,18 +95,18 @@ const TrendingEducation = () => {
                 bg-white/20 border border-white/20
                 backdrop-blur-md
                 px-4 py-2 rounded-full
-                text-white font-semibold mb-6
+                text-white font-semibold mb-6 text-sm md:text-base
               ">
               <Flame className="w-4 h-4" />
               Trending Education
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">
               Edukasi Trending
               <span className="block">Paling Populer</span>
             </h1>
 
-            <p className="mt-6 text-white/90 text-lg leading-relaxed">Kumpulan edukasi finansial dan pinjaman daring yang sedang ramai dibaca pengguna untuk membantu Anda tetap aman dan cerdas secara finansial.</p>
+            <p className="mt-6 text-white/90 text-sm md:text-lg leading-relaxed">Kumpulan edukasi finansial dan pinjaman daring yang sedang ramai dibaca pengguna untuk membantu Anda tetap aman dan cerdas secara finansial.</p>
           </div>
         </div>
       </section>
@@ -137,7 +137,7 @@ const TrendingEducation = () => {
                   <div>
                     <p className="text-red-500 font-bold uppercase text-sm">Most Popular</p>
 
-                    <h2 className="text-3xl font-black text-gray-800">Trending Hari Ini</h2>
+                    <h2 className="text-xl md:text-3xl font-black text-gray-800">Trending Hari Ini</h2>
                   </div>
                 </div>
               </div>
@@ -148,9 +148,9 @@ const TrendingEducation = () => {
                   bg-red-50 border border-red-100
                   text-red-600
                   px-5 py-3 rounded-2xl
-                  font-bold
+                  font-bold text-sm md:text-base
                 ">
-                <BookOpen className="w-5 h-5" />
+                <BookOpen className="w-3 md:w-5 h-3 md:h-5" />
                 {contents.length} Edukasi Trending
               </div>
             </div>
@@ -227,7 +227,7 @@ const TrendingEducation = () => {
                 <div className="p-6">
                   <h2
                     className="
-                      text-2xl font-black text-gray-800
+                      text-xl md:text-2xl font-black text-gray-800
                       leading-snug line-clamp-2
                     ">
                     {item.title}
@@ -254,14 +254,14 @@ const TrendingEducation = () => {
                   <button
                     className="
                       mt-6 w-full
-                      py-4 rounded-2xl
+                      py-3 md:py-4 rounded-2xl
                       bg-gradient-to-r
                       from-red-800 via-red-500 to-red-600
                       text-white font-black
                       flex items-center justify-center gap-2
                       shadow-lg
                       group-hover:scale-[1.02]
-                      transition-all duration-300
+                      transition-all duration-300 
                     ">
                     Baca Edukasi
                     <ArrowRight className="w-5 h-5" />

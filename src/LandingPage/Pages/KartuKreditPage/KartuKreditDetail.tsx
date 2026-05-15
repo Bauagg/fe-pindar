@@ -155,15 +155,15 @@ const CreditCardDetail = () => {
                   bg-white/20 border border-white/20
                   backdrop-blur-md
                   px-4 py-2 rounded-full
-                  text-white font-semibold mb-6
+                  text-white font-semibold mb-6 text-sm md:text-base
                 ">
                 <BadgeCheck className="w-4 h-4" />
                 Kartu Kredit Terverifikasi
               </div>
 
-              <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">{data.title}</h1>
+              <h1 className="text-2xl lg:text-6xl font-black text-white leading-tight">{data.title}</h1>
 
-              <p className="mt-6 text-white/90 text-lg leading-relaxed">Informasi lengkap mengenai limit pinjaman, tenor, metode pembayaran, serta persyaratan dokumen.</p>
+              <p className="mt-6 text-white/90 text-sm md:text-lg leading-relaxed">Informasi lengkap mengenai limit pinjaman, tenor, metode pembayaran, serta persyaratan dokumen.</p>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <button
@@ -176,6 +176,7 @@ const CreditCardDetail = () => {
                     shadow-xl
                     hover:scale-[1.03]
                     transition-all duration-300
+                    taxt-sm md:text-base
                   ">
                   Ajukan Sekarang
                   <ArrowRight className="w-5 h-5" />
@@ -208,7 +209,7 @@ const CreditCardDetail = () => {
                 </div>
 
                 <div className="mt-8 text-center">
-                  <h2 className="text-3xl font-black text-gray-800">{data.title}</h2>
+                  <h2 className="text-xl md:text-3xl font-black text-gray-800">{data.title}</h2>
 
                   <div
                     className="
@@ -216,7 +217,7 @@ const CreditCardDetail = () => {
                       inline-flex items-center gap-2
                       bg-green-100 text-green-700
                       px-4 py-2 rounded-full
-                      font-bold
+                      font-bold text-sm md:text-base
                     ">
                     <ShieldCheck className="w-4 h-4" />
                     Legal & Terverifikasi
@@ -231,7 +232,7 @@ const CreditCardDetail = () => {
       {/* INFO CARD */}
       <section className="relative -mt-8 lg:-mt-12 px-4 lg:px-8 pb-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-5">
             {infoCards.map((item, index) => {
               const Icon = item.icon;
 
@@ -247,18 +248,18 @@ const CreditCardDetail = () => {
                   ">
                   <div
                     className="
-                      w-14 h-14 rounded-2xl
+                      w-12 md:w-14 h-12 md:h-14 rounded-2xl
                       bg-red-50
                       flex items-center justify-center
                     ">
-                    <Icon className="w-6 h-6 text-red-500" />
+                    <Icon className="sm:w-4 md:w-6 sm:h-4 md:h-6 text-red-500" />
                   </div>
 
                   <p className="mt-5 text-sm text-gray-500 font-semibold">{item.title}</p>
 
                   <h3
                     className="
-                      mt-2 text-xl font-black
+                      mt-2 text-lg md:text-xl font-black
                       text-gray-800 leading-snug break-words
                     ">
                     {item.value}
@@ -283,7 +284,7 @@ const CreditCardDetail = () => {
               <div>
                 <p className="text-red-500 font-bold uppercase text-sm">Informasi</p>
 
-                <h2 className="text-3xl font-black text-gray-800">Detail Kartu</h2>
+                <h2 className="text-xl md:text-3xl font-black text-gray-800">Detail Kartu</h2>
               </div>
             </div>
 
@@ -326,7 +327,7 @@ const CreditCardDetail = () => {
               <div>
                 <p className="text-red-500 font-bold uppercase text-sm">Fitur</p>
 
-                <h2 className="text-3xl font-black text-gray-800">Fitur Kartu</h2>
+                <h2 className="text-xl md:text-3xl font-black text-gray-800">Fitur Kartu</h2>
               </div>
             </div>
 
@@ -351,7 +352,7 @@ const CreditCardDetail = () => {
                     <FileText className="w-4 h-4 text-red-500" />
                   </div>
 
-                  <p className="text-gray-700 leading-relaxed">{feature}</p>
+                  <p className="text-gray-700 leading-relaxed text-sm md:text-base">{feature}</p>
                 </div>
               ))}
             </div>
@@ -369,7 +370,7 @@ const CreditCardDetail = () => {
               <div>
                 <p className="text-red-500 font-bold uppercase text-sm">Persyaratan</p>
 
-                <h2 className="text-3xl font-black text-gray-800">Dokumen Dibutuhkan</h2>
+                <h2 className="text-xl md:text-3xl font-black text-gray-800">Dokumen Dibutuhkan</h2>
               </div>
             </div>
 
@@ -381,6 +382,7 @@ const CreditCardDetail = () => {
                 prose-strong:text-gray-900
                 prose-ul:pl-5
                 prose-li:marker:text-red-500
+                text-sm md:text-base
               "
               dangerouslySetInnerHTML={{
                 __html: data.termsDocument,

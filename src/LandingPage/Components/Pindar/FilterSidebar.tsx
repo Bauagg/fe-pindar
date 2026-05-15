@@ -1,6 +1,6 @@
 // components/FilterSidebar.tsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiFilter, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface Props {
@@ -10,6 +10,20 @@ interface Props {
 
 const FilterSidebar = ({ filters, setFilters }: Props) => {
   const [open, setOpen] = useState(false);
+
+  // TEMP FILTER
+  const [tempFilters, setTempFilters] = useState(filters);
+
+  // SYNC ketika parent berubah
+  useEffect(() => {
+    setTempFilters(filters);
+  }, [filters]);
+
+  // APPLY FILTER
+  const handleApply = () => {
+    setFilters(tempFilters);
+    setOpen(false);
+  };
 
   const FilterContent = () => (
     <div className="space-y-6">
@@ -23,25 +37,17 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
             { label: "Pinjaman Kecil", value: "small" },
             { label: "Pinjaman Besar", value: "large" },
           ].map((item) => (
-            <label
-              key={item.value}
-              className="
-                flex items-center gap-3 cursor-pointer
-                group
-              ">
+            <label key={item.value} className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="radio"
-                checked={filters.selectedLoanAmounts === item.value}
+                checked={tempFilters.selectedLoanAmounts === item.value}
                 onChange={() =>
-                  setFilters({
-                    ...filters,
+                  setTempFilters({
+                    ...tempFilters,
                     selectedLoanAmounts: item.value,
                   })
                 }
-                className="
-                  w-4 h-4
-                  accent-red-500
-                "
+                className="w-4 h-4 accent-red-500"
               />
 
               <span className="text-sm text-gray-700 group-hover:text-red-500 transition">{item.label}</span>
@@ -57,16 +63,22 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
         <div className="space-y-3">
           {[
             { label: "Semua", value: "" },
-            { label: "Full Payment", value: "full_payment" },
-            { label: "Periodic Payment", value: "periodic_payment" },
+            {
+              label: "Full Payment",
+              value: "full_payment",
+            },
+            {
+              label: "Periodic Payment",
+              value: "periodic_payment",
+            },
           ].map((item) => (
             <label key={item.value} className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="radio"
-                checked={filters.selectedPayments === item.value}
+                checked={tempFilters.selectedPayments === item.value}
                 onChange={() =>
-                  setFilters({
-                    ...filters,
+                  setTempFilters({
+                    ...tempFilters,
                     selectedPayments: item.value,
                   })
                 }
@@ -85,16 +97,22 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
 
         <div className="space-y-3">
           {[
-            { label: "Plafond Tertinggi", value: "desc" },
-            { label: "Plafond Terendah", value: "asc" },
+            {
+              label: "Plafond Tertinggi",
+              value: "desc",
+            },
+            {
+              label: "Plafond Terendah",
+              value: "asc",
+            },
           ].map((item) => (
             <label key={item.value} className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="radio"
-                checked={filters.selectedPlafond === item.value}
+                checked={tempFilters.selectedPlafond === item.value}
                 onChange={() =>
-                  setFilters({
-                    ...filters,
+                  setTempFilters({
+                    ...tempFilters,
                     selectedPlafond: item.value,
                   })
                 }
@@ -177,7 +195,7 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
             {/* BUTTON */}
             <div className="pt-6">
               <button
-                onClick={() => setOpen(false)}
+                onClick={handleApply}
                 className="
                   w-full
                   py-3
@@ -229,6 +247,27 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
           </div>
 
           <FilterContent />
+
+          {/* APPLY BUTTON DESKTOP */}
+          <div className="pt-8">
+            <button
+              onClick={handleApply}
+              className="
+                w-full
+                py-3
+                rounded-2xl
+                bg-gradient-to-r
+                from-red-500
+                to-rose-500
+                text-white
+                font-bold
+                shadow-lg
+                hover:scale-[1.02]
+                transition-all duration-300
+              ">
+              Terapkan Filter
+            </button>
+          </div>
         </aside>
       </div>
     </>

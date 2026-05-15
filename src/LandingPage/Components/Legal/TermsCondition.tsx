@@ -90,32 +90,34 @@ const TermsCondition = () => {
         <div>
           <p className="text-red-500 font-bold uppercase text-sm">Terms & Condition</p>
 
-          <h2 className="text-3xl font-black text-gray-800">Syarat & Ketentuan</h2>
+          <h2 className="text-xl md:text-3xl font-black text-gray-800">Syarat & Ketentuan</h2>
 
-          <p className="mt-2 text-gray-500">Terakhir diperbarui: 11 Mei 2026</p>
+          <p className="mt-2 text-gray-500 text-xs md:text-sm">Terakhir diperbarui: 11 Mei 2026</p>
         </div>
       </div>
 
       {/* INTRO */}
       <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-100 rounded-[2rem] p-6 lg:p-8 mb-8">
-        <p className="text-gray-700 leading-relaxed text-lg">Selamat datang di Pindar. Dengan mengakses dan menggunakan platform Pindar, Anda dianggap telah membaca, memahami, dan menyetujui seluruh Syarat & Ketentuan berikut.</p>
+        <p className="text-gray-700 leading-relaxed  text-sm md:text-base">
+          Selamat datang di Pindar. Dengan mengakses dan menggunakan platform Pindar, Anda dianggap telah membaca, memahami, dan menyetujui seluruh Syarat & Ketentuan berikut.
+        </p>
       </div>
 
       {/* CONTENT */}
       <div className="space-y-6">
         {sections.map((section, index) => (
           <div key={index} className="bg-white border border-gray-100 rounded-[2rem] shadow-lg p-6 lg:p-8">
-            <h3 className="text-2xl font-black text-gray-800">
+            <h3 className="text-xl md:text-2xl font-black text-gray-800">
               {index + 1}. {section.title}
             </h3>
 
             {section.content && (
-              <div className="mt-5 space-y-4">
+              <div className="mt-5 space-y-4 ">
                 {section.content
                   .trim()
                   .split("\n\n")
                   .map((paragraph, idx) => (
-                    <p key={idx} className="text-gray-700 leading-relaxed">
+                    <p key={idx} className="text-gray-700 leading-relaxed  text-sm md:text-base">
                       {paragraph.trim()}
                     </p>
                   ))}
@@ -130,7 +132,7 @@ const TermsCondition = () => {
                       <CircleCheck className="w-4 h-4 text-green-600" />
                     </div>
 
-                    <p className="text-gray-700 leading-relaxed">{item}</p>
+                    <p className="text-gray-700 leading-relaxed  text-sm md:text-base">{item}</p>
                   </div>
                 ))}
               </div>

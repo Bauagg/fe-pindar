@@ -81,26 +81,26 @@ const PrivacyPolicy = () => {
         <div>
           <p className="text-red-500 font-bold uppercase text-sm">Privacy Policy</p>
 
-          <h2 className="text-3xl font-black text-gray-800">Kebijakan Privasi</h2>
+          <h2 className="text-xl md:text-3xl font-black text-gray-800">Kebijakan Privasi</h2>
 
-          <p className="mt-2 text-gray-500">Terakhir diperbarui: 11 Mei 2026</p>
+          <p className="mt-2 text-gray-500  text-xs md:text-base">Terakhir diperbarui: 11 Mei 2026</p>
         </div>
       </div>
 
       {/* INTRO */}
       <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-100 rounded-[2rem] p-6 lg:p-8 mb-8">
-        <p className="text-gray-700 leading-relaxed text-lg">Pindar menghargai privasi pengguna dan berkomitmen melindungi informasi yang diperoleh melalui penggunaan platform.</p>
+        <p className="text-gray-700 leading-relaxed  text-sm md:text-base">Pindar menghargai privasi pengguna dan berkomitmen melindungi informasi yang diperoleh melalui penggunaan platform.</p>
 
-        <p className="mt-4 text-gray-700 leading-relaxed">Kebijakan Privasi ini menjelaskan bagaimana Pindar mengumpulkan, menggunakan, dan melindungi informasi pengguna dalam penggunaan layanan Pindar.</p>
+        <p className="mt-4 text-gray-700 leading-relaxed  text-sm md:text-base">Kebijakan Privasi ini menjelaskan bagaimana Pindar mengumpulkan, menggunakan, dan melindungi informasi pengguna dalam penggunaan layanan Pindar.</p>
 
-        <p className="mt-4 text-gray-700 leading-relaxed font-semibold">Dengan mengakses dan menggunakan platform Pindar, Anda menyetujui Kebijakan Privasi ini.</p>
+        <p className="mt-4 text-gray-700 leading-relaxed font-semibold  text-sm md:text-base">Dengan mengakses dan menggunakan platform Pindar, Anda menyetujui Kebijakan Privasi ini.</p>
       </div>
 
       {/* CONTENT */}
       <div className="space-y-6">
         {sections.map((section, index) => (
           <div key={index} className="bg-white border border-gray-100 rounded-[2rem] shadow-lg p-6 lg:p-8">
-            <h3 className="text-2xl font-black text-gray-800">
+            <h3 className="text-xlmd:text-2xl font-black text-gray-800">
               {index + 1}. {section.title}
             </h3>
 
@@ -110,7 +110,7 @@ const PrivacyPolicy = () => {
                   .trim()
                   .split("\n\n")
                   .map((paragraph, idx) => (
-                    <p key={idx} className="text-gray-700 leading-relaxed">
+                    <p key={idx} className="text-gray-700 leading-relaxed  text-sm md:text-base">
                       {paragraph.trim()}
                     </p>
                   ))}
@@ -125,7 +125,7 @@ const PrivacyPolicy = () => {
                       <CircleCheck className="w-4 h-4 text-green-600" />
                     </div>
 
-                    <p className="text-gray-700 leading-relaxed">{item}</p>
+                    <p className="text-gray-700 leading-relaxed  text-sm md:text-base">{item}</p>
                   </div>
                 ))}
               </div>

@@ -94,12 +94,12 @@ const EducationLanding = () => {
                     hover:-translate-y-2
                   ">
                   {/* IMAGE */}
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-44 md:h-64 overflow-hidden">
                     <img
                       src={`${baseURL}/api${item.imageLink}`}
                       alt={item.title}
                       className="
-                        w-full h-full object-cover
+                        w-full h-44 md:h-full object-cover
                         group-hover:scale-110
                         transition-transform duration-700
                       "

@@ -27,9 +27,9 @@ const LegalPage = () => {
 
         <div className="relative max-w-7xl mx-auto px-4 lg:px-8 py-16 lg:py-24">
           <div className="max-w-3xl mt-12">
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">Legal Information</h1>
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">Legal Information</h1>
 
-            <p className="mt-6 text-white/90 text-lg leading-relaxed">Informasi legal, kebijakan privasi, dan tentang platform.</p>
+            <p className="mt-6 text-white/90 text-base md:text-lg leading-relaxed">Informasi legal, kebijakan privasi, dan tentang platform.</p>
           </div>
         </div>
       </section>

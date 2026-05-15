@@ -101,12 +101,12 @@ const EducationList = () => {
 
         <div className="flex items-center justify-center h-[70vh]">
           <div className="flex flex-col items-center gap-5">
-            <div className="w-16 h-16 border-[6px] border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+            <div className="w-14 md:w-16 h-14 md:h-16 border-[6px] border-red-200 border-t-red-600 rounded-full animate-spin"></div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-800">Memuat Edukasi</h2>
+              <h2 className="text-xl md:text-2xl font-black text-gray-800">Memuat Edukasi</h2>
 
-              <p className="text-gray-500 mt-2">Sedang mengambil data edukasi...</p>
+              <p className="text-gray-500 mt-2 text-sm md:text-base">Sedang mengambil data edukasi...</p>
             </div>
           </div>
         </div>
@@ -133,19 +133,19 @@ const EducationList = () => {
                 inline-flex items-center gap-2
                 bg-white/20 border border-white/20
                 backdrop-blur-md
-                px-4 py-2 rounded-full
-                text-white font-semibold mb-6
+                px-3 md:px-4 py-2 rounded-full
+                text-white font-semibold mb-6 text-sm md:text-base
               ">
               <BookOpen className="w-4 h-4" />
               Edukasi Finansial
             </div>
 
-            <h1 className="text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">
               Belajar Finansial
               <span className="block">Lebih Aman & Cerdas</span>
             </h1>
 
-            <p className="mt-6 text-white/90 text-lg leading-relaxed">Kumpulan edukasi mengenai pinjaman daring, fintech, keamanan digital, dan tips finansial untuk membantu Anda mengambil keputusan yang lebih bijak.</p>
+            <p className="mt-6 text-white/90 text-sm md:text-base leading-relaxed">Kumpulan edukasi mengenai pinjaman daring, fintech, keamanan digital, dan tips finansial untuk membantu Anda mengambil keputusan yang lebih bijak.</p>
 
             {/* SEARCH */}
             <div
@@ -156,7 +156,7 @@ const EducationList = () => {
                 shadow-2xl
               ">
               <div className="px-4 text-gray-400">
-                <Search className="w-5 h-5" />
+                <Search className="w-4 md:w-5 h-4 md:h-5" />
               </div>
 
               <input
@@ -167,7 +167,7 @@ const EducationList = () => {
                 className="
                   w-full bg-transparent
                   outline-none
-                  py-3 text-gray-700
+                  py-2 md:py-3 text-gray-700
                 "
               />
             </div>
@@ -188,7 +188,7 @@ const EducationList = () => {
                 shadow-xl
                 p-4 mb-6
               ">
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 text-sm md:text-base">
                 <button
                   onClick={() => setActiveCategory("All")}
                   className={`
