@@ -24,25 +24,28 @@ const SearchPopup = ({ open, onClose }: Props) => {
 
   const baseURL = process.env.REACT_APP_API_BASE_URL;
 
-  const fetchLenders = useCallback(async (keyword = "") => {
-    try {
-      setLoading(true);
+  const fetchLenders = useCallback(
+    async (keyword = "") => {
+      try {
+        setLoading(true);
 
-      const endpoint = keyword.trim() ? `${baseURL}/api/lender/list?search=${encodeURIComponent(keyword)}` : `${baseURL}/api/lender/list?limit=3`;
+        const endpoint = keyword.trim() ? `${baseURL}/api/lender/list?search=${encodeURIComponent(keyword)}` : `${baseURL}/api/lender/list?limit=3`;
 
-      const response = await fetch(endpoint);
+        const response = await fetch(endpoint);
 
-      const result = await response.json();
+        const result = await response.json();
 
-      // FIX RESPONSE
-      setData(Array.isArray(result?.data?.lenders) ? result.data.lenders : []);
-    } catch (error) {
-      console.error(error);
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [baseURL]);
+        // FIX RESPONSE
+        setData(Array.isArray(result?.data?.lenders) ? result.data.lenders : []);
+      } catch (error) {
+        console.error(error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [baseURL]
+  );
 
   // OPEN POPUP => LOAD DEFAULT
   useEffect(() => {
@@ -95,9 +98,9 @@ const SearchPopup = ({ open, onClose }: Props) => {
 
           <div className="relative p-5 sm:p-6 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">Cari Pindar</h2>
+              <h2 className="text-xl sm:text-3xl font-black text-white">Cari Pindar</h2>
 
-              <p className="text-white/80 mt-1 text-sm sm:text-base">Temukan platform pinjaman terbaik & terpercaya</p>
+              <p className="text-white/80 mt-1 text-xs sm:text-base">Temukan platform pinjaman terbaik & terpercaya</p>
             </div>
 
             <button
@@ -120,7 +123,7 @@ const SearchPopup = ({ open, onClose }: Props) => {
         {/* SEARCH */}
         <div className="p-4 sm:p-5 border-b border-gray-100">
           <div className="relative">
-            <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-base md:text-lg" />
 
             <input
               autoFocus
@@ -151,17 +154,15 @@ const SearchPopup = ({ open, onClose }: Props) => {
             <div className="flex flex-col items-center justify-center py-16">
               <div className="w-12 h-12 border-4 border-red-200 border-t-red-500 rounded-full animate-spin"></div>
 
-              <p className="mt-5 text-gray-500 font-medium">Sedang mencari pindar...</p>
+              <p className="mt-5 text-gray-500 font-medium text-sm md:text-base">Sedang mencari pindar...</p>
             </div>
           ) : data.length === 0 ? (
             <div className="py-16 text-center">
               <div className="w-20 h-20 rounded-full bg-red-50 mx-auto flex items-center justify-center">
-                <FiSearch className="text-red-500 text-3xl" />
+                <FiSearch className="text-red-500 text-2xl md:text-3xl" />
               </div>
 
-              <h3 className="mt-5 text-xl font-black text-gray-800">Tidak Ditemukan</h3>
-
-              <p className="mt-2 text-gray-500">Coba gunakan kata kunci lain</p>
+              <h3 className="mt-5 text-lg md:text-xl font-black text-gray-800">Tidak Ditemukan</h3>
             </div>
           ) : (
             <div className="space-y-4">
