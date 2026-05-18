@@ -9,6 +9,7 @@ import JenisGerai from "../Components/JenisGerai";
 import HeroSection from "../Components/Hero";
 import RekomendasiApp from "../Components/pinjamanDaring/RecomentPinjaman";
 import EducationLanding from "../Components/Education/EducationLanding";
+import RekomendasiCreditCard from "../Components/RecomentCC/RecomentCC";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -24,6 +25,9 @@ const LandingPageUdin: React.FC = () => {
           </div>
           <div>
             <RekomendasiApp />
+          </div>
+          <div>
+            <RekomendasiCreditCard />
           </div>
 
           <div>

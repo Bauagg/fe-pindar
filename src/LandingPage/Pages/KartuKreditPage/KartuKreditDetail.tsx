@@ -374,16 +374,46 @@ const CreditCardDetail = () => {
               </div>
             </div>
 
+            {/* CONTENT */}
             <div
               className="
-                prose max-w-none
-                prose-p:text-gray-700
-                prose-li:text-gray-700
-                prose-strong:text-gray-900
-                prose-ul:pl-5
-                prose-li:marker:text-red-500
-                text-sm md:text-base
-              "
+      [&>p:first-child]:hidden
+
+      [&_ol]:space-y-4
+      [&_ol]:list-none
+      [&_ol]:p-0
+      [&_ol]:m-0
+
+      [&_li]:bg-white
+      [&_li]:border
+      [&_li]:border-gray-100
+      [&_li]:rounded-2xl
+      [&_li]:p-4
+      [&_li]:sm:p-5
+      [&_li]:shadow-sm
+      [&_li]:flex
+      [&_li]:gap-4
+      [&_li]:items-start
+      [&_li]:text-sm
+      [&_li]:sm:text-base
+      [&_li]:leading-relaxed
+      [&_li]:text-gray-700
+
+      [&_li::before]:content-['✓']
+      [&_li::before]:min-w-8
+      [&_li::before]:h-8
+      [&_li::before]:rounded-xl
+      [&_li::before]:bg-red-50
+      [&_li::before]:text-red-500
+      [&_li::before]:font-bold
+      [&_li::before]:flex
+      [&_li::before]:items-center
+      [&_li::before]:justify-center
+      [&_li::before]:text-sm
+
+      [&_strong]:text-gray-900
+      [&_strong]:font-bold
+    "
               dangerouslySetInnerHTML={{
                 __html: data.termsDocument,
               }}
