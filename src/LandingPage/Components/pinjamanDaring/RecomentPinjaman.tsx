@@ -84,7 +84,7 @@ const RekomendasiApp = () => {
                 group bg-white
                 rounded-2xl
                 p-3 md:p-5
-                shadow-md
+                shadow-xl
                 hover:shadow-xl
                 transition-all duration-300
                 hover:-translate-y-1

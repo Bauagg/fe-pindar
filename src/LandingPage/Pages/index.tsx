@@ -3,13 +3,13 @@ import React from "react";
 // import About from "../Components/Fitur";
 import Footer from "../Components/Footer";
 import Navbar from "../Components/Navbar";
-import Satuan from "../Components/About/Satuan";
-import JenisGerai from "../Components/JenisGerai";
 
 import HeroSection from "../Components/Hero";
 import RekomendasiApp from "../Components/pinjamanDaring/RecomentPinjaman";
 import EducationLanding from "../Components/Education/EducationLanding";
 import RekomendasiCreditCard from "../Components/RecomentCC/RecomentCC";
+import PopularPlus from "../Components/Iklan/popularplus";
+import PopularDeal from "../Components/Iklan/populardeal";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -35,11 +35,11 @@ const LandingPageUdin: React.FC = () => {
           </div>
 
           <div>
-            <Satuan />
+            <PopularPlus />
           </div>
 
           <div>
-            <JenisGerai />
+            <PopularDeal />
           </div>
 
           <Footer />
