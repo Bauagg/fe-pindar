@@ -85,7 +85,7 @@ p-6 sm:p-6 md:p-12
           text-md sm:text-xl md:text-3xl
           leading-tight
         ">
-                Trending Education
+                Pindar Trending Education
               </h2>
               <p
                 className="

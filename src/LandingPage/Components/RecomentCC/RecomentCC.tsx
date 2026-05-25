@@ -118,7 +118,7 @@ const RekomendasiCreditCard = () => {
           hover:-translate-y-1
           overflow-hidden
         ">
-                  <div className="w-full aspect-square flex items-center justify-center">
+                  <div className="w-full h-24 flex items-center justify-center">
                     <img
                       src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`}
                       alt={app.title}
@@ -130,7 +130,7 @@ const RekomendasiCreditCard = () => {
                     />
                   </div>
 
-                  <div className="md:mt-4 text-center">
+                  <div className="mt-4 text-center">
                     <p className="text-sm font-semibold text-gray-800 line-clamp-1">{app.title}</p>
                   </div>
                 </Link>
