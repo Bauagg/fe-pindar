@@ -84,7 +84,7 @@ const BankLoanMaintenance = () => {
                 max-w-2xl
                 mx-auto lg:mx-0
               ">
-              Nantinya Anda dapat membandingkan bunga, tenor, limit pinjaman, hingga simulasi cicilan dari berbagai bank terpercaya dalam satu platform modern.
+              Nantinya Anda dapat membandingkan bunga, limit pinjaman, hingga simulasi cicilan dari berbagai bank terpercaya dalam satu platform modern.
             </p>
 
             {/* INFO */}
