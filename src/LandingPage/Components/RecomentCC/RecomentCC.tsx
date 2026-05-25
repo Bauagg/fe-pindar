@@ -86,11 +86,21 @@ const RekomendasiCreditCard = () => {
               delay: 3000,
               disableOnInteraction: false,
             }}
-            spaceBetween={20}
-            slidesPerView={2.3}
+            loop={apps.length > 3}
+            centeredSlides={true}
+            spaceBetween={16}
+            slidesPerView={1.35}
             breakpoints={{
-              640: { slidesPerView: 3.3 },
-              1024: { slidesPerView: 5 },
+              640: {
+                slidesPerView: 3.3,
+                centeredSlides: false,
+                spaceBetween: 20,
+              },
+              1024: {
+                slidesPerView: 5,
+                centeredSlides: false,
+                spaceBetween: 20,
+              },
             }}
             className="overflow-visible">
             {apps.map((app) => (
@@ -99,31 +109,29 @@ const RekomendasiCreditCard = () => {
                   to={`/creditcarddetail/${app.id}`}
                   rel="noopener noreferrer"
                   className="
-                    group block bg-white
-                    rounded-3xl
-                    p-6
-                    shadow-lg
-                    hover:shadow-2xl
-                    transition-all duration-300
-                    hover:-translate-y-1
-                    overflow-hidden
-                  ">
+          group block bg-white
+          rounded-3xl
+        p-6
+          shadow-lg
+          hover:shadow-2xl
+          transition-all duration-300
+          hover:-translate-y-1
+          overflow-hidden
+        ">
                   <div className="w-full aspect-square flex items-center justify-center">
                     <img
                       src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`}
                       alt={app.title}
                       className="
-                        w-24 h-24 object-contain
-                        transition-transform duration-300
-                        group-hover:scale-110
-                      "
+              w-44 md:w-24 md:h-24 object-contain
+              transition-transform duration-300
+              group-hover:scale-110
+            "
                     />
                   </div>
 
-                  <div className="mt-4 text-center">
+                  <div className="md:mt-4 text-center">
                     <p className="text-sm font-semibold text-gray-800 line-clamp-1">{app.title}</p>
-
-                    {/* <p className="text-xs text-gray-500 mt-1">{app.benefitName}</p> */}
                   </div>
                 </Link>
               </SwiperSlide>

@@ -52,7 +52,7 @@ const RekomendasiApp = () => {
   }, []);
 
   return (
-    <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-3">
+    <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">Aplikasi Rekomendasi</h2>

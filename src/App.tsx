@@ -12,6 +12,8 @@ import EducationDetail from "./LandingPage/Components/Education/EducationDetail"
 import EducationList from "./LandingPage/Components/Education/EducationAll";
 import TrendingEducation from "./LandingPage/Components/Education/EducationTrending";
 import BankLoanMaintenance from "./LandingPage/Pages/PinjamanBank/pinjamanBank";
+import ListPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/pinjamanbankfix";
+import DetailPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/detailPinjamanBank";
 
 const App = () => {
   return (
@@ -29,6 +31,11 @@ const App = () => {
         <Route path="/education" element={<EducationList />} />
         <Route path="/education/:id" element={<EducationDetail />} />
         <Route path="/education/trending" element={<TrendingEducation />} />
+        {/* PINJAMAN BANK FIX */}
+
+        <Route path="/pinjaman-bank" element={<ListPinjamanBank />} />
+        <Route path="/pinjaman-bank/:id" element={<DetailPinjamanBank />} />
+        {/* PINJAMAN BANK MAINTENANCE */}
         <Route path="/pinjamanbank" element={<BankLoanMaintenance />} />
       </Routes>
     </Router>

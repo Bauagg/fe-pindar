@@ -36,7 +36,7 @@ const PopularDeal = () => {
   }, []);
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-1 md:px-3 pt-10">
+    <section className="w-full max-w-6xl mx-auto px-1 md:px-3">
       {/* HEADER */}
       <div className="px-6 flex items-center justify-between mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">Popular Deal</h2>
@@ -45,12 +45,18 @@ const PopularDeal = () => {
       {/* SWIPER */}
       <div className="relative px-6">
         <Swiper
+          key={apps.length}
           modules={[Pagination, Autoplay]}
           autoplay={{
             delay: 5000,
             disableOnInteraction: false,
+            pauseOnMouseEnter: false,
           }}
-          loop
+          loop={apps.length > 4}
+          watchOverflow={false}
+          observer={true}
+          observeParents={true}
+          resizeObserver={true}
           pagination={{ clickable: true }}
           slidesPerView={2}
           spaceBetween={12}
@@ -65,9 +71,18 @@ const PopularDeal = () => {
               spaceBetween: 20,
             },
           }}
-          className="pb-12">
-          {apps.map((app, index) => (
-            <SwiperSlide key={index}>
+          onSwiper={(swiper) => {
+            setTimeout(() => {
+              swiper.update();
+
+              if (swiper.autoplay) {
+                swiper.autoplay.start();
+              }
+            }, 100);
+          }}
+          className="!pb-12">
+          {apps.map((app) => (
+            <SwiperSlide key={app.id} className="!h-auto">
               <a href={app.url} target="_blank" rel="noopener noreferrer" className="block rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105">
                 <img src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`} alt="Popular Deal" className="w-full h-[180px] md:h-[200px] lg:h-[300px] object-cover" />
               </a>

@@ -34,11 +34,11 @@ const PopularPlus = () => {
   }, []);
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-1 md:px-3">
+    <section className="w-full max-w-6xl mx-auto ">
       {/* HEADER */}
-      <div className="px-6 flex items-center justify-between mb-6">
+      {/* <div className="px-6 flex items-center justify-between mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">Popular Plus</h2>
-      </div>
+      </div> */}
 
       {/* SWIPER */}
       <div className="relative px-6">
@@ -72,11 +72,11 @@ const PopularPlus = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`
-                    block rounded-3xl overflow-hidden
-                    transition-all duration-500
-                    lg:${isActive ? "scale-100 opacity-100" : "scale-90 opacity-60"}
-                  `}>
-                  <img src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`} alt="Popular Plus" className="w-full h-[180px] md:h-[300px] object-cover" />
+  block rounded-3xl overflow-hidden
+  transition-all duration-500
+  ${isActive ? "lg:scale-100 lg:opacity-100" : "lg:scale-90 lg:opacity-60"}
+`}>
+                  <img src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`} alt="Popular Plus" className="w-full h-[150px] md:h-[300px] object-cover" />
                 </a>
               )}
             </SwiperSlide>

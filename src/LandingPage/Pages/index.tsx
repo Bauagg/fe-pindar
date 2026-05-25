@@ -10,6 +10,7 @@ import EducationLanding from "../Components/Education/EducationLanding";
 import RekomendasiCreditCard from "../Components/RecomentCC/RecomentCC";
 import PopularPlus from "../Components/Iklan/popularplus";
 import PopularDeal from "../Components/Iklan/populardeal";
+import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinjamanBank";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -23,19 +24,22 @@ const LandingPageUdin: React.FC = () => {
           <div>
             <HeroSection />
           </div>
+
+          <div className="mt-6 md:mt-12">
+            <PopularPlus />
+          </div>
           <div>
             <RekomendasiApp />
           </div>
           <div>
             <RekomendasiCreditCard />
           </div>
-
           <div>
-            <EducationLanding />
+            <RekomendasiPinjamanBank />
           </div>
 
           <div>
-            <PopularPlus />
+            <EducationLanding />
           </div>
 
           <div>
