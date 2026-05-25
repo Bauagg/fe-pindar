@@ -12,8 +12,7 @@ const RekomendasiPinjamanBank = () => {
     <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-1 md:px-3">
       <div
         className="
-          relative
-          overflow-hidden
+          relative overflow-hidden
           bg-gradient-to-br
           from-red-500
           via-red-600
@@ -44,56 +43,60 @@ const RekomendasiPinjamanBank = () => {
               disableOnInteraction: false,
             }}
             loop={dummyPinjamanBank.length > 5}
-            spaceBetween={20}
-            slidesPerView={2.3}
+            spaceBetween={14}
+            slidesPerView={2.15}
             breakpoints={{
               640: {
-                slidesPerView: 3.3,
-                spaceBetween: 20,
+                slidesPerView: 3.2,
+                spaceBetween: 16,
               },
               1024: {
-                slidesPerView: 5,
-                spaceBetween: 20,
+                slidesPerView: 4.5,
+                spaceBetween: 18,
               },
             }}
             pagination={{
               clickable: true,
             }}
             className="
-    overflow-visible
-    !pb-10
+              !pb-10
+              !overflow-visible
 
-    [&_.swiper-pagination-bullet]:!bg-white/40
-    [&_.swiper-pagination-bullet-active]:!bg-white
-  ">
+              [&_.swiper-pagination-bullet]:!bg-white/40
+              [&_.swiper-pagination-bullet-active]:!bg-white
+            ">
             {dummyPinjamanBank.map((item) => (
               <SwiperSlide key={item.id} className="pb-6 !h-auto">
                 <Link
                   to={`/pinjaman-bank/${item.id}`}
                   className="
                     group block bg-white
-                    rounded-3xl
-                    p-6
+                    rounded-2xl md:rounded-3xl
+                    p-4 md:p-6
+                    min-h-[180px] md:min-h-[220px]
                     shadow-lg
                     hover:shadow-2xl
                     transition-all duration-300
                     hover:-translate-y-1
                     overflow-hidden
                   ">
-                  <div className="w-full aspect-square flex items-center justify-center">
+                  {/* IMAGE */}
+                  <div className="w-full h-24 md:h-28 flex items-center justify-center">
                     <img
                       src={item.imageLink}
                       alt={item.namaBank}
                       className="
-                        w-24 h-24 object-contain
+                        w-20 h-20 md:w-24 md:h-24
+                        object-contain
                         transition-transform duration-300
                         group-hover:scale-110
                       "
                     />
                   </div>
 
+                  {/* TITLE */}
                   <div className="mt-4 text-center">
-                    <p className="text-sm font-semibold text-gray-800 line-clamp-1">{item.namaBank}</p>
+                    <p className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-1">{item.namaBank}</p>
                   </div>
                 </Link>
               </SwiperSlide>

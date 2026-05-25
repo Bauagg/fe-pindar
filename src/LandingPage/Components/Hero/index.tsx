@@ -14,7 +14,7 @@ const categories = [
   {
     title: "Pinjaman Bank",
     image: "/images/kartu.png",
-    link: "/pinjamanbank",
+    link: "/pinjaman-bank",
   },
 ];
 
