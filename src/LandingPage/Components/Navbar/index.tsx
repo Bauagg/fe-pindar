@@ -26,7 +26,7 @@ const Navbar = (): JSX.Element => {
     {
       to: "/",
       icon: <FiHome size={20} />,
-      label: "Home",
+      label: "Beranda",
     },
     {
       to: "/pindar",
@@ -43,15 +43,15 @@ const Navbar = (): JSX.Element => {
   const legalMenus = [
     {
       to: "/legal/terms",
-      label: "Terms & Condition",
+      label: "Syarat & Ketentuan",
     },
     {
       to: "/legal/privacy",
-      label: "Privacy Policy",
+      label: "Kebijakan Privasi",
     },
     {
       to: "/legal/about",
-      label: "About Us",
+      label: "Tentang Kami",
     },
   ];
 
@@ -83,7 +83,7 @@ const Navbar = (): JSX.Element => {
               shadow-md
             ">
             <FiSearch />
-            Search pindar...
+            Cari pindar...
           </button>
         </div>
 

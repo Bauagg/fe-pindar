@@ -60,10 +60,10 @@ const RekomendasiCreditCard = () => {
     <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-1 md:px-3">
       {/* HEADER */}
       <div className="px-6 flex items-center justify-between mb-8">
-        <h2 className="text-lg md:text-2xl font-bold text-gray-900">Rekomendasi Credit Card</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">Rekomendasi Kartu Kredit</h2>
 
         <NavLink to="/kartukredit" className="text-sm font-medium text-gray-700 hover:text-red-500 transition">
-          View all →
+          Lihat Semua
         </NavLink>
       </div>
 

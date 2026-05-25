@@ -79,8 +79,6 @@ const PrivacyPolicy = () => {
         </div>
 
         <div>
-          <p className="text-red-500 font-bold uppercase text-sm">Privacy Policy</p>
-
           <h2 className="text-xl md:text-3xl font-black text-gray-800">Kebijakan Privasi</h2>
 
           <p className="mt-2 text-gray-500  text-xs md:text-base">Terakhir diperbarui: 11 Mei 2026</p>

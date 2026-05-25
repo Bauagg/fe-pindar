@@ -38,9 +38,9 @@ const PopularDeal = () => {
   return (
     <section className="w-full max-w-6xl mx-auto px-1 md:px-3">
       {/* HEADER */}
-      <div className="px-6 flex items-center justify-between mb-6">
+      {/* <div className="px-6 flex items-center justify-between mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">Popular Deal</h2>
-      </div>
+      </div> */}
 
       {/* SWIPER */}
       <div className="relative px-6">

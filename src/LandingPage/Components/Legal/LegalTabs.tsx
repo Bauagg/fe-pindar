@@ -8,17 +8,17 @@ interface Props {
 const tabs = [
   {
     id: "about",
-    label: "About Us",
+    label: "Tentang",
     icon: Building2,
   },
   {
     id: "terms",
-    label: "Terms & Condition",
+    label: "Syarat & Ketentuan",
     icon: FileText,
   },
   {
     id: "privacy",
-    label: "Privacy Policy",
+    label: "Kebijakan Privasi",
     icon: ShieldCheck,
   },
 ];

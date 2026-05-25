@@ -88,8 +88,6 @@ const TermsCondition = () => {
         </div>
 
         <div>
-          <p className="text-red-500 font-bold uppercase text-sm">Terms & Condition</p>
-
           <h2 className="text-xl md:text-3xl font-black text-gray-800">Syarat & Ketentuan</h2>
 
           <p className="mt-2 text-gray-500 text-xs md:text-sm">Terakhir diperbarui: 11 Mei 2026</p>

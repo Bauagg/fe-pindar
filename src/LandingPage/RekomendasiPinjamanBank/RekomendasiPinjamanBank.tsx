@@ -30,7 +30,7 @@ const RekomendasiPinjamanBank = () => {
           <h2 className="text-lg md:text-2xl font-bold text-white">Pinjaman Bank</h2>
 
           <NavLink to="/pinjaman-bank" className="text-sm font-medium text-white/90 hover:text-white transition">
-            View all →
+            Lihat Semua
           </NavLink>
         </div>
 

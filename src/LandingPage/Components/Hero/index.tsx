@@ -85,15 +85,8 @@ p-6 sm:p-6 md:p-12
           text-md sm:text-xl md:text-3xl
           leading-tight
         ">
-                Pindar Trending Education
+                Pindar Trending Edukasi
               </h2>
-              <p
-                className="
-          mt-1 text-white/80
-          text-xs sm:text-sm
-        ">
-                Last Date 11/05/2026
-              </p>
             </div>
 
             {/* RIGHT BUTTON */}
@@ -111,7 +104,7 @@ p-6 sm:p-6 md:p-12
         transition font-medium
         whitespace-nowrap
       ">
-              View all →
+              Lihat Semua →
             </NavLink>
           </div>
         </div>

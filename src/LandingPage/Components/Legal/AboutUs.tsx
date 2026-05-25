@@ -18,8 +18,6 @@ const AboutUs = () => {
           </div>
 
           <div>
-            <p className="text-red-500 font-bold uppercase text-xs sm:text-sm">About Us</p>
-
             <h2
               className="
                 text-xl
