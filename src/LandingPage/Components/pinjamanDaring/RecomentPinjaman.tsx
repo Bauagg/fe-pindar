@@ -55,7 +55,7 @@ const RekomendasiApp = () => {
     <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg md:text-2xl font-bold text-gray-900">Rekomendasi Aplikasi</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">Pinjaman Pindar</h2>
 
         <NavLink to="/pindar" className="text-sm font-medium text-gray-700 hover:text-red-500 transition">
           Lihat Semua

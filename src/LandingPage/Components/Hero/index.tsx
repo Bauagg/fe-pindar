@@ -22,7 +22,7 @@ const HeroUdin = () => {
   return (
     <section className="relative w-full overflow-hidden bg-white -mt-10">
       {/* ===== BACKGROUND MERAH SETENGAH ===== */}
-      <div className="absolute top-0 left-0 w-full max-sm:h-[45%] h-[40%] bg-red-500 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px]" />
+      <div className="absolute top-0 left-0 w-full max-sm:h-[45%] h-[40%] bg-red-600 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px]" />
 
       {/* ===== CONTENT ===== */}
       <div className="relative z-10">
@@ -85,7 +85,7 @@ p-6 sm:p-6 md:p-12
           text-md sm:text-xl md:text-3xl
           leading-tight
         ">
-                Pindar Trending Edukasi
+                Edukasi Pindar
               </h2>
             </div>
 

@@ -20,7 +20,7 @@ const LoanList = ({ data, selected, onCompare, loading }: Props) => {
   // =========================
   if (loading && data.length === 0) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {[...Array(6)].map((_, index) => (
           <LoanCardSkeleton key={index} />
         ))}
@@ -115,7 +115,7 @@ const LoanList = ({ data, selected, onCompare, loading }: Props) => {
   return (
     <>
       {/* CARD LIST */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-sm:gap-2">
         {data.map((item) => (
           <LoanCard key={item.id} data={item} onCompare={onCompare} checked={selected.some((x) => x.id === item.id)} />
         ))}
