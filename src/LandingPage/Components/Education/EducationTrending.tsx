@@ -26,6 +26,11 @@ const TrendingEducation = () => {
   const [loading, setLoading] = useState(true);
 
   const [contents, setContents] = useState<ContentItem[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleTitle = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
 
   useEffect(() => {
     const fetchContents = async () => {
@@ -101,7 +106,7 @@ const TrendingEducation = () => {
               Trending Education
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight">
               Edukasi Trending
               <span className="block">Paling Populer</span>
             </h1>
@@ -137,7 +142,7 @@ const TrendingEducation = () => {
                   <div>
                     <p className="text-red-500 font-bold uppercase text-sm">Most Popular</p>
 
-                    <h2 className="text-xl md:text-3xl font-black text-gray-800">Trending Hari Ini</h2>
+                    <h2 className="text-xl md:text-2xl font-black text-gray-800">Trending Hari Ini</h2>
                   </div>
                 </div>
               </div>
@@ -225,14 +230,9 @@ const TrendingEducation = () => {
 
                 {/* BODY */}
                 <div className="p-6">
-                  <h2
-                    className="
-                      text-xl md:text-2xl font-black text-gray-800
-                      leading-snug line-clamp-2
-                    ">
-                    {item.title}
+                  <h2 onClick={() => toggleTitle(item.id)} className="text-xl md:text-xl font-black text-gray-800 leading-snug cursor-pointer">
+                    {expandedId === item.id ? item.title : item.title.length > 25 ? item.title.slice(0, 25) + "..." : item.title}
                   </h2>
-
                   {/* META */}
                   <div
                     className="
@@ -244,10 +244,10 @@ const TrendingEducation = () => {
                       {formatDate(item.createdDate)}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                       <Eye className="w-4 h-4" />
                       {item.viewCount} views
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* BUTTON */}

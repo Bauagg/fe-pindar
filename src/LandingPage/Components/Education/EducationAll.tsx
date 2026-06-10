@@ -140,7 +140,7 @@ const EducationList = () => {
               Edukasi Finansial
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight">
               Belajar Finansial
               <span className="block">Lebih Aman & Cerdas</span>
             </h1>
@@ -283,10 +283,10 @@ const EducationList = () => {
                         {formatDate(item.createdDate)}
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      {/* <div className="flex items-center gap-1">
                         <Eye className="w-4 h-4" />
                         {item.viewCount}
-                      </div>
+                      </div> */}
                     </div>
 
                     <button

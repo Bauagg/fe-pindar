@@ -14,8 +14,8 @@ import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinja
 
 const LandingPageUdin: React.FC = () => {
   return (
-    <section className="font-signika max-w-[1440px] mx-auto ">
-      <div className="fixed top-0 left-0 w-full z-40 bg-white">
+    <section className="font-signika  mx-auto ">
+      <div className="fixed top-0 left-0 z-40 bg-white">
         <Navbar />
       </div>
 

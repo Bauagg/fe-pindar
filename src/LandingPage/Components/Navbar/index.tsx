@@ -65,7 +65,7 @@ const Navbar = (): JSX.Element => {
                 }`
               }>
               {item.icon}
-              <span className="absolute top-14 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1.5 rounded-xl bg-white text-red-500 text-xs font-bold shadow-lg opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none">
+              <span className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1.5 rounded-xl bg-white text-red-500 text-xs font-bold shadow-lg opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-[999999]">
                 {item.label}
               </span>
             </NavLink>

@@ -22,7 +22,7 @@ const HeroUdin = () => {
   return (
     <section className="relative w-full overflow-hidden bg-white -mt-10">
       {/* ===== BACKGROUND MERAH SETENGAH ===== */}
-      <div className="absolute top-0 left-0 w-full max-sm:h-[45%] h-[40%] bg-red-600 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px]" />
+      <div className="absolute top-0 left-0 w-full max-sm:h-[45%] h-[40%] bg-red-600 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px] " />
 
       {/* ===== CONTENT ===== */}
       <div className="relative z-10">
@@ -35,7 +35,7 @@ const HeroUdin = () => {
                   key={item.title}
                   to={item.link}
                   className="group bg-white rounded-2xl sm:rounded-3xl
-                     p-3 sm:p-4 md:p-8
+                     p-3 sm:p-4 md:p-7
                      shadow-lg hover:shadow-2xl
                      transition transform hover:-translate-y-1">
                   {/* ICON / IMAGE */}
@@ -46,7 +46,7 @@ const HeroUdin = () => {
                       className="
                 w-12 h-12
                 sm:w-16 sm:h-16
-                md:w-24 md:h-24
+                md:w-20 md:h-20
                 object-contain
               "
                     />
@@ -56,7 +56,7 @@ const HeroUdin = () => {
                   <h3
                     className="
               text-center font-semibold text-gray-800
-              text-xs sm:text-sm md:text-xl
+              text-xs sm:text-sm md:text-lg
               group-hover:text-red-500 transition
               leading-tight
             ">
@@ -70,19 +70,13 @@ const HeroUdin = () => {
 
         {/* ================= TRENDING ================= */}
         <div className="max-sm:mt-5 mt-10 px-4 sm:px-6 max-w-6xl mx-auto">
-          <div
-            className=" bg-gradient-to-r from-red-600 to-red-500 rounded-2xl sm:rounded-3xl
-p-6 sm:p-6 md:p-12
-      flex items-center justify-between
-      gap-3 sm:gap-4 md:gap-6
-      shadow-xl
-    ">
+          <div className=" bg-gradient-to-r from-red-600 to-red-500 rounded-2xl sm:rounded-3xl p-6 sm:p-6 md:p-6 flex items-center justify-between gap-3 sm:gap-4 md:gap-6 shadow-xl">
             {/* LEFT */}
             <div className="min-w-0">
               <h2
                 className="
           text-white font-bold
-          text-md sm:text-xl md:text-3xl
+          text-md sm:text-xl md:text-2xl
           leading-tight
         ">
                 Edukasi Pindar
@@ -96,8 +90,8 @@ p-6 sm:p-6 md:p-12
         shrink-0
         inline-flex items-center gap-2
         border border-white text-white
-        px-3 sm:px-4 md:px-6
-        py-2 sm:py-2.5 md:py-3
+        px-3 sm:px-4 md:px-5
+        py-2 sm:py-2.5 md:py-2
         rounded-full
         text-xs sm:text-sm md:text-base
         hover:bg-white hover:text-red-600

@@ -76,7 +76,7 @@ const PopularPlus = () => {
   transition-all duration-500
   ${isActive ? "lg:scale-100 lg:opacity-100" : "lg:scale-90 lg:opacity-60"}
 `}>
-                  <img src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`} alt="Popular Plus" className="w-full h-[150px] md:h-[300px] object-cover" />
+                  <img src={`${process.env.REACT_APP_API_BASE_URL}/api${app.imageLink}`} alt="Popular Plus" className="w-full h-[150px] md:h-[250px] object-cover" />
                 </a>
               )}
             </SwiperSlide>

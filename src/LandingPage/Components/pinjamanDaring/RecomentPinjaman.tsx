@@ -26,9 +26,16 @@ interface ApiResponse {
   };
 }
 
+const getItemsByDevice = (width: number) => {
+  if (width >= 1024) return 10; // desktop / laptop
+  if (width >= 768) return 8; // tablet
+  return 9; // hp
+};
+
 const RekomendasiApp = () => {
   const [apps, setApps] = useState<Lender[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [itemsToShow, setItemsToShow] = useState<number>(9);
 
   const limit = 9;
   const page = 1;
@@ -51,6 +58,18 @@ const RekomendasiApp = () => {
     fetchLenders();
   }, []);
 
+  // detect device resize
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsToShow(getItemsByDevice(window.innerWidth));
+    };
+
+    handleResize(); // initial set
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-6">
       {/* HEADER */}
@@ -68,24 +87,21 @@ const RekomendasiApp = () => {
           {[...Array(9)].map((_, index) => (
             <div key={index} className="bg-white rounded-2xl p-4 animate-pulse">
               <div className="w-full aspect-square bg-gray-200 rounded-xl" />
-
               <div className="h-3 bg-gray-200 rounded mt-3" />
             </div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {apps.map((app) => (
+          {apps.slice(0, itemsToShow).map((app) => (
             <Link
               key={app.id}
               to={`pindardetail/${app.id}`}
-              rel="noopener noreferrer"
               className="
                 group bg-white
                 rounded-2xl
                 p-3 md:p-5
                 shadow-xl
-                hover:shadow-xl
                 transition-all duration-300
                 hover:-translate-y-1
               ">
