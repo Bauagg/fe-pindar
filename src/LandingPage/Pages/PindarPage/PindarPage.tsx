@@ -10,6 +10,12 @@ import CompareBar from "../../Components/Pindar/comparebar";
 import { Lender } from "../../../types/lender";
 import { useLenders } from "../../../hooks/useLenders";
 
+// TODO: sesuaikan dengan nama field asli di tipe Lender (misal: maxLoanAmount / plafondMax / max_pinjaman)
+// dan threshold pembagi "Kecil" vs "Besar" sesuai kebutuhan bisnis.
+// TODO: sesuaikan threshold pembagi "Kecil" vs "Besar" sesuai kebutuhan bisnis.
+const LOAN_AMOUNT_FIELD: keyof Lender = "maxloan";
+const LOAN_AMOUNT_THRESHOLD = 10_000_000;
+
 const LoansPage = () => {
   const [selectedCompare, setSelectedCompare] = useState<Lender[]>([]);
 
@@ -21,14 +27,18 @@ const LoansPage = () => {
     key: "",
     selectedPlafond: "",
     selectedLoanAmounts: "",
-    selectedPayments: "",
   });
 
   // FETCH API
+  // NOTE: selectedLoanAmounts & selectedPayments sengaja selalu dikirim kosong ke backend —
+  // filter Jenis Pinjaman diproses di FE saja lewat `filteredLenders` di bawah, backend tidak perlu tau nilainya.
   const { lenders, loading, pagination } = useLenders({
     page,
     limit: 10,
-    ...filters,
+    key: filters.key,
+    selectedPlafond: filters.selectedPlafond,
+    selectedLoanAmounts: "",
+    selectedPayments: "",
   });
 
   // OBSERVER
@@ -37,7 +47,7 @@ const LoansPage = () => {
   // RESET PAGE WHEN FILTER CHANGED
   useEffect(() => {
     setPage(1);
-  }, [filters.key, filters.selectedLoanAmounts, filters.selectedPayments, filters.selectedPlafond]);
+  }, [filters.key, filters.selectedLoanAmounts, filters.selectedPlafond]);
 
   // INFINITE SCROLL
   useEffect(() => {
@@ -66,6 +76,21 @@ const LoansPage = () => {
       }
     };
   }, [loading, pagination, page]);
+
+  // FILTER JENIS PINJAMAN (FE ONLY) — berdasarkan Max Pinjaman
+  // FILTER JENIS PINJAMAN (FE ONLY) — berdasarkan Max Pinjaman
+  const filteredLenders = lenders.filter((item) => {
+    if (filters.selectedLoanAmounts === "") return true;
+
+    // maxloan bertipe string (bisa mengandung "Rp", titik, koma, dll) — strip dulu ke angka murni
+    const rawValue = String(item[LOAN_AMOUNT_FIELD] ?? "");
+    const maxAmount = Number(rawValue.replace(/[^0-9]/g, "")) || 0;
+
+    if (filters.selectedLoanAmounts === "small") return maxAmount <= LOAN_AMOUNT_THRESHOLD;
+    if (filters.selectedLoanAmounts === "large") return maxAmount > LOAN_AMOUNT_THRESHOLD;
+
+    return true;
+  });
 
   // COMPARE
   const handleCompare = (item: Lender) => {
@@ -110,7 +135,7 @@ const LoansPage = () => {
 
         {/* LIST */}
         <div className="lg:col-span-3">
-          <LoanList data={lenders} selected={selectedCompare} onCompare={handleCompare} loading={loading} />
+          <LoanList data={filteredLenders} selected={selectedCompare} onCompare={handleCompare} loading={loading} />
 
           {/* OBSERVER TARGET */}
           <div ref={loadMoreRef} className="h-10" />

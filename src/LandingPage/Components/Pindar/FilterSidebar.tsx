@@ -56,41 +56,6 @@ const FilterSidebar = ({ filters, setFilters }: Props) => {
         </div>
       </div>
 
-      {/* PAYMENT */}
-      <div>
-        <h3 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Payment</h3>
-
-        <div className="space-y-3">
-          {[
-            { label: "Semua", value: "" },
-            {
-              label: "Full Payment",
-              value: "full_payment",
-            },
-            {
-              label: "Periodic Payment",
-              value: "periodic_payment",
-            },
-          ].map((item) => (
-            <label key={item.value} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="radio"
-                checked={tempFilters.selectedPayments === item.value}
-                onChange={() =>
-                  setTempFilters({
-                    ...tempFilters,
-                    selectedPayments: item.value,
-                  })
-                }
-                className="w-4 h-4 accent-red-500"
-              />
-
-              <span className="text-sm text-gray-700 group-hover:text-red-500 transition">{item.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       {/* SORT */}
       <div>
         <h3 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Urutkan</h3>

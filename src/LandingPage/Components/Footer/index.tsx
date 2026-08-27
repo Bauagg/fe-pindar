@@ -58,7 +58,7 @@ const Footer = () => {
               <div>
                 <h2 className="text-xl sm:text-2xl font-black">PINDAR</h2>
 
-                <p className="text-red-100 text-sm">Platform Informasi Pinjaman Daring</p>
+                <p className="text-red-100 text-sm">Platform pilihan Pinjaman Daring</p>
               </div>
             </div>
 
