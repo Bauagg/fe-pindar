@@ -16,20 +16,25 @@ const categories = [
     image: "/images/kartu.png",
     link: "/pinjaman-bank",
   },
+  {
+    title: "Multifinance",
+    image: "/images/multifinance.png",
+    link: "/multi-finance",
+  },
 ];
 
 const HeroUdin = () => {
   return (
     <section className="relative w-full overflow-hidden bg-white -mt-10">
       {/* ===== BACKGROUND MERAH SETENGAH ===== */}
-      <div className="absolute top-0 left-0 w-full max-sm:h-[45%] h-[40%] bg-red-600 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px] " />
+      <div className="absolute top-0 left-0 w-full max-sm:h-[60%] h-[40%] bg-red-600 max-sm:rounded-ee-[50px] max-sm:rounded-es-[50px] rounded-ee-[120px] rounded-es-[120px] " />
 
       {/* ===== CONTENT ===== */}
       <div className="relative z-10">
         {/* ================= CATEGORY ================= */}
-        <div className="pt-16">
-          <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
-            <div className="grid grid-cols-3 gap-2 sm:gap-1 md:gap-8">
+        <div className="pt-5 md:pt-16">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 max-sm:mt-7">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-1 md:gap-8">
               {categories.map((item) => (
                 <NavLink
                   key={item.title}

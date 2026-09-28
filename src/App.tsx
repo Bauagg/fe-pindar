@@ -14,6 +14,7 @@ import TrendingEducation from "./LandingPage/Components/Education/EducationTrend
 import BankLoanMaintenance from "./LandingPage/Pages/PinjamanBank/pinjamanBank";
 import ListPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/pinjamanbankfix";
 import DetailPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/detailPinjamanBank";
+import MultiFinance from "./LandingPage/Pages/Multifinance/multifinance";
 
 const App = () => {
   return (
@@ -37,6 +38,9 @@ const App = () => {
         <Route path="/pinjaman-bank/:id" element={<DetailPinjamanBank />} />
         {/* PINJAMAN BANK MAINTENANCE */}
         <Route path="/pinjamanbank" element={<BankLoanMaintenance />} />
+
+        {/* MULTIFINANCE */}
+        <Route path="/multi-finance" element={<MultiFinance />} />
       </Routes>
     </Router>
   );
