@@ -5,7 +5,7 @@ import { ArrowRight, BadgeCheck, Bike, Car, CheckCircle2, Clock3, FileText, Info
 
 import Navbars from "../../Components/Navbar/index";
 
-type Layanan = "" | "Gadai BPKB" | "Jual Kendaraan Bekas" | "Take Over Kendaraan";
+type Layanan = "" | "Gadai BPKB" | "Beli Kendaraan (Second)" | "Take Over Kendaraan";
 type Jenis = "" | "Mobil" | "Motor";
 
 interface FormState {
@@ -23,7 +23,7 @@ const initialForm: FormState = { nama: "", email: "", telepon: "", layanan: "", 
 
 const layananList = [
   { value: "Gadai BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
-  { value: "Jual Kendaraan Bekas", desc: "Jual mobil atau motor bekas dengan harga terbaik.", icon: Tag },
+  { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor bekas dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
 
