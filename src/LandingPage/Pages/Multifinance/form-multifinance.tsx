@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Bike, Car, CheckCircle2, FileText, Loader2, Repeat, Tag, User, Phone, X, AlertTriangle } from "lucide-react";
+import FloatingWaButton from "./floatingwabutton";
 
 import Navbars from "../../Components/Navbar/index";
 
@@ -371,6 +372,8 @@ const MultiFinanceForm = () => {
           </div>
         </div>
       )}
+
+      <FloatingWaButton />
     </div>
   );
 };
