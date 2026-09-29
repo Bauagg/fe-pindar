@@ -121,7 +121,7 @@ const MultiFinanceForm = () => {
           <div className="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-700 px-5 sm:px-8 py-6 text-white">
               <p className="font-bold uppercase text-xs sm:text-sm text-white/80">Pengajuan</p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black">Formulir Pengajuan</h2>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black">Formulir Pengajuan Dana Tunai</h2>
               <p className="mt-1 text-sm text-white/90">Lengkapi data di bawah ini. Gunakan data yang sama dengan KTP.</p>
             </div>
 

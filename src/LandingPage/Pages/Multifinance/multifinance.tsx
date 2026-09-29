@@ -37,7 +37,7 @@ const MultiFinance = () => {
           <div className="grid md:grid-cols-2 gap-6 lg:gap-10 items-center mt-10 sm:mt-12">
             {/* LEFT */}
             <div>
-              <div className="inline-flex items-center gap-2 bg-white/20 border border-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white text-xs sm:text-sm font-semibold mb-5 mt-5">
+              <div className="inline-flex items-center gap-2 bg-white/20 border border-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white text-xs sm:text-sm font-semibold mb-5 mt-10">
                 <BadgeCheck className="w-4 h-4" />
                 Multi Finance Terverifikasi
               </div>
@@ -45,7 +45,7 @@ const MultiFinance = () => {
               <h1 className="text-3xl md:text-3xl lg:text-5xl font-black text-white leading-tight">Dapatkan Dana Tunai Sekarang !!</h1>
 
               <p className="mt-4 text-white/90 text-sm sm:text-base leading-relaxed max-w-xl">
-                Gadai Pindar Multifinance menerima semua jenis BPKB mobil dan motor dengan proses cepat dan transparan. Kamu juga bisa membeli kendaraan favorit kamu disini dan atau take over cicilan kamu. Semua bisa di Pindar!
+                Pindar Multifinance menerima semua jenis BPKB mobil dan motor dengan proses cepat dan transparan. Kamu juga bisa membeli kendaraan favorit kamu disini dan atau take over cicilan kamu. Semua bisa di Pindar!
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-7">
@@ -115,7 +115,7 @@ const MultiFinance = () => {
           </div>
 
           <p className="text-sm md:text-base text-gray-700 leading-relaxed max-w-3xl">
-            Pindar Aggregator Multifinance adalah platform digital yang mengintegrasikan berbagai perusahaan pembiayaan (multifinance) dalam satu sistem. Platform ini membantu pengguna atau mitra bisnis mengakses dan membandingkan berbagai
+            Pindar Multifinance adalah platform aggregator digital yang mengintegrasikan berbagai perusahaan pembiayaan (multifinance) dalam satu sistem. Platform ini membantu pengguna atau mitra bisnis mengakses dan membandingkan berbagai
             pilihan pembiayaan sesuai kebutuhan, sekaligus mempermudah proses pengajuan hingga mendapatkan produk pembiayaan yang sesuai.
           </p>
 
