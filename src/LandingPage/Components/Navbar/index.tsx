@@ -37,11 +37,11 @@ const Navbar = (): JSX.Element => {
         <div className="relative z-10 flex items-center gap-3 w-full lg:w-auto">
           {/* LOGO */}
           <NavLink to="/">
-            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.2)] overflow-hidden">
+            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-900/80 backdrop-blur-md border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.45)] overflow-hidden">
               {/* GLOW */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-60" />
 
-              <img src="/images/pindar.svg" alt="Logo" className="relative z-10 w-9 h-9 drop-shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
+              <img src="/images/pindar.svg" alt="Logo" className="relative z-10 w-9 h-9 " />
             </div>
           </NavLink>
 

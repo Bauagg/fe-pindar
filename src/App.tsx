@@ -15,6 +15,7 @@ import BankLoanMaintenance from "./LandingPage/Pages/PinjamanBank/pinjamanBank";
 import ListPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/pinjamanbankfix";
 import DetailPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/detailPinjamanBank";
 import MultiFinance from "./LandingPage/Pages/Multifinance/multifinance";
+import MultiFinanceForm from "./LandingPage/Pages/Multifinance/form-multifinance";
 
 const App = () => {
   return (
@@ -41,6 +42,7 @@ const App = () => {
 
         {/* MULTIFINANCE */}
         <Route path="/multi-finance" element={<MultiFinance />} />
+        <Route path="/multi-finance/form" element={<MultiFinanceForm />} />
       </Routes>
     </Router>
   );
