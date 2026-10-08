@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Bike, Car, CheckCircle2, FileText, Loader2, Repe
 import FloatingWaButton from "./floatingwabutton";
 
 import Navbars from "../../Components/Navbar/index";
+import { submitApplication } from "./multifinanceApi";
 
 type Layanan = "" | "Jaminkan BPKB" | "Beli Kendaraan (Second)" | "Take Over Kendaraan";
 type Jenis = "" | "Mobil" | "Motor";
@@ -36,6 +37,7 @@ const MultiFinanceForm = () => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [agree, setAgree] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [refNumber, setRefNumber] = useState("");
 
@@ -70,18 +72,26 @@ const MultiFinanceForm = () => {
     setTouched({ nama: true, telepon: true, layanan: true, jenis: true, merek: true, tipe: true, tahun: true });
     if (!isValid) return;
     setAgree(false);
+    setSubmitError("");
     setOpenConfirm(true);
   };
 
-  const handleConfirm = () => {
+  // Kirim ke API (tanpa login). Data tersimpan di database.
+  const handleConfirm = async () => {
+    if (submitting) return;
+    setSubmitError("");
     setSubmitting(true);
-    // DEMO: ganti dengan request API asli
-    setTimeout(() => {
-      setRefNumber(`MF-${Date.now().toString().slice(-8)}`);
-      setSubmitting(false);
+
+    try {
+      const result = await submitApplication(form);
+      setRefNumber(result.applicationNumber);
       setOpenConfirm(false);
       setOpenSuccess(true);
-    }, 1800);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Pengajuan gagal dikirim. Coba lagi.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCloseSuccess = () => {
@@ -321,6 +331,12 @@ const MultiFinanceForm = () => {
                 <span className="text-sm text-gray-700 leading-relaxed">Saya menyatakan bahwa data di atas benar dan sesuai dokumen asli, serta setuju dihubungi oleh pihak multi finance untuk proses pengajuan.</span>
               </label>
 
+              {submitError && (
+                <div role="alert" className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                  {submitError}
+                </div>
+              )}
+
               <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3">
                 <button onClick={() => setOpenConfirm(false)} disabled={submitting} className="flex-1 py-3 rounded-2xl border border-gray-200 text-gray-700 font-bold text-sm sm:text-base hover:bg-gray-50 disabled:opacity-50">
                   Periksa Lagi
@@ -334,6 +350,8 @@ const MultiFinanceForm = () => {
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Mengirim...
                     </>
+                  ) : submitError ? (
+                    "Coba Kirim Lagi"
                   ) : (
                     "Ya, Kirim Pengajuan"
                   )}

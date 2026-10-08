@@ -17,33 +17,56 @@ import DetailPinjamanBank from "./LandingPage/Pages/PinjamanBankFix/detailPinjam
 import MultiFinance from "./LandingPage/Pages/Multifinance/multifinance";
 import MultiFinanceForm from "./LandingPage/Pages/Multifinance/form-multifinance";
 
+// ADMIN (sesuaikan path import dengan lokasi folder Admin di project kamu)
+import { AuthProvider } from "./Admin/auth/AuthContext";
+import ProtectedRoute from "./Admin/auth/ProtectedRoute";
+import AdminLayout from "./Admin/layout/AdminLayout";
+import AdminLogin from "./Admin/pages/Login";
+import MultifinanceDashboard from "./Admin/pages/MultifinanceDashboard";
+import ApplicationsPage from "./Admin/pages/ApplicationsPage";
+import LoginRetailku from "./Admin/pages/LoginRetailku";
+import ApplicationDetailPage from "./Admin/pages/ApplicationDetailPage";
+
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/pindar" element={<PindarPage />} />
-        <Route path="/pindarcompare" element={<PindarCompare />} />
-        <Route path="/pindardetail/:id" element={<PindarDetail />} />
-        <Route path="/kartukredit" element={<KartuKredit />} />
-        <Route path="/creditcompare" element={<CreditCardCompare />} />
-        <Route path="/creditcarddetail/:id" element={<CreditDetail />} />
-        <Route path="/legal/:tab" element={<LegalPage />} />
-        <Route path="/legal" element={<Navigate to="/legal/about" replace />} />
-        <Route path="/education" element={<EducationList />} />
-        <Route path="/education/:id" element={<EducationDetail />} />
-        <Route path="/education/trending" element={<TrendingEducation />} />
-        {/* PINJAMAN BANK FIX */}
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/pindar" element={<PindarPage />} />
+          <Route path="/pindarcompare" element={<PindarCompare />} />
+          <Route path="/pindardetail/:id" element={<PindarDetail />} />
+          <Route path="/kartukredit" element={<KartuKredit />} />
+          <Route path="/creditcompare" element={<CreditCardCompare />} />
+          <Route path="/creditcarddetail/:id" element={<CreditDetail />} />
+          <Route path="/legal/:tab" element={<LegalPage />} />
+          <Route path="/legal" element={<Navigate to="/legal/about" replace />} />
+          <Route path="/education" element={<EducationList />} />
+          <Route path="/education/:id" element={<EducationDetail />} />
+          <Route path="/education/trending" element={<TrendingEducation />} />
+          {/* PINJAMAN BANK FIX */}
+          <Route path="/pinjaman-bank" element={<ListPinjamanBank />} />
+          <Route path="/pinjaman-bank/:id" element={<DetailPinjamanBank />} />
+          {/* PINJAMAN BANK MAINTENANCE */}
+          <Route path="/pinjamanbank" element={<BankLoanMaintenance />} />
 
-        <Route path="/pinjaman-bank" element={<ListPinjamanBank />} />
-        <Route path="/pinjaman-bank/:id" element={<DetailPinjamanBank />} />
-        {/* PINJAMAN BANK MAINTENANCE */}
-        <Route path="/pinjamanbank" element={<BankLoanMaintenance />} />
+          {/* MULTIFINANCE (USER) */}
+          <Route path="/multi-finance" element={<MultiFinance />} />
+          <Route path="/multi-finance/form" element={<MultiFinanceForm />} />
 
-        {/* MULTIFINANCE */}
-        <Route path="/multi-finance" element={<MultiFinance />} />
-        <Route path="/multi-finance/form" element={<MultiFinanceForm />} />
-      </Routes>
+          {/* MULTIFINANCE (ADMIN) */}
+          <Route path="/login/admin" element={<AdminLogin />} />
+          <Route path="/retailku/login" element={<LoginRetailku />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="multi-finance" replace />} />
+              <Route path="multi-finance" element={<MultifinanceDashboard />} />
+              <Route path="multi-finance/applications" element={<ApplicationsPage />} />
+              <Route path="multi-finance/applications/:id" element={<ApplicationDetailPage />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 };
