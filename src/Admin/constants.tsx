@@ -4,6 +4,7 @@ export const STATUS: Record<StatusKey, { label: string; dot: string; badge: stri
   pending: { label: "Pending", dot: "bg-amber-500", badge: "bg-amber-50 text-amber-700 ring-amber-200" },
   on_progress: { label: "On progress", dot: "bg-sky-500", badge: "bg-sky-50 text-sky-700 ring-sky-200" },
   approved: { label: "Approved", dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  correction: { label: "Correction", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-700 ring-orange-200" },
   rejected: { label: "Rejected", dot: "bg-red-500", badge: "bg-red-50 text-red-700 ring-red-200" },
 };
 

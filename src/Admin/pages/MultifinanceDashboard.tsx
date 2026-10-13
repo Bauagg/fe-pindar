@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
+import { Activity, CheckCircle2, Clock, Loader2, NotebookPen, XCircle } from "lucide-react";
 import { api } from "../api";
 import { roleName, useAuth } from "../auth/AuthContext";
 import { SERVICES } from "../constants";
@@ -10,6 +10,7 @@ import type { Application, Paginated, StatusKey } from "../types";
 const CARDS = [
   { key: "pending", label: "Menunggu diproses", icon: Clock, tone: "bg-amber-50 text-amber-600" },
   { key: "on_progress", label: "Sedang diproses", icon: Activity, tone: "bg-sky-50 text-sky-600" },
+  { key: "correction", label: "Koreksi", icon: NotebookPen, tone: "bg-orange-50 text-orange-600" },
   { key: "approved", label: "Disetujui", icon: CheckCircle2, tone: "bg-emerald-50 text-emerald-600" },
   { key: "rejected", label: "Ditolak", icon: XCircle, tone: "bg-red-50 text-red-600" },
 ] as const;
@@ -50,7 +51,7 @@ export default function MultifinanceDashboard() {
       )}
 
       {/* Ringkasan status */}
-      <section className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Ringkasan status">
+      <section className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-5" aria-label="Ringkasan status">
         {CARDS.map(({ key, label, icon: Icon, tone }) => (
           <div key={key} className="rounded-2xl border border-gray-100 bg-white p-5">
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>

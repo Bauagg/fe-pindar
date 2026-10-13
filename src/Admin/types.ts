@@ -1,4 +1,4 @@
-export type StatusKey = "pending" | "on_progress" | "approved" | "rejected";
+export type StatusKey = "pending" | "on_progress" | "correction" | "approved" | "rejected";
 export type FieldType = "text" | "textarea" | "number" | "date" | "file";
 
 export interface Role {
@@ -67,7 +67,11 @@ export interface Application {
   applicant: { name: string; phone: string };
   service_type: string;
   vehicle: { type: string; brand: string; model: string; year: number };
-  status: { value: StatusKey; rejected_reason: string | null };
+  status: {
+    value: StatusKey;
+    rejected_reason: string | null;
+    correction_reason: string | null;
+  };
   roles: RoleItem[];
   form_fields?: FormField[];
   activities?: Activity[];
@@ -75,7 +79,6 @@ export interface Application {
   created_at: string;
   updated_at: string;
 }
-
 export interface Paginated<T> {
   success: boolean;
   message: string;

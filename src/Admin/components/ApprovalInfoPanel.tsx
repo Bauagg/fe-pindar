@@ -12,13 +12,36 @@ interface Props {
   onChanged: () => Promise<void> | void;
 }
 
-const SUGGESTIONS = ["Leasing", "Nomor kontrak", "Plafon pencairan", "Tenor", "Angsuran per bulan", "Tanggal pencairan", "Catatan"];
+interface DefaultField {
+  label: string;
+  type: FieldType;
+  placeholder: string;
+}
+
+// Isian standar: label sudah ada, isinya diisi admin.
+const DEFAULT_FIELDS: DefaultField[] = [
+  { label: "Nama Leasing", type: "text", placeholder: "Contoh: Adira Finance" },
+  { label: "Tenor", type: "text", placeholder: "Contoh: 36 bulan" },
+  { label: "Jumlah Pencairan", type: "number", placeholder: "Contoh: 50000000" },
+  { label: "Komisi Pindar", type: "text", placeholder: "Contoh: 2%" },
+];
+
+const SUGGESTIONS = ["Nomor kontrak", "Angsuran per bulan", "Tanggal pencairan", "Catatan"];
 const MAX_MB = 15;
 const ALLOWED = /\.(pdf|jpe?g|png)$/i;
+
+const sameLabel = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 export default function ApprovalInfoPanel({ app, onChanged }: Props) {
   const approved = app.status.value === "approved";
   const infos = app.approval_infos ?? [];
+
+  // Isian standar yang belum pernah disimpan
+  const missing = DEFAULT_FIELDS.filter((d) => !infos.some((i) => sameLabel(i.label, d.label)));
+
+  const [defaultValues, setDefaultValues] = useState<Record<string, string>>({});
+  const [savingDefaults, setSavingDefaults] = useState(false);
+  const [defaultsError, setDefaultsError] = useState("");
 
   const [editing, setEditing] = useState<ApprovalInfo | "new" | null>(null);
   const [label, setLabel] = useState("");
@@ -28,6 +51,41 @@ export default function ApprovalInfoPanel({ app, onChanged }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
+
+  const filledDefaults = missing.filter((d) => (defaultValues[d.label] ?? "").trim().length > 0);
+
+  // Kirim ke BE satu per satu (satu request per isian)
+  const saveDefaults = async () => {
+    if (filledDefaults.length === 0) return;
+    setSavingDefaults(true);
+    setDefaultsError("");
+
+    const saved: string[] = [];
+    try {
+      for (const d of filledDefaults) {
+        const body = new FormData();
+        body.append("label", d.label);
+        body.append("field_type", d.type);
+        body.append("value", (defaultValues[d.label] ?? "").trim());
+
+        await api(`/admin/multifinance/${app.id}/approval-infos`, { method: "POST", body });
+        saved.push(d.label);
+      }
+    } catch (err) {
+      setDefaultsError(errorMessage(err));
+    } finally {
+      // Hapus dari form hanya yang sudah berhasil tersimpan
+      if (saved.length > 0) {
+        setDefaultValues((prev) => {
+          const next = { ...prev };
+          saved.forEach((l) => delete next[l]);
+          return next;
+        });
+        await onChanged();
+      }
+      setSavingDefaults(false);
+    }
+  };
 
   const openNew = () => {
     setLabel("");
@@ -105,7 +163,7 @@ export default function ApprovalInfoPanel({ app, onChanged }: Props) {
         <div>
           <h2 className="font-extrabold text-gray-900">Informasi persetujuan</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Bagian ini aktif setelah status diubah ke <b>Approved</b>. Isinya bebas, misalnya Leasing: Adira Finance, nomor kontrak, atau foto dokumen.
+            Bagian ini aktif setelah status diubah ke <b>Approved</b>. Isinya: nama leasing, tenor, jumlah pencairan, komisi Pindar, dan informasi tambahan lainnya.
           </p>
         </div>
       </section>
@@ -124,10 +182,54 @@ export default function ApprovalInfoPanel({ app, onChanged }: Props) {
         </button>
       </div>
 
+      {/* Isian standar (hanya yang belum tersimpan) */}
+      {missing.length > 0 && (
+        <div className="border-b border-gray-100 px-5 py-4">
+          <p className="mb-3 text-sm font-bold text-gray-900">Isi data persetujuan</p>
+
+          {defaultsError && (
+            <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {defaultsError}
+            </div>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {missing.map((d) => (
+              <div key={d.label}>
+                <label htmlFor={`def-${d.label}`} className="mb-2 block text-sm font-bold text-gray-900">
+                  {d.label}
+                </label>
+                <input
+                  id={`def-${d.label}`}
+                  type={d.type === "number" ? "number" : "text"}
+                  inputMode={d.type === "number" ? "numeric" : undefined}
+                  maxLength={255}
+                  value={defaultValues[d.label] ?? ""}
+                  onChange={(e) => setDefaultValues((prev) => ({ ...prev, [d.label]: e.target.value }))}
+                  placeholder={d.placeholder}
+                  disabled={savingDefaults}
+                  className={inputCls}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-xs text-gray-400">Kolom yang dikosongkan tidak akan disimpan.</p>
+            <button onClick={saveDefaults} disabled={filledDefaults.length === 0 || savingDefaults} className={btnPrimary}>
+              {savingDefaults && <Loader2 className="h-4 w-4 animate-spin" />}
+              Simpan{filledDefaults.length > 0 ? ` (${filledDefaults.length})` : ""}
+            </button>
+          </div>
+        </div>
+      )}
+
       {infos.length === 0 ? (
-        <p className="px-5 py-10 text-center text-sm text-gray-500">
-          Belum ada informasi. Klik <b>Tambah</b>, contoh: label <b>Leasing</b>, isi <b>Adira Finance</b>.
-        </p>
+        missing.length === 0 && (
+          <p className="px-5 py-10 text-center text-sm text-gray-500">
+            Belum ada informasi. Klik <b>Tambah</b> untuk menambahkan informasi.
+          </p>
+        )
       ) : (
         <ul className="divide-y divide-gray-50">
           {infos.map((i) => (
@@ -164,7 +266,7 @@ export default function ApprovalInfoPanel({ app, onChanged }: Props) {
               <label htmlFor="ai-label" className="mb-2 block text-sm font-bold text-gray-900">
                 Label
               </label>
-              <input id="ai-label" list="ai-suggestions" required maxLength={150} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Contoh: Leasing" className={inputCls} />
+              <input id="ai-label" list="ai-suggestions" required maxLength={150} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Contoh: Nomor kontrak" className={inputCls} />
               <datalist id="ai-suggestions">
                 {SUGGESTIONS.map((s) => (
                   <option key={s} value={s} />
@@ -204,15 +306,7 @@ export default function ApprovalInfoPanel({ app, onChanged }: Props) {
               ) : type === "textarea" ? (
                 <textarea id="ai-value" rows={4} maxLength={5000} value={text} onChange={(e) => setText(e.target.value)} className={`${inputCls} h-auto resize-none py-3`} />
               ) : (
-                <input
-                  id="ai-value"
-                  type={type === "number" ? "number" : type === "date" ? "date" : "text"}
-                  maxLength={255}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder={type === "text" ? "Contoh: Adira Finance" : undefined}
-                  className={inputCls}
-                />
+                <input id="ai-value" type={type === "number" ? "number" : type === "date" ? "date" : "text"} maxLength={255} value={text} onChange={(e) => setText(e.target.value)} className={inputCls} />
               )}
             </div>
 

@@ -13,7 +13,32 @@ interface Props {
 
 const ALL_KEYS = Object.keys(STATUS) as StatusKey[];
 // Role selain super_admin & admin (mis. admin retail) hanya boleh menetapkan hasil akhir.
-const LIMITED_KEYS: StatusKey[] = ["approved", "rejected"];
+const LIMITED_KEYS: StatusKey[] = ["correction", "approved", "rejected"];
+
+// Status yang wajib disertai alasan.
+type ReasonKey = "rejected" | "correction";
+
+const REASON_CONFIG: Record<ReasonKey, { field: "rejected_reason" | "correction_reason"; label: string; placeholder: string }> = {
+  rejected: {
+    field: "rejected_reason",
+    label: "Alasan penolakan",
+    placeholder: "Contoh: Data pemohon tidak memenuhi syarat.",
+  },
+  correction: {
+    field: "correction_reason",
+    label: "Alasan koreksi",
+    placeholder: "Contoh: Foto BPKB tidak terbaca, mohon upload ulang.",
+  },
+};
+
+const needsReason = (k: StatusKey): k is ReasonKey => k === "rejected" || k === "correction";
+
+// Ambil alasan tersimpan sesuai status yang sedang dipilih.
+const savedReasonOf = (app: Application, k: StatusKey): string => {
+  if (k === "rejected") return app.status.rejected_reason ?? "";
+  if (k === "correction") return app.status.correction_reason ?? "";
+  return "";
+};
 
 export default function StatusPanel({ app, onSaved }: Props) {
   const { user } = useAuth();
@@ -21,7 +46,7 @@ export default function StatusPanel({ app, onSaved }: Props) {
   const keys = full ? ALL_KEYS : LIMITED_KEYS;
 
   const current = app.status.value;
-  const currentReason = app.status.rejected_reason ?? "";
+  const currentReason = savedReasonOf(app, current);
 
   const [value, setValue] = useState<StatusKey>(current);
   const [reason, setReason] = useState(currentReason);
@@ -33,16 +58,29 @@ export default function StatusPanel({ app, onSaved }: Props) {
     setReason(currentReason);
   }, [current, currentReason]);
 
-  const dirty = value !== current || (value === "rejected" && reason !== currentReason);
-  const canSave = dirty && keys.includes(value) && (value !== "rejected" || reason.trim().length > 0);
+  // Saat pindah pilihan status, isi alasan dengan alasan tersimpan milik status itu
+  // (kalau status yang dipilih sama dengan status saat ini), selain itu kosongkan.
+  const pick = (k: StatusKey) => {
+    setValue(k);
+    setReason(k === current ? currentReason : "");
+    setMsg(null);
+  };
+
+  const dirty = value !== current || (needsReason(value) && reason !== currentReason);
+  const canSave = dirty && keys.includes(value) && (!needsReason(value) || reason.trim().length > 0);
 
   const save = async () => {
     setSaving(true);
     setMsg(null);
     try {
+      const body: Record<string, string> = { status: value };
+      if (needsReason(value)) {
+        body[REASON_CONFIG[value].field] = reason.trim();
+      }
+
       await api(`/admin/multifinance/${app.id}/status`, {
         method: "PUT",
-        body: { status: value, ...(value === "rejected" ? { rejected_reason: reason.trim() } : {}) },
+        body,
       });
       await onSaved();
       setMsg({ ok: true, text: "Status berhasil diperbarui." });
@@ -53,13 +91,15 @@ export default function StatusPanel({ app, onSaved }: Props) {
     }
   };
 
+  const reasonCfg = needsReason(value) ? REASON_CONFIG[value] : null;
+
   return (
     <section className={`${card} p-5`}>
       <h2 className="font-extrabold text-gray-900">Status pengajuan</h2>
 
       {!full && (
         <p className="mt-1 text-sm text-gray-500">
-          Status saat ini: <b className="text-gray-800">{STATUS[current].label}</b>. Role kamu hanya bisa menetapkan Approved atau Rejected.
+          Status saat ini: <b className="text-gray-800">{STATUS[current].label}</b>. Role kamu hanya bisa menetapkan Koreksi, Approved, atau Rejected.
         </p>
       )}
 
@@ -70,7 +110,7 @@ export default function StatusPanel({ app, onSaved }: Props) {
             type="button"
             role="radio"
             aria-checked={value === k}
-            onClick={() => setValue(k)}
+            onClick={() => pick(k)}
             className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold ring-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 ${
               value === k ? "bg-red-50 text-red-700 ring-red-300" : "bg-white text-gray-600 ring-gray-200 hover:bg-gray-50"
             }`}>
@@ -80,12 +120,12 @@ export default function StatusPanel({ app, onSaved }: Props) {
         ))}
       </div>
 
-      {value === "rejected" && (
+      {reasonCfg && (
         <div className="mt-4">
           <label htmlFor="reason" className="mb-2 block text-sm font-bold text-gray-900">
-            Alasan penolakan
+            {reasonCfg.label}
           </label>
-          <textarea id="reason" rows={3} maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Contoh: Foto BPKB tidak terbaca, mohon upload ulang." className={`${inputCls} h-auto resize-none py-3`} />
+          <textarea id="reason" rows={3} maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={reasonCfg.placeholder} className={`${inputCls} h-auto resize-none py-3`} />
         </div>
       )}
 
