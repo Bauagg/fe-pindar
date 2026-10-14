@@ -2,32 +2,91 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Bike, Car, CheckCircle2, FileText, Loader2, Repeat, Tag, User, Phone, X, AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Bike, Building2, CalendarDays, Car, CheckCircle2, FileText, Home, Loader2, MapPin, Phone, Repeat, Tag, User, Users, X, type LucideIcon } from "lucide-react";
 import FloatingWaButton from "./floatingwabutton";
 
 import Navbars from "../../Components/Navbar/index";
-import { submitApplication } from "./multifinanceApi";
+import { submitApplication, type FormState, type Layanan, type StatusPembiayaan } from "./multifinanceApi";
 
-type Layanan = "" | "Jaminkan BPKB" | "Beli Kendaraan (Second)" | "Take Over Kendaraan";
-type Jenis = "" | "Mobil" | "Motor";
-
-interface FormState {
-  nama: string;
-  telepon: string;
-  layanan: Layanan;
-  jenis: Jenis;
-  merek: string;
-  tipe: string;
-  tahun: string;
-}
-
-const initialForm: FormState = { nama: "", telepon: "", layanan: "", jenis: "", merek: "", tipe: "", tahun: "" };
+const initialForm: FormState = {
+  nama: "",
+  telepon: "",
+  usia: "",
+  alamat: "",
+  tipe_pemohon: "",
+  layanan: "",
+  kepemilikan: "",
+  jenis_surat: "",
+  jenis: "",
+  merek: "",
+  tipe: "",
+  tahun: "",
+  transmisi: "",
+  status_pembiayaan: "",
+  leasing_asal: "",
+};
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
+  { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: Home },
   { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor (Second) dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
+
+const tipePemohonOptions = [
+  { value: "Individu", label: "Individu", icon: User },
+  { value: "Perusahaan", label: "Perusahaan", icon: Building2 },
+] as const;
+
+const jenisOptions = [
+  { value: "Mobil", label: "Mobil", icon: Car },
+  { value: "Motor", label: "Motor", icon: Bike },
+] as const;
+
+const kepemilikanOptions = [
+  { value: "Sendiri", label: "Atas nama sendiri", icon: User },
+  { value: "Orang Lain", label: "Atas nama orang lain", icon: Users },
+] as const;
+
+const transmisiOptions = [
+  { value: "Matic", label: "Matic" },
+  { value: "Manual", label: "Manual" },
+] as const;
+
+const statusPembiayaanOptions = [
+  { value: "BPKB On Hand", label: "BPKB On Hand" },
+  { value: "Take Over", label: "Take Over" },
+] as const;
+
+interface ChoiceProps<T extends string> {
+  options: readonly { value: T; label: string; icon?: LucideIcon }[];
+  value: string;
+  onChange: (value: T) => void;
+  columns?: string;
+}
+
+function Choice<T extends string>({ options, value, onChange, columns = "grid-cols-2" }: ChoiceProps<T>) {
+  return (
+    <div className={`grid ${columns} gap-3`}>
+      {options.map(({ value: v, label, icon: Icon }) => {
+        const active = value === v;
+        return (
+          <button
+            type="button"
+            key={v}
+            onClick={() => onChange(v)}
+            aria-pressed={active}
+            className={`flex items-center justify-center gap-2 rounded-2xl border py-3.5 px-2 font-bold text-sm sm:text-base transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
+              active ? "border-red-500 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg" : "border-gray-200 bg-white text-gray-700 hover:border-red-300"
+            }`}>
+            {Icon && <Icon className="w-5 h-5 shrink-0" />}
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 const MultiFinanceForm = () => {
   const navigate = useNavigate();
@@ -44,19 +103,67 @@ const MultiFinanceForm = () => {
   const currentYear = new Date().getFullYear();
   const years = useMemo(() => Array.from({ length: currentYear - 1994 }, (_, i) => String(currentYear - i)), [currentYear]);
 
+  const isShm = form.layanan === "Jaminkan SHM";
+  const isVehicle = form.layanan !== "" && !isShm;
+  const isTakeOver = isVehicle && form.status_pembiayaan === "Take Over";
+
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((prev) => ({ ...prev, [key]: value }));
+  const touch = (key: keyof FormState) => setTouched((t) => ({ ...t, [key]: true }));
+
+  // Pilih layanan. Pindah antara SHM <-> kendaraan: kosongkan isian milik sisi lain.
+  const handleLayanan = (v: Layanan) => {
+    setForm((prev) => {
+      const wasShm = prev.layanan === "Jaminkan SHM";
+      const nowShm = v === "Jaminkan SHM";
+
+      if (nowShm && !wasShm) {
+        return { ...prev, layanan: v, kepemilikan: "", jenis: "", merek: "", tipe: "", tahun: "", transmisi: "", status_pembiayaan: "", leasing_asal: "" };
+      }
+      if (!nowShm && wasShm) {
+        return { ...prev, layanan: v, kepemilikan: "", jenis_surat: "" };
+      }
+      return { ...prev, layanan: v };
+    });
+    touch("layanan");
+  };
+
+  const handleStatusPembiayaan = (v: StatusPembiayaan) => {
+    setForm((prev) => ({ ...prev, status_pembiayaan: v, leasing_asal: v === "Take Over" ? prev.leasing_asal : "" }));
+    touch("status_pembiayaan");
+  };
 
   const errors = useMemo(() => {
     const e: Partial<Record<keyof FormState, string>> = {};
+    const usia = Number(form.usia);
+
+    if (!form.tipe_pemohon) e.tipe_pemohon = "Pilih individu atau perusahaan.";
     if (form.nama.trim().length < 3) e.nama = "Isi nama lengkap sesuai KTP (minimal 3 huruf).";
     if (!/^(\+62|62|0)8[1-9][0-9]{7,10}$/.test(form.telepon.replace(/[\s-]/g, ""))) e.telepon = "Gunakan nomor aktif, contoh: 081234567890";
+    if (!form.usia || !Number.isInteger(usia) || usia < 17 || usia > 80) e.usia = "Isi usia yang valid (17 - 80 tahun).";
+    if (form.alamat.trim().length < 10) e.alamat = "Isi alamat lengkap (minimal 10 karakter).";
     if (!form.layanan) e.layanan = "Pilih layanan yang kamu butuhkan.";
-    if (form.layanan && !form.jenis) e.jenis = "Pilih mobil atau motor.";
-    if (form.jenis && form.merek.trim().length < 2) e.merek = "Isi merek kendaraan.";
-    if (form.jenis && form.tipe.trim().length < 1) e.tipe = "Isi tipe kendaraan.";
-    if (form.jenis && !form.tahun) e.tahun = "Pilih tahun kendaraan.";
+
+    if (isShm) {
+      if (!form.kepemilikan) e.kepemilikan = "Pilih SHM atas nama sendiri atau orang lain.";
+      if (form.jenis_surat.trim().length < 3) e.jenis_surat = "Isi jenis surat, contoh: Tanah, Rumah, Bangunan.";
+    }
+
+    if (isVehicle) {
+      if (!form.jenis) {
+        e.jenis = "Pilih mobil atau motor.";
+      } else {
+        if (!form.kepemilikan) e.kepemilikan = "Pilih BPKB atas nama sendiri atau orang lain.";
+        if (form.merek.trim().length < 2) e.merek = "Isi merek kendaraan.";
+        if (form.tipe.trim().length < 1) e.tipe = "Isi tipe kendaraan.";
+        if (!form.tahun) e.tahun = "Pilih tahun kendaraan.";
+        if (!form.transmisi) e.transmisi = "Pilih matic atau manual.";
+        if (!form.status_pembiayaan) e.status_pembiayaan = "Pilih BPKB on hand atau take over.";
+        if (isTakeOver && form.leasing_asal.trim().length < 2) e.leasing_asal = "Isi nama leasing asal take over.";
+      }
+    }
+
     return e;
-  }, [form]);
+  }, [form, isShm, isVehicle, isTakeOver]);
 
   const isValid = Object.keys(errors).length === 0;
 
@@ -69,7 +176,8 @@ const MultiFinanceForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ nama: true, telepon: true, layanan: true, jenis: true, merek: true, tipe: true, tahun: true });
+    const allTouched = (Object.keys(initialForm) as (keyof FormState)[]).reduce<Record<string, boolean>>((acc, k) => ({ ...acc, [k]: true }), {});
+    setTouched(allTouched);
     if (!isValid) return;
     setAgree(false);
     setSubmitError("");
@@ -101,21 +209,40 @@ const MultiFinanceForm = () => {
     navigate("/multi-finance");
   };
 
-  const inputBase = (field: keyof FormState) =>
-    `w-full rounded-2xl border bg-gray-50 pl-12 pr-4 py-3.5 text-sm sm:text-base text-gray-800 placeholder-gray-400 outline-none transition focus:bg-white focus:ring-4 ${
+  const inputBase = (field: keyof FormState, withIcon = true) =>
+    `w-full rounded-2xl border bg-gray-50 ${withIcon ? "pl-12" : "pl-4"} pr-4 py-3.5 text-sm sm:text-base text-gray-800 placeholder-gray-400 outline-none transition focus:bg-white focus:ring-4 ${
       touched[field] && errors[field] ? "border-red-400 focus:ring-red-100" : "border-gray-200 focus:border-red-400 focus:ring-red-100"
     }`;
 
   const Err = ({ field }: { field: keyof FormState }) => (touched[field] && errors[field] ? <p className="mt-1.5 text-xs sm:text-sm text-red-500 font-semibold">{errors[field]}</p> : null);
 
+  const kepemilikanLabel = isShm ? "SHM atas nama" : "BPKB atas nama";
+
   const summary = [
-    { label: "Nama sesuai KTP", value: form.nama },
+    { label: "Pemohon", value: form.tipe_pemohon },
+    { label: form.tipe_pemohon === "Perusahaan" ? "Nama Penanggung Jawab" : "Nama sesuai KTP", value: form.nama },
     { label: "Nomor Telepon", value: form.telepon },
+    { label: "Usia", value: form.usia ? `${form.usia} tahun` : "" },
+    { label: "Alamat", value: form.alamat },
     { label: "Layanan", value: form.layanan },
-    { label: "Jenis Kendaraan", value: form.jenis },
-    { label: "Merek", value: form.merek },
-    { label: "Tipe", value: form.tipe },
-    { label: "Tahun", value: form.tahun },
+    ...(isShm
+      ? [
+          { label: kepemilikanLabel, value: form.kepemilikan },
+          { label: "Jenis Surat", value: form.jenis_surat },
+        ]
+      : []),
+    ...(isVehicle
+      ? [
+          { label: "Jenis Kendaraan", value: form.jenis },
+          { label: kepemilikanLabel, value: form.kepemilikan },
+          { label: "Merek", value: form.merek },
+          { label: "Tipe", value: form.tipe },
+          { label: "Tahun", value: form.tahun },
+          { label: "Transmisi", value: form.transmisi },
+          { label: "Status BPKB", value: form.status_pembiayaan },
+          ...(isTakeOver ? [{ label: "Leasing Asal", value: form.leasing_asal }] : []),
+        ]
+      : []),
   ];
 
   return (
@@ -137,43 +264,81 @@ const MultiFinanceForm = () => {
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="p-5 sm:p-8 space-y-5">
+              {/* Tipe pemohon */}
+              <div>
+                <p className="mb-2 text-sm font-bold text-gray-800">Pengajuan atas nama</p>
+                <Choice
+                  options={tipePemohonOptions}
+                  value={form.tipe_pemohon}
+                  onChange={(v) => {
+                    setField("tipe_pemohon", v);
+                    touch("tipe_pemohon");
+                  }}
+                />
+                <Err field="tipe_pemohon" />
+              </div>
+
               {/* Nama */}
               <div>
                 <label htmlFor="nama" className="block mb-2 text-sm font-bold text-gray-800">
-                  Nama sesuai KTP
+                  {form.tipe_pemohon === "Perusahaan" ? "Nama Penanggung Jawab (sesuai KTP)" : "Nama sesuai KTP"}
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-400" />
-                  <input id="nama" value={form.nama} onChange={(e) => setField("nama", e.target.value)} onBlur={() => setTouched((t) => ({ ...t, nama: true }))} placeholder="Contoh: Budi Santoso" className={inputBase("nama")} />
+                  <input id="nama" value={form.nama} onChange={(e) => setField("nama", e.target.value)} onBlur={() => touch("nama")} placeholder="Contoh: Budi Santoso" className={inputBase("nama")} />
                 </div>
                 <Err field="nama" />
               </div>
 
-              {/* Telepon */}
+              {/* Telepon & usia */}
+              <div className="grid sm:grid-cols-3 gap-5">
+                <div className="sm:col-span-2">
+                  <label htmlFor="telepon" className="block mb-2 text-sm font-bold text-gray-800">
+                    Nomor Telepon
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-400" />
+                    <input id="telepon" type="tel" inputMode="tel" value={form.telepon} onChange={(e) => setField("telepon", e.target.value)} onBlur={() => touch("telepon")} placeholder="081234567890" className={inputBase("telepon")} />
+                  </div>
+                  <Err field="telepon" />
+                </div>
+
+                <div>
+                  <label htmlFor="usia" className="block mb-2 text-sm font-bold text-gray-800">
+                    Usia
+                  </label>
+                  <div className="relative">
+                    <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-400" />
+                    <input id="usia" type="number" inputMode="numeric" min={17} max={80} value={form.usia} onChange={(e) => setField("usia", e.target.value)} onBlur={() => touch("usia")} placeholder="30" className={inputBase("usia")} />
+                  </div>
+                  <Err field="usia" />
+                </div>
+              </div>
+
+              {/* Alamat */}
               <div>
-                <label htmlFor="telepon" className="block mb-2 text-sm font-bold text-gray-800">
-                  Nomor Telepon
+                <label htmlFor="alamat" className="block mb-2 text-sm font-bold text-gray-800">
+                  Alamat Pribadi
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-400" />
-                  <input
-                    id="telepon"
-                    type="tel"
-                    inputMode="tel"
-                    value={form.telepon}
-                    onChange={(e) => setField("telepon", e.target.value)}
-                    onBlur={() => setTouched((t) => ({ ...t, telepon: true }))}
-                    placeholder="081234567890"
-                    className={inputBase("telepon")}
+                  <MapPin className="absolute left-4 top-4 w-5 h-5 text-red-400" />
+                  <textarea
+                    id="alamat"
+                    rows={3}
+                    value={form.alamat}
+                    onChange={(e) => setField("alamat", e.target.value)}
+                    onBlur={() => touch("alamat")}
+                    placeholder="Jalan, RT/RW, kelurahan, kecamatan, kota"
+                    className={`${inputBase("alamat")} resize-none`}
                   />
                 </div>
-                <Err field="telepon" />
+                <Err field="alamat" />
               </div>
 
               {/* Layanan */}
               <div>
                 <p className="mb-2 text-sm font-bold text-gray-800">Layanan yang dibutuhkan</p>
-                <div className="grid sm:grid-cols-3 gap-3">
+                <div className="grid sm:grid-cols-2 gap-3">
                   {layananList.map((l) => {
                     const Icon = l.icon;
                     const active = form.layanan === l.value;
@@ -181,10 +346,7 @@ const MultiFinanceForm = () => {
                       <button
                         type="button"
                         key={l.value}
-                        onClick={() => {
-                          setField("layanan", l.value);
-                          setTouched((t) => ({ ...t, layanan: true }));
-                        }}
+                        onClick={() => handleLayanan(l.value)}
                         aria-pressed={active}
                         className={`text-left rounded-2xl border p-4 transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
                           active ? "border-red-500 bg-red-50 shadow-md" : "border-gray-200 bg-white hover:border-red-300"
@@ -200,85 +362,151 @@ const MultiFinanceForm = () => {
                 <Err field="layanan" />
               </div>
 
-              {/* Muncul setelah pilih layanan */}
-              {form.layanan && (
+              {/* SHM: hanya atas nama + jenis surat */}
+              {isShm && (
+                <div className="space-y-5 rounded-2xl bg-red-50/50 border border-red-100 p-4 sm:p-5 animate-[fadeIn_.35s_ease]">
+                  <div>
+                    <p className="mb-2 text-sm font-bold text-gray-800">SHM atas nama</p>
+                    <Choice
+                      options={kepemilikanOptions}
+                      value={form.kepemilikan}
+                      onChange={(v) => {
+                        setField("kepemilikan", v);
+                        touch("kepemilikan");
+                      }}
+                    />
+                    <Err field="kepemilikan" />
+                  </div>
+
+                  <div>
+                    <label htmlFor="jenis_surat" className="block mb-2 text-sm font-bold text-gray-800">
+                      Jenis Surat SHM
+                    </label>
+                    <input
+                      id="jenis_surat"
+                      value={form.jenis_surat}
+                      onChange={(e) => setField("jenis_surat", e.target.value)}
+                      onBlur={() => touch("jenis_surat")}
+                      placeholder="Contoh: Tanah, Rumah, Bangunan"
+                      className={inputBase("jenis_surat", false)}
+                    />
+                    <Err field="jenis_surat" />
+                  </div>
+                </div>
+              )}
+
+              {/* Kendaraan: layanan selain SHM */}
+              {isVehicle && (
                 <div className="space-y-5 rounded-2xl bg-red-50/50 border border-red-100 p-4 sm:p-5 animate-[fadeIn_.35s_ease]">
                   <div>
                     <p className="mb-2 text-sm font-bold text-gray-800">Jenis kendaraan</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {(
-                        [
-                          { v: "Mobil", icon: Car },
-                          { v: "Motor", icon: Bike },
-                        ] as const
-                      ).map(({ v, icon: Icon }) => {
-                        const active = form.jenis === v;
-                        return (
-                          <button
-                            type="button"
-                            key={v}
-                            onClick={() => {
-                              setField("jenis", v);
-                              setTouched((t) => ({ ...t, jenis: true }));
-                            }}
-                            aria-pressed={active}
-                            className={`flex items-center justify-center gap-2 rounded-2xl border py-3.5 font-bold text-sm sm:text-base transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
-                              active ? "border-red-500 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg" : "border-gray-200 bg-white text-gray-700 hover:border-red-300"
-                            }`}>
-                            <Icon className="w-5 h-5" />
-                            {v}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <Choice
+                      options={jenisOptions}
+                      value={form.jenis}
+                      onChange={(v) => {
+                        setField("jenis", v);
+                        touch("jenis");
+                      }}
+                    />
                     <Err field="jenis" />
                   </div>
 
                   {form.jenis && (
-                    <div className="grid sm:grid-cols-3 gap-5">
+                    <>
                       <div>
-                        <label htmlFor="merek" className="block mb-2 text-sm font-bold text-gray-800">
-                          Merek Kendaraan
-                        </label>
-                        <input
-                          id="merek"
-                          value={form.merek}
-                          onChange={(e) => setField("merek", e.target.value)}
-                          onBlur={() => setTouched((t) => ({ ...t, merek: true }))}
-                          placeholder={form.jenis === "Mobil" ? "Toyota" : "Honda"}
-                          className={inputBase("merek").replace("pl-12", "pl-4")}
+                        <p className="mb-2 text-sm font-bold text-gray-800">BPKB atas nama</p>
+                        <Choice
+                          options={kepemilikanOptions}
+                          value={form.kepemilikan}
+                          onChange={(v) => {
+                            setField("kepemilikan", v);
+                            touch("kepemilikan");
+                          }}
                         />
-                        <Err field="merek" />
+                        <Err field="kepemilikan" />
                       </div>
+
+                      <div className="grid sm:grid-cols-3 gap-5">
+                        <div>
+                          <label htmlFor="merek" className="block mb-2 text-sm font-bold text-gray-800">
+                            Merek Kendaraan
+                          </label>
+                          <input
+                            id="merek"
+                            value={form.merek}
+                            onChange={(e) => setField("merek", e.target.value)}
+                            onBlur={() => touch("merek")}
+                            placeholder={form.jenis === "Mobil" ? "Toyota" : "Honda"}
+                            className={inputBase("merek", false)}
+                          />
+                          <Err field="merek" />
+                        </div>
+                        <div>
+                          <label htmlFor="tipe" className="block mb-2 text-sm font-bold text-gray-800">
+                            Tipe Kendaraan
+                          </label>
+                          <input
+                            id="tipe"
+                            value={form.tipe}
+                            onChange={(e) => setField("tipe", e.target.value)}
+                            onBlur={() => touch("tipe")}
+                            placeholder={form.jenis === "Mobil" ? "Avanza 1.3 G" : "Vario 160"}
+                            className={inputBase("tipe", false)}
+                          />
+                          <Err field="tipe" />
+                        </div>
+                        <div>
+                          <label htmlFor="tahun" className="block mb-2 text-sm font-bold text-gray-800">
+                            Tahun Kendaraan
+                          </label>
+                          <select id="tahun" value={form.tahun} onChange={(e) => setField("tahun", e.target.value)} onBlur={() => touch("tahun")} className={inputBase("tahun", false)}>
+                            <option value="">Pilih tahun</option>
+                            {years.map((y) => (
+                              <option key={y} value={y}>
+                                {y}
+                              </option>
+                            ))}
+                          </select>
+                          <Err field="tahun" />
+                        </div>
+                      </div>
+
                       <div>
-                        <label htmlFor="tipe" className="block mb-2 text-sm font-bold text-gray-800">
-                          Tipe Kendaraan
-                        </label>
-                        <input
-                          id="tipe"
-                          value={form.tipe}
-                          onChange={(e) => setField("tipe", e.target.value)}
-                          onBlur={() => setTouched((t) => ({ ...t, tipe: true }))}
-                          placeholder={form.jenis === "Mobil" ? "Avanza 1.3 G" : "Vario 160"}
-                          className={inputBase("tipe").replace("pl-12", "pl-4")}
+                        <p className="mb-2 text-sm font-bold text-gray-800">Transmisi</p>
+                        <Choice
+                          options={transmisiOptions}
+                          value={form.transmisi}
+                          onChange={(v) => {
+                            setField("transmisi", v);
+                            touch("transmisi");
+                          }}
                         />
-                        <Err field="tipe" />
+                        <Err field="transmisi" />
                       </div>
+
                       <div>
-                        <label htmlFor="tahun" className="block mb-2 text-sm font-bold text-gray-800">
-                          Tahun Kendaraan
-                        </label>
-                        <select id="tahun" value={form.tahun} onChange={(e) => setField("tahun", e.target.value)} onBlur={() => setTouched((t) => ({ ...t, tahun: true }))} className={inputBase("tahun").replace("pl-12", "pl-4")}>
-                          <option value="">Pilih tahun</option>
-                          {years.map((y) => (
-                            <option key={y} value={y}>
-                              {y}
-                            </option>
-                          ))}
-                        </select>
-                        <Err field="tahun" />
+                        <p className="mb-2 text-sm font-bold text-gray-800">Status BPKB</p>
+                        <Choice options={statusPembiayaanOptions} value={form.status_pembiayaan} onChange={handleStatusPembiayaan} />
+                        <Err field="status_pembiayaan" />
                       </div>
-                    </div>
+
+                      {isTakeOver && (
+                        <div>
+                          <label htmlFor="leasing_asal" className="block mb-2 text-sm font-bold text-gray-800">
+                            Take over dari leasing mana?
+                          </label>
+                          <input
+                            id="leasing_asal"
+                            value={form.leasing_asal}
+                            onChange={(e) => setField("leasing_asal", e.target.value)}
+                            onBlur={() => touch("leasing_asal")}
+                            placeholder="Contoh: Adira, BFI, FIF"
+                            className={inputBase("leasing_asal", false)}
+                          />
+                          <Err field="leasing_asal" />
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -321,7 +549,7 @@ const MultiFinanceForm = () => {
                 {summary.map((s) => (
                   <div key={s.label} className="flex justify-between gap-4 px-4 py-3 text-sm">
                     <dt className="text-gray-500 font-semibold">{s.label}</dt>
-                    <dd className="text-gray-900 font-bold text-right break-all">{s.value}</dd>
+                    <dd className="text-gray-900 font-bold text-right break-words">{s.value}</dd>
                   </div>
                 ))}
               </dl>

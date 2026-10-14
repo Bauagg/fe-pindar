@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ExternalLink, Loader2, Pencil, PenLine, Plus, Trash2, Upload } from "lucide-react";
+import { Download, ExternalLink, Loader2, Pencil, PenLine, Plus, Trash2, Upload } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { FIELD_TYPES } from "../constants";
 import Modal from "./Modal";
@@ -26,6 +26,13 @@ const isImage = (url: string) => /\.(jpe?g|png|webp|gif)$/i.test(url);
 
 /** Aktivitas terakhir yang mengisi field ini (list sudah terbaru di atas). */
 const lastFilled = (activities: Activity[] | undefined, fieldId: number) => activities?.find((a) => (a.action === "field_filled" || a.action === "field_updated") && a.meta.field_id === fieldId);
+
+/** Nama file download: "<label>.<ext>" (ext diambil dari URL). */
+const downloadName = (label: string, url: string) => {
+  const ext = url.split("?")[0].match(/\.([a-z0-9]+)$/i)?.[1] ?? "";
+  const base = label.replace(/[\\/:*?"<>|]+/g, "").trim() || "file";
+  return ext ? `${base}.${ext}` : base;
+};
 
 function ValueView({ f }: { f: FormField }) {
   if (f.field_type === "file") {
@@ -54,6 +61,7 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
 
   // Isi / upload nilai atas nama pemohon
   const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [rowError, setRowError] = useState<{ id: number; text: string } | null>(null);
   const [filling, setFilling] = useState<FormField | null>(null);
   const [fillValue, setFillValue] = useState("");
@@ -141,6 +149,45 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
     }
   };
 
+  /** Download file yang sudah diupload. Fetch jadi blob supaya benar-benar terunduh (bukan cuma dibuka di tab baru). */
+  const downloadFile = async (f: FormField) => {
+    if (!f.file_url) return;
+    setRowError(null);
+    setDownloadingId(f.id);
+
+    const name = downloadName(f.label, f.file_url);
+    const trigger = (href: string, newTab = false) => {
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = name;
+      if (newTab) {
+        a.target = "_blank";
+        a.rel = "noreferrer";
+      }
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    try {
+      const res = await fetch(f.file_url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      trigger(objectUrl);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+    } catch {
+      // Fallback (mis. diblokir CORS): coba download langsung lewat link
+      try {
+        trigger(f.file_url, true);
+      } catch {
+        setRowError({ id: f.id, text: "Gagal mengunduh file. Coba lagi atau gunakan tombol Buka file." });
+      }
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   const openFill = (f: FormField) => {
     setFilling(f);
     setFillValue(f.value ?? "");
@@ -184,6 +231,7 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
           {fields.map((f) => {
             const last = lastFilled(app.activities, f.id);
             const uploading = uploadingId === f.id;
+            const downloading = downloadingId === f.id;
 
             return (
               <li key={f.id} className="flex items-start justify-between gap-4 px-5 py-4">
@@ -201,11 +249,20 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
                     {f.field_type === "file" ? (
-                      <label className={`${btnSmall} cursor-pointer ${uploading ? "pointer-events-none opacity-60" : ""}`}>
-                        {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                        {uploading ? "Mengupload..." : f.file_url ? "Ganti file" : "Upload file"}
-                        <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="sr-only" disabled={uploading} onChange={(e) => uploadFile(f, e)} />
-                      </label>
+                      <>
+                        <label className={`${btnSmall} cursor-pointer ${uploading ? "pointer-events-none opacity-60" : ""}`}>
+                          {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                          {uploading ? "Mengupload..." : f.file_url ? "Ganti file" : "Upload file"}
+                          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="sr-only" disabled={uploading} onChange={(e) => uploadFile(f, e)} />
+                        </label>
+
+                        {f.file_url && (
+                          <button type="button" onClick={() => downloadFile(f)} disabled={downloading} aria-label={`Download ${f.label}`} title="Download file" className={`${btnSmall} disabled:pointer-events-none disabled:opacity-60`}>
+                            {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                            {downloading ? "Mengunduh..." : "Download"}
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <button type="button" onClick={() => openFill(f)} className={btnSmall}>
                         <PenLine className="h-3.5 w-3.5" />

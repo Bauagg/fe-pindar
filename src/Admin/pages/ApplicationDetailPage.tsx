@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, BadgeCheck, Loader2, MessageCircle, X, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Bike, Car, Home, Loader2, MessageCircle, UserRound, X, XCircle } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { SERVICES } from "../constants";
 import ActivityPanel from "../components/ActivityPanel";
 import ApprovalInfoPanel from "../components/ApprovalInfoPanel";
+import AssetCell, { APPLICANT_LABEL, ApplicantBadge, FINANCING_LABEL, OWNER_SHORT, TRANSMISSION_LABEL } from "../components/AssetCell";
+import EditApplicantModal from "../components/EditApplicantModal";
+import EditAssetModal from "../components/EditAssetModal";
+import { EditButton } from "../components/EditModal";
 import FieldValue from "../components/FieldValue";
 import FormFieldsPanel from "../components/FormFieldsPanel";
 import RolesPanel from "../components/RolesPanel";
@@ -14,12 +18,27 @@ import { card } from "../components/ui";
 import { fmtDateTime, waLink } from "../utils";
 import type { Application, ApprovalInfo } from "../types";
 import ExportPdfButton from "../components/ExportPdfButton";
+import WhatsAppNotifyFab from "../components/WhatsAppNotifyFab";
 
-function Info({ label, children }: { label: string; children: React.ReactNode }) {
+function Info({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
   return (
-    <div>
+    <div className={wide ? "sm:col-span-2" : undefined}>
       <dt className="text-xs font-bold text-gray-400">{label}</dt>
-      <dd className="mt-1 text-sm font-bold text-gray-900">{children}</dd>
+      <dd className="mt-1 break-words text-sm font-bold text-gray-900">{children || "-"}</dd>
+    </div>
+  );
+}
+
+function CardTitle({ icon: Icon, title, tone, right }: { icon: React.ElementType; title: string; tone: string; right?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
+          <Icon className="h-4 w-4" />
+        </span>
+        <h2 className="font-extrabold text-gray-900">{title}</h2>
+      </div>
+      {right && <div className="flex items-center gap-2">{right}</div>}
     </div>
   );
 }
@@ -56,7 +75,7 @@ function ReasonBanner({ app }: { app: Application }) {
 }
 
 // Data utama yang selalu ditampilkan di ringkasan (urutan sesuai tampilan).
-const MAIN_LABELS = ["Nama Leasing", "Tenor", "Jumlah Pencairan", "Komisi Pindar"];
+const MAIN_LABELS = ["Nama Leasing", "Paket Leasing", "Tenor", "Jumlah Pencairan", "Komisi Pindar"];
 // Label yang ditampilkan sebagai rupiah.
 const MONEY_LABELS = ["Jumlah Pencairan", "Komisi Pindar"];
 
@@ -91,7 +110,7 @@ function ApprovalSummary({ app, onClose }: { app: Application; onClose: () => vo
         </button>
       </div>
 
-      <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {MAIN_LABELS.map((label) => {
           const info = find(label);
           const isKomisi = norm(label) === norm("Komisi Pindar");
@@ -118,12 +137,70 @@ function ApprovalSummary({ app, onClose }: { app: Application; onClose: () => vo
   );
 }
 
+/** Kartu jaminan: SHM atau kendaraan (BPKB). Tombol edit hanya jika onEdit diberikan. */
+function AssetCard({ app, onEdit }: { app: Application; onEdit?: () => void }) {
+  const { asset, vehicle: v } = app;
+  const owner = asset?.ownership ? OWNER_SHORT[asset.ownership] ?? asset.ownership : "";
+  const editBtn = onEdit ? <EditButton onClick={onEdit} /> : null;
+
+  if (asset?.is_shm) {
+    return (
+      <section className={`${card} p-5`}>
+        <CardTitle
+          icon={Home}
+          title="Jaminan SHM"
+          tone="bg-indigo-50 text-indigo-600"
+          right={
+            <>
+              <span className="hidden rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-600 sm:inline">Sertifikat Hak Milik</span>
+              {editBtn}
+            </>
+          }
+        />
+        <dl className="mt-4 grid gap-5 sm:grid-cols-2">
+          <Info label="SHM atas nama">{owner}</Info>
+          <Info label="Jenis surat">{asset.certificate_type}</Info>
+        </dl>
+      </section>
+    );
+  }
+
+  const Icon = v?.type === "motor" ? Bike : Car;
+  const isTakeOver = v?.financing_status === "take_over";
+
+  return (
+    <section className={`${card} p-5`}>
+      <CardTitle
+        icon={Icon}
+        title="Jaminan Kendaraan"
+        tone="bg-red-50 text-red-600"
+        right={
+          <>
+            <span className="hidden rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold capitalize text-gray-600 sm:inline">{v?.type || "-"}</span>
+            {editBtn}
+          </>
+        }
+      />
+      <dl className="mt-4 grid gap-5 sm:grid-cols-2">
+        <Info label="Merek">{v?.brand}</Info>
+        <Info label="Tipe">{v?.model}</Info>
+        <Info label="Tahun">{v?.year ? String(v.year) : ""}</Info>
+        <Info label="Transmisi">{v?.transmission ? TRANSMISSION_LABEL[v.transmission] ?? v.transmission : ""}</Info>
+        <Info label="BPKB atas nama">{owner}</Info>
+        <Info label="Status BPKB">{v?.financing_status ? FINANCING_LABEL[v.financing_status] ?? v.financing_status : ""}</Info>
+        {isTakeOver && <Info label="Take over dari leasing">{v?.previous_leasing}</Info>}
+      </dl>
+    </section>
+  );
+}
+
 export default function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [app, setApp] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showSummary, setShowSummary] = useState(true);
+  const [editing, setEditing] = useState<"applicant" | "asset" | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -140,6 +217,7 @@ export default function ApplicationDetailPage() {
   useEffect(() => {
     setLoading(true);
     setShowSummary(true); // pengajuan lain dibuka: ringkasan tampil lagi
+    setEditing(null);
     load();
   }, [load]);
 
@@ -169,6 +247,8 @@ export default function ApplicationDetailPage() {
   }
 
   const approved = app.status.value === "approved";
+  const isCompany = app.applicant.type === "perusahaan";
+  const canEdit = !!app.can_edit; // dari BE: hanya super_admin & admin
 
   return (
     <div>
@@ -188,19 +268,28 @@ export default function ApplicationDetailPage() {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-extrabold text-gray-900">{app.application_number}</h1>
         <StatusBadge value={app.status.value} />
+        <ApplicantBadge type={app.applicant.type} />
         <div className="ml-auto">
           <ExportPdfButton app={app} />
         </div>
       </div>
 
-      <p className=" text-sm text-gray-500">Diajukan {fmtDateTime(app.created_at)}</p>
+      <p className="text-sm text-gray-500">
+        Diajukan {fmtDateTime(app.created_at)} · {SERVICES[app.service_type] || app.service_type}
+      </p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      {/* Ringkasan jaminan singkat */}
+      <div className="mt-5 rounded-2xl border border-gray-100 bg-white px-5 py-4">
+        <AssetCell a={app} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <section className={`${card} p-5`}>
-            <h2 className="font-extrabold text-gray-900">Data pemohon</h2>
+            <CardTitle icon={UserRound} title="Data pemohon" tone="bg-sky-50 text-sky-600" right={canEdit ? <EditButton onClick={() => setEditing("applicant")} /> : null} />
             <dl className="mt-4 grid gap-5 sm:grid-cols-2">
-              <Info label="Nama sesuai KTP">{app.applicant.name}</Info>
+              <Info label="Pengajuan atas nama">{APPLICANT_LABEL[app.applicant.type] ?? app.applicant.type}</Info>
+              <Info label={isCompany ? "Nama penanggung jawab (KTP)" : "Nama sesuai KTP"}>{app.applicant.name}</Info>
               <Info label="Nomor telepon">
                 <span className="flex flex-wrap items-center gap-3">
                   {app.applicant.phone}
@@ -213,16 +302,16 @@ export default function ApplicationDetailPage() {
                   </a>
                 </span>
               </Info>
-              <Info label="Layanan">{SERVICES[app.service_type] || app.service_type}</Info>
-              <Info label="Jenis kendaraan">
-                <span className="capitalize">{app.vehicle.type}</span>
+              <Info label="Usia">{app.applicant.age ? `${app.applicant.age} tahun` : ""}</Info>
+              <Info label="Alamat pribadi" wide>
+                <span className="whitespace-pre-line">{app.applicant.address}</span>
               </Info>
-              <Info label="Merek">{app.vehicle.brand}</Info>
-              <Info label="Tipe">{app.vehicle.model}</Info>
-              <Info label="Tahun">{app.vehicle.year}</Info>
+              <Info label="Layanan">{SERVICES[app.service_type] || app.service_type}</Info>
               <Info label="Terakhir diperbarui">{fmtDateTime(app.updated_at)}</Info>
             </dl>
           </section>
+
+          <AssetCard app={app} onEdit={canEdit ? () => setEditing("asset") : undefined} />
 
           <ApprovalInfoPanel app={app} onChanged={load} />
 
@@ -235,6 +324,11 @@ export default function ApplicationDetailPage() {
           <RolesPanel app={app} onSaved={load} />
         </div>
       </div>
+
+      {canEdit && editing === "applicant" && <EditApplicantModal app={app} onClose={() => setEditing(null)} onSaved={load} />}
+      {canEdit && editing === "asset" && <EditAssetModal app={app} onClose={() => setEditing(null)} onSaved={load} />}
+
+      <WhatsAppNotifyFab app={app} />
     </div>
   );
 }

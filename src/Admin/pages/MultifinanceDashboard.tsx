@@ -6,6 +6,7 @@ import { roleName, useAuth } from "../auth/AuthContext";
 import { SERVICES } from "../constants";
 import StatusBadge from "../components/StatusBadge";
 import type { Application, Paginated, StatusKey } from "../types";
+import AssetCell, { ApplicantBadge } from "../components/AssetCell";
 
 const CARDS = [
   { key: "pending", label: "Menunggu diproses", icon: Clock, tone: "bg-amber-50 text-amber-600" },
@@ -85,7 +86,7 @@ export default function MultifinanceDashboard() {
                 <tr>
                   <th className="px-5 py-3">Pemohon</th>
                   <th className="px-5 py-3">Layanan</th>
-                  <th className="px-5 py-3">Kendaraan</th>
+                  <th className="px-5 py-3">Jaminan</th>
                   <th className="px-5 py-3">Tanggal</th>
                   <th className="px-5 py-3">Status</th>
                 </tr>
@@ -94,12 +95,15 @@ export default function MultifinanceDashboard() {
                 {recent.map((a) => (
                   <tr key={a.id} className="hover:bg-gray-50/60">
                     <td className="px-5 py-4">
-                      <p className="font-bold text-gray-900">{a.applicant?.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-gray-900">{a.applicant?.name}</p>
+                        <ApplicantBadge type={a.applicant?.type} />
+                      </div>
                       <p className="text-xs text-gray-400">{a.application_number}</p>
                     </td>
                     <td className="px-5 py-4 font-semibold text-gray-700">{SERVICES[a.service_type] || a.service_type}</td>
-                    <td className="px-5 py-4 text-gray-600">
-                      {a.vehicle.brand} {a.vehicle.model} ({a.vehicle.year})
+                    <td className="px-5 py-4">
+                      <AssetCell a={a} />
                     </td>
                     <td className="px-5 py-4 text-gray-600">{fmtDate(a.created_at)}</td>
                     <td className="px-5 py-4">

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 import { SERVICES, STATUS } from "../constants";
 import { btnGhost } from "./ui";
+import { APPLICANT_LABEL, FINANCING_LABEL, OWNER_SHORT, TRANSMISSION_LABEL } from "./AssetCell";
 import { fmtDateTime } from "../utils";
 import type { Application } from "../types";
 
@@ -10,10 +11,12 @@ interface Props {
 }
 
 type RGB = [number, number, number];
+type Cell = string | { content: string; colSpan: number };
 
 // Warna laporan
 const RED: RGB = [220, 38, 38];
 const RED_DARK: RGB = [153, 27, 27];
+const INDIGO: RGB = [79, 70, 229];
 const INK: RGB = [17, 24, 39];
 const MUTED: RGB = [107, 114, 128];
 const LINE: RGB = [229, 231, 235];
@@ -35,11 +38,23 @@ const norm = (s: string) => s.trim().toLowerCase();
 const isMain = (label: string) => MAIN_LABELS.some((l) => norm(l) === norm(label));
 const isMoney = (label: string) => MONEY_LABELS.some((l) => norm(l) === norm(label));
 const isImage = (...s: (string | null | undefined)[]) => s.some((x) => !!x && /\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(x));
+const cap = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "-");
 
 const rupiah = (v: string | null) => {
   const n = Number(v);
   return v && Number.isFinite(n) ? `Rp ${n.toLocaleString("id-ID")}` : v || "-";
 };
+
+/** Susun pasangan label-nilai menjadi baris 4 kolom (label, nilai, label, nilai). */
+function pairRows(pairs: [string, string | null | undefined][]): Cell[][] {
+  const rows: Cell[][] = [];
+  for (let i = 0; i < pairs.length; i += 2) {
+    const a = pairs[i];
+    const b = pairs[i + 1] ?? ["", ""];
+    rows.push([a[0], a[1] || "-", b[0], b[1] || (b[0] ? "-" : "")]);
+  }
+  return rows;
+}
 
 interface Attachment {
   group: string;
@@ -96,6 +111,11 @@ async function generatePdf(app: Application) {
   const infos = app.approval_infos ?? [];
   const fields = (app.form_fields ?? []).slice().sort((a, b) => a.sort_order - b.sort_order);
 
+  const isShm = !!app.asset?.is_shm;
+  const isCompany = app.applicant.type === "perusahaan";
+  const v = app.vehicle;
+  const owner = app.asset?.ownership ? OWNER_SHORT[app.asset.ownership] ?? app.asset.ownership : "-";
+
   const attachments: Attachment[] = [];
   const attach = (group: string, title: string, url: string | null, value: string | null) => {
     if (url) attachments.push({ group, title, url, image: isImage(url, value) });
@@ -123,7 +143,7 @@ async function generatePdf(app: Application) {
   doc.text(app.application_number, M, 26);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text(`Diajukan ${fmtDateTime(app.created_at)}`, M, 33);
+  doc.text(`Diajukan ${fmtDateTime(app.created_at)}  ·  ${SERVICES[app.service_type] || app.service_type}`, M, 33);
 
   // Pill status
   const statusLabel = STATUS[statusKey].label;
@@ -138,9 +158,9 @@ async function generatePdf(app: Application) {
   y = 49;
 
   // ===== Helper judul section =====
-  const section = (title: string, note?: string) => {
+  const section = (title: string, note?: string, accent: RGB = RED) => {
     ensure(16);
-    doc.setFillColor(...RED);
+    doc.setFillColor(...accent);
     doc.rect(M, y - 1, 1.4, 6.5, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11.5);
@@ -167,42 +187,67 @@ async function generatePdf(app: Application) {
     valign: "middle" as const,
   };
 
-  // ===== 1. Data pemohon =====
-  section("Data Pemohon");
+  const pairColumns = {
+    0: { cellWidth: 33, fontStyle: "bold" as const, textColor: MUTED, fillColor: SOFT, fontSize: 8.5 },
+    1: { cellWidth: 57 },
+    2: { cellWidth: 33, fontStyle: "bold" as const, textColor: MUTED, fillColor: SOFT, fontSize: 8.5 },
+    3: { cellWidth: 57 },
+  };
 
-  const pairs: [string, string][] = [
-    ["Nama sesuai KTP", app.applicant.name],
+  // ===== 1. Data pemohon =====
+  section("Data Pemohon", APPLICANT_LABEL[app.applicant.type] ?? undefined);
+
+  const applicantRows = pairRows([
+    ["Pengajuan atas nama", APPLICANT_LABEL[app.applicant.type] ?? app.applicant.type],
+    [isCompany ? "Penanggung jawab" : "Nama sesuai KTP", app.applicant.name],
     ["Nomor telepon", app.applicant.phone],
+    ["Usia", app.applicant.age ? `${app.applicant.age} tahun` : "-"],
     ["Layanan", SERVICES[app.service_type] || app.service_type],
-    ["Jenis kendaraan", app.vehicle.type ? app.vehicle.type.charAt(0).toUpperCase() + app.vehicle.type.slice(1) : "-"],
-    ["Merek", app.vehicle.brand],
-    ["Tipe", app.vehicle.model],
-    ["Tahun", String(app.vehicle.year)],
     ["Terakhir diperbarui", fmtDateTime(app.updated_at)],
-  ];
-  const rows: string[][] = [];
-  for (let i = 0; i < pairs.length; i += 2) {
-    const a = pairs[i];
-    const b = pairs[i + 1] ?? ["", ""];
-    rows.push([a[0], a[1] || "-", b[0], b[1]]);
-  }
+  ]);
+  // Alamat memakai lebar penuh
+  applicantRows.push(["Alamat pribadi", { content: app.applicant.address || "-", colSpan: 3 }]);
 
   autoTable(doc, {
     startY: y,
     margin: { left: M, right: M, top: 22, bottom: 20 },
-    body: rows,
+    body: applicantRows,
     theme: "grid",
     styles: tableStyles,
-    columnStyles: {
-      0: { cellWidth: 33, fontStyle: "bold", textColor: MUTED, fillColor: SOFT, fontSize: 8.5 },
-      1: { cellWidth: 57 },
-      2: { cellWidth: 33, fontStyle: "bold", textColor: MUTED, fillColor: SOFT, fontSize: 8.5 },
-      3: { cellWidth: 57 },
-    },
+    columnStyles: pairColumns,
   });
   y = lastY() + 10;
 
-  // ===== 2. Informasi persetujuan (jika approved) =====
+  // ===== 2. Jaminan (SHM / kendaraan) =====
+  section(isShm ? "Jaminan SHM" : "Jaminan Kendaraan", isShm ? "Sertifikat Hak Milik" : cap(v?.type), isShm ? INDIGO : RED);
+
+  const assetRows = isShm
+    ? pairRows([
+        ["SHM atas nama", owner],
+        ["Jenis surat", app.asset?.certificate_type],
+      ])
+    : pairRows([
+        ["Jenis kendaraan", cap(v?.type)],
+        ["BPKB atas nama", owner],
+        ["Merek", v?.brand],
+        ["Tipe", v?.model],
+        ["Tahun", v?.year ? String(v.year) : "-"],
+        ["Transmisi", v?.transmission ? TRANSMISSION_LABEL[v.transmission] ?? v.transmission : "-"],
+        ["Status BPKB", v?.financing_status ? FINANCING_LABEL[v.financing_status] ?? v.financing_status : "-"],
+        ...(v?.financing_status === "take_over" ? ([["Leasing asal", v.previous_leasing]] as [string, string | null][]) : []),
+      ]);
+
+  autoTable(doc, {
+    startY: y,
+    margin: { left: M, right: M, top: 22, bottom: 20 },
+    body: assetRows,
+    theme: "grid",
+    styles: tableStyles,
+    columnStyles: pairColumns,
+  });
+  y = lastY() + 10;
+
+  // ===== 3. Informasi persetujuan (jika approved) =====
   if (approved) {
     section("Informasi Persetujuan", "Status: Disetujui");
 
@@ -261,7 +306,7 @@ async function generatePdf(app: Application) {
     infos.filter((i) => isMain(i.label) && i.field_type === "file").forEach((i) => attach("Informasi Persetujuan", i.label, i.file_url, i.value));
   }
 
-  // ===== 3. Form tambahan (jika ada) =====
+  // ===== 4. Form tambahan (jika ada) =====
   if (fields.length > 0) {
     section("Form Tambahan", `${fields.length} isian`);
 
@@ -287,7 +332,7 @@ async function generatePdf(app: Application) {
     y = lastY() + 10;
   }
 
-  // ===== 4. Lampiran (gambar & dokumen) =====
+  // ===== 5. Lampiran (gambar & dokumen) =====
   if (attachments.length > 0) {
     doc.addPage();
     y = 22;

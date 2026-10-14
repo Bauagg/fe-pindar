@@ -10,6 +10,7 @@ export const STATUS: Record<StatusKey, { label: string; dot: string; badge: stri
 
 export const SERVICES: Record<string, string> = {
   jaminkan_bpkb: "Jaminkan BPKB",
+  jaminkan_shm: "Jaminkan SHM",
   beli_kendaraan_second: "Beli Kendaraan (Second)",
   take_over: "Take Over Kendaraan",
 };

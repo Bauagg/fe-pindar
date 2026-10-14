@@ -21,11 +21,11 @@ interface DefaultField {
 // Isian standar: label sudah ada, isinya diisi admin.
 const DEFAULT_FIELDS: DefaultField[] = [
   { label: "Nama Leasing", type: "text", placeholder: "Contoh: Adira Finance" },
+  { label: "Paket Leasing", type: "text", placeholder: "Contoh: Paket Reguler" },
   { label: "Tenor", type: "text", placeholder: "Contoh: 36 bulan" },
   { label: "Jumlah Pencairan", type: "number", placeholder: "Contoh: 50000000" },
   { label: "Komisi Pindar", type: "text", placeholder: "Contoh: 2%" },
 ];
-
 const SUGGESTIONS = ["Nomor kontrak", "Angsuran per bulan", "Tanggal pencairan", "Catatan"];
 const MAX_MB = 15;
 const ALLOWED = /\.(pdf|jpe?g|png)$/i;
