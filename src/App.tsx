@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LandingPage from "./LandingPage/Pages";
 import PindarPage from "./LandingPage/Pages/PindarPage/PindarPage";
 import PindarCompare from "./LandingPage/Pages/PindarPage/ComparePindar";
@@ -27,9 +27,34 @@ import ApplicationsPage from "./Admin/pages/ApplicationsPage";
 import LoginRetailku from "./Admin/pages/LoginRetailku";
 import ApplicationDetailPage from "./Admin/pages/ApplicationDetailPage";
 
+// BARU: deklarasi tipe fbq supaya TypeScript tidak error
+declare global {
+  interface Window {
+    fbq?: (...args: any[]) => void;
+  }
+}
+
+// BARU: kirim PageView setiap pindah halaman
+const PixelRouteTracker = () => {
+  const { pathname } = useLocation();
+  const isFirst = useRef(true);
+
+  useEffect(() => {
+    // PageView pertama sudah dikirim oleh index.html, jadi dilewati
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
+    window.fbq?.("track", "PageView");
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => {
   return (
     <Router>
+      <PixelRouteTracker />
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />

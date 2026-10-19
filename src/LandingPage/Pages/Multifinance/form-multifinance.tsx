@@ -168,6 +168,10 @@ const MultiFinanceForm = () => {
   const isValid = Object.keys(errors).length === 0;
 
   useEffect(() => {
+    window.fbq?.("track", "ViewContent", { content_name: "Form Multi Finance" });
+  }, []);
+
+  useEffect(() => {
     document.body.style.overflow = openConfirm || openSuccess ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -179,6 +183,7 @@ const MultiFinanceForm = () => {
     const allTouched = (Object.keys(initialForm) as (keyof FormState)[]).reduce<Record<string, boolean>>((acc, k) => ({ ...acc, [k]: true }), {});
     setTouched(allTouched);
     if (!isValid) return;
+    window.fbq?.("track", "InitiateCheckout", { content_name: form.layanan });
     setAgree(false);
     setSubmitError("");
     setOpenConfirm(true);
@@ -193,6 +198,7 @@ const MultiFinanceForm = () => {
     try {
       const result = await submitApplication(form);
       setRefNumber(result.applicationNumber);
+      window.fbq?.("track", "Lead", { content_name: form.layanan, content_category: "Multi Finance" }, { eventID: result.applicationNumber });
       setOpenConfirm(false);
       setOpenSuccess(true);
     } catch (err) {
