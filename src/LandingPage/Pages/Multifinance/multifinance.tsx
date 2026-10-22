@@ -1,19 +1,20 @@
 // pages/MultiFinance.tsx
 
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, BadgeCheck, Bike, Car, Clock3, FileText, Info, Landmark, Repeat, ShieldCheck, Tag, Wallet } from "lucide-react";
+import { ArrowRight, BadgeCheck, Bike, Car, Clock3, FileText, Info, Landmark, Newspaper, Repeat, ShieldCheck, Tag, Wallet } from "lucide-react";
 
 import Navbars from "../../Components/Navbar/index";
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
+  { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: FileText },
   { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor (Second) dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
 
 const infoCards = [
-  { title: "Layanan", value: "3 Pilihan Pembiayaan", icon: Wallet },
-  { title: "Jenis Kendaraan", value: "Mobil & Motor", icon: Car },
+  { title: "Layanan", value: "4 Pilihan Pembiayaan", icon: Wallet },
+  { title: "Jenis Layanan", value: "Mobil, Motor & SHM", icon: Newspaper },
   { title: "Proses", value: "Cepat & Transparan", icon: Clock3 },
   { title: "Status", value: "Berizin OJK", icon: Landmark },
 ];
@@ -68,6 +69,9 @@ const MultiFinance = () => {
                   <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
                     <Bike className="w-10 h-10 text-red-500" />
                   </div>
+                  <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
+                    <Newspaper className="w-10 h-10 text-red-500" />
+                  </div>
                 </div>
                 <div className="mt-2 text-center">
                   <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs sm:text-sm font-bold">
@@ -119,7 +123,7 @@ const MultiFinance = () => {
             pilihan pembiayaan sesuai kebutuhan, sekaligus mempermudah proses pengajuan hingga mendapatkan produk pembiayaan yang sesuai.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-4 mt-6">
+          <div className="grid md:grid-cols-4 gap-4 mt-6">
             {layananList.map((l) => {
               const Icon = l.icon;
               return (

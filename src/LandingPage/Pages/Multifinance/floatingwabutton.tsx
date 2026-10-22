@@ -17,7 +17,7 @@ const WhatsAppIcon = ({ className = "w-7 h-7 fill-white" }: { className?: string
 );
 
 const FloatingWaButton = ({
-  phone = "08138320993",
+  phone = "08134262738",
   message = "Halo, saya ingin bertanya mengenai pengajuan multi finance di Pindar.",
   name = "Admin Pindar",
   preview = "Halo! Ada yang bisa kami bantu seputar pengajuan kamu?",
