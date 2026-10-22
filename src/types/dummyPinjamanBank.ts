@@ -10,6 +10,22 @@ export interface PinjamanBank {
 export const dummyPinjamanBank: PinjamanBank[] = [
   {
     id: "1",
+    namaBank: "Bank Mayapada",
+    publisher: "myDANA Cepat",
+    detailPinjaman: "Kredit Tanpa Agunan (KTA) fleksibel untuk berbagai kebutuhan finansial pribadi.",
+    dokumenDibutuhkan: ["KTP", "NPWP", "Slip Gaji", "Rekening Koran 3 Bulan"],
+    imageLink: "/images/bank/mayapada.png",
+  },
+  {
+    id: "2",
+    namaBank: "CTBC",
+    publisher: "KTA Dana Cinta",
+    detailPinjaman: "Pinjaman KTA dengan pencairan cepat dan bunga kompetitif untuk nasabah individu.",
+    dokumenDibutuhkan: ["KTP", "NPWP", "Slip Gaji", "Kartu Kredit / Rekening Koran"],
+    imageLink: "/images/bank/ctbc.png",
+  },
+  {
+    id: "3",
     namaBank: "Bank Mandiri",
     publisher: "Mandiri KSM",
     detailPinjaman: "Pinjaman tanpa agunan untuk karyawan dengan proses cepat dan tenor fleksibel.",
@@ -17,7 +33,7 @@ export const dummyPinjamanBank: PinjamanBank[] = [
     imageLink: "/images/bank/mandiri.png",
   },
   {
-    id: "2",
+    id: "4",
     namaBank: "Bank BCA",
     publisher: "BCA Personal Loan",
     detailPinjaman: "Fasilitas pinjaman pribadi untuk kebutuhan konsumtif dengan cicilan tetap.",
@@ -25,7 +41,7 @@ export const dummyPinjamanBank: PinjamanBank[] = [
     imageLink: "/images/bank/bca.png",
   },
   {
-    id: "3",
+    id: "5",
     namaBank: "Bank BRI",
     publisher: "BRIguna",
     detailPinjaman: "Pinjaman multiguna untuk pegawai aktif maupun pensiunan dengan tenor panjang.",
@@ -33,7 +49,7 @@ export const dummyPinjamanBank: PinjamanBank[] = [
     imageLink: "/images/bank/bri.png",
   },
   {
-    id: "4",
+    id: "6",
     namaBank: "Bank BNI",
     publisher: "BNI Fleksi",
     detailPinjaman: "Kredit tanpa agunan untuk pegawai payroll BNI dengan bunga kompetitif.",
@@ -41,7 +57,7 @@ export const dummyPinjamanBank: PinjamanBank[] = [
     imageLink: "/images/bank/bni.png",
   },
   {
-    id: "5",
+    id: "7",
     namaBank: "CIMB Niaga",
     publisher: "X-Tra Dana",
     detailPinjaman: "Pinjaman dana tunai untuk berbagai kebutuhan dengan pengajuan praktis.",
