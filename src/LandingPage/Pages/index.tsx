@@ -11,6 +11,7 @@ import RekomendasiCreditCard from "../Components/RecomentCC/RecomentCC";
 import PopularPlus from "../Components/Iklan/popularplus";
 import PopularDeal from "../Components/Iklan/populardeal";
 import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinjamanBank";
+import RekomendasiMultifinance from "../Components/multifinance/RekomendasiMultifinance";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -30,6 +31,9 @@ const LandingPageUdin: React.FC = () => {
           </div>
           <div>
             <RekomendasiApp />
+          </div>
+          <div>
+            <RekomendasiMultifinance />
           </div>
           <div>
             <RekomendasiCreditCard />
