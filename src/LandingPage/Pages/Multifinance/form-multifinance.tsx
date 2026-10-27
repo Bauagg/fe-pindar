@@ -38,7 +38,7 @@ const initialForm: PublicForm = {
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
-  { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: Home },
+  // { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: Home },
   { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor (Second) dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
@@ -188,7 +188,7 @@ const MultiFinanceForm = () => {
               {/* Layanan */}
               <div>
                 <p className="mb-2 text-sm font-bold text-gray-800">Layanan yang dibutuhkan</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {layananList.map((l) => {
                     const Icon = l.icon;
                     const active = form.layanan === l.value;

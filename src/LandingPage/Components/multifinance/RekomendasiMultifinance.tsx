@@ -21,7 +21,7 @@ const RekomendasiMultifinance = () => {
   }, []);
 
   return (
-    <section className="w-full pt-10 md:pt-14 max-w-6xl mx-auto px-6">
+    <section className="w-full pt-5 md:pt-14 max-w-6xl mx-auto px-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">Pindar Multifinance</h2>
@@ -34,9 +34,9 @@ const RekomendasiMultifinance = () => {
       {/* LIST */}
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
         {multifinanceList.slice(0, itemsToShow).map((item) => (
-          <a
+          <Link
             key={item.id}
-            href="/multi-finance"
+            to={`/multi-finance?finance=${item.id}`}
             // state={{ selectedId: item.id }}
             className="
               group bg-white
@@ -68,7 +68,7 @@ const RekomendasiMultifinance = () => {
               <p className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2">{item.name}</p>
               <p className="hidden md:block text-[11px] text-gray-500 mt-1">Tenor hingga {Math.max(...item.tenors)} bln</p>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

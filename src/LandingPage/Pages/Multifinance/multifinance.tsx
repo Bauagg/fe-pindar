@@ -1,13 +1,15 @@
 // pages/MultiFinance.tsx
 
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, BadgeCheck, Bike, Car, Clock3, FileText, Info, Landmark, Newspaper, Repeat, ShieldCheck, Tag, Wallet } from "lucide-react";
 
 import Navbars from "../../Components/Navbar/index";
+import { multifinanceList } from "../../Components/multifinance/multifinanceData"; // sesuaikan path
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
-  { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: FileText },
+  // { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: FileText },
   { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor (Second) dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
@@ -21,8 +23,17 @@ const infoCards = [
 
 const MultiFinance = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const goToForm = () => navigate("/multi-finance/form");
+  const selectedId = searchParams.get("finance");
+  const selected = multifinanceList.find((m) => m.id === selectedId);
+
+  // otomatis scroll ke paling atas saat halaman dibuka / multifinance berubah
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [selectedId]);
+
+  const goToForm = () => navigate(selected ? `/multi-finance/form?finance=${selected.id}` : "/multi-finance/form");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-white font-signika">
@@ -62,17 +73,34 @@ const MultiFinance = () => {
             {/* RIGHT */}
             <div className="flex justify-center lg:justify-end">
               <div className="bg-white rounded-2xl sm:rounded-[2rem] shadow-2xl p-5 sm:p-8 w-full max-w-sm">
-                <div className="flex items-center justify-center gap-4 py-6">
-                  <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
-                    <Car className="w-10 h-10 text-red-500" />
+                {selected ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-6">
+                    <div className="w-32 h-32 rounded-3xl bg-red-50 flex items-center justify-center p-4">
+                      <img
+                        src={selected.image}
+                        alt={selected.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                        }}
+                      />
+                    </div>
+                    <p className="font-black text-gray-800 text-center">{selected.name}</p>
                   </div>
-                  <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
-                    <Bike className="w-10 h-10 text-red-500" />
+                ) : (
+                  <div className="flex items-center justify-center gap-4 py-6">
+                    <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
+                      <Car className="w-10 h-10 text-red-500" />
+                    </div>
+                    <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
+                      <Bike className="w-10 h-10 text-red-500" />
+                    </div>
+                    <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
+                      <Newspaper className="w-10 h-10 text-red-500" />
+                    </div>
                   </div>
-                  <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center">
-                    <Newspaper className="w-10 h-10 text-red-500" />
-                  </div>
-                </div>
+                )}
+
                 <div className="mt-2 text-center">
                   <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs sm:text-sm font-bold">
                     <ShieldCheck className="w-4 h-4" />

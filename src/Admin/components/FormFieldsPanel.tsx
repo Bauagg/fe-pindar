@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Download, ExternalLink, Loader2, Pencil, PenLine, Plus, Trash2, Upload } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Download, ExternalLink, Loader2, Pencil, PenLine, Plus, RotateCcw, Trash2, Upload } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { FIELD_TYPES } from "../constants";
 import Modal from "./Modal";
@@ -18,6 +18,42 @@ interface Draft {
   is_required: boolean;
   sort_order: string;
 }
+
+/** Field standar yang dibuat otomatis (lewat endpoint `fields` yang sudah ada). */
+interface DefaultField {
+  label: string;
+  is_required: boolean;
+  hint?: string;
+}
+
+const DEFAULT_FILE_FIELDS: DefaultField[] = [
+  { label: "Foto KTP Customer", is_required: true },
+  { label: "Foto KTP Pasangan", is_required: false, hint: "Jika sudah menikah" },
+  { label: "Kartu Keluarga", is_required: true },
+  { label: "Foto BPKB", is_required: true },
+  { label: "Foto STNK Depan", is_required: true },
+  { label: "Foto STNK Belakang", is_required: true },
+  { label: "Foto NPWP", is_required: true },
+];
+
+const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+const hintOf = (label: string) => DEFAULT_FILE_FIELDS.find((d) => norm(d.label) === norm(label))?.hint;
+
+const seedKey = (appId: number) => `mf-seeded-${appId}`;
+const isSeeded = (appId: number) => {
+  try {
+    return localStorage.getItem(seedKey(appId)) === "1";
+  } catch {
+    return false;
+  }
+};
+const markSeeded = (appId: number) => {
+  try {
+    localStorage.setItem(seedKey(appId), "1");
+  } catch {
+    /* abaikan */
+  }
+};
 
 const MAX_MB = 15;
 const ALLOWED = /\.(pdf|jpe?g|png)$/i;
@@ -50,7 +86,16 @@ function ValueView({ f }: { f: FormField }) {
 }
 
 export default function FormFieldsPanel({ app, onChanged }: Props) {
-  const fields = app.form_fields ?? [];
+  // Semua field diperlakukan sama, urut berdasarkan sort_order
+  const fields: FormField[] = [...(app.form_fields ?? [])].sort((a, b) => a.sort_order - b.sort_order || a.id - b.id);
+
+  // Dokumen standar yang belum ada (dicocokkan lewat label)
+  const missingDefaults = DEFAULT_FILE_FIELDS.map((d, i) => ({ d, i })).filter(({ d }) => !fields.some((f) => norm(f.label) === norm(d.label)));
+
+  // Seeding
+  const seededFor = useRef<number | null>(null);
+  const [seeding, setSeeding] = useState(false);
+  const [seedError, setSeedError] = useState("");
 
   // Kelola definisi field
   const [editing, setEditing] = useState<FormField | "new" | null>(null);
@@ -67,6 +112,44 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
   const [fillValue, setFillValue] = useState("");
   const [fillSaving, setFillSaving] = useState(false);
   const [fillError, setFillError] = useState("");
+
+  /** Buat field standar lewat endpoint yang sudah ada, berurutan. */
+  const createDefaults = async (items: { d: DefaultField; i: number }[]) => {
+    if (items.length === 0) return;
+    setSeeding(true);
+    setSeedError("");
+    try {
+      for (const { d, i } of items) {
+        await api(`/admin/multifinance/${app.id}/fields`, {
+          method: "POST",
+          body: { label: d.label, field_type: "file", is_required: d.is_required, sort_order: i + 1 },
+        });
+      }
+      markSeeded(app.id);
+      await onChanged();
+    } catch (err) {
+      setSeedError(errorMessage(err));
+      await onChanged(); // field yang sempat terbuat tetap tampil
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  /** Seed otomatis: hanya sekali, dan hanya kalau aplikasi belum punya field. */
+  useEffect(() => {
+    if (seededFor.current === app.id) return; // cegah jalan dobel (StrictMode / re-render)
+    seededFor.current = app.id;
+
+    if (isSeeded(app.id)) return;
+
+    if ((app.form_fields ?? []).length > 0) {
+      markSeeded(app.id); // sudah punya field, anggap sudah pernah di-seed
+      return;
+    }
+
+    createDefaults(DEFAULT_FILE_FIELDS.map((d, i) => ({ d, i })));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [app.id]);
 
   const openNew = () => {
     const last = fields[fields.length - 1];
@@ -119,7 +202,7 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
     }
   };
 
-  /** Upload file (mis. foto BPKB dari WA) langsung atas nama pemohon. */
+  /** Upload file (mis. foto BPKB dari WA) langsung atas nama pemohon. Dikirim satu per field. */
   const uploadFile = async (f: FormField, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = ""; // supaya file yang sama bisa dipilih lagi
@@ -149,7 +232,7 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
     }
   };
 
-  /** Download file yang sudah diupload. Fetch jadi blob supaya benar-benar terunduh (bukan cuma dibuka di tab baru). */
+  /** Download file yang sudah diupload. Fetch jadi blob supaya benar-benar terunduh. */
   const downloadFile = async (f: FormField) => {
     if (!f.file_url) return;
     setRowError(null);
@@ -177,7 +260,6 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
       trigger(objectUrl);
       setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
     } catch {
-      // Fallback (mis. diblokir CORS): coba download langsung lewat link
       try {
         trigger(f.file_url, true);
       } catch {
@@ -214,24 +296,49 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
     <section className={card}>
       <div className="flex items-center justify-between gap-4 border-b border-gray-100 px-5 py-4">
         <div>
-          <h2 className="font-extrabold text-gray-900">Form tambahan</h2>
-          <p className="text-sm text-gray-500">Dokumen atau data tambahan. Bisa diisi pemohon, atau kamu upload atas nama pemohon.</p>
+          <h2 className="font-extrabold text-gray-900">Dokumen & form tambahan</h2>
+          <p className="text-sm text-gray-500">Dokumen standar sudah tersedia. Semua field bisa diubah atau dihapus, dan kamu bisa menambah field lain.</p>
         </div>
-        <button onClick={openNew} className={`${btnPrimary} h-10 shrink-0 px-4`}>
-          <Plus className="h-4 w-4" /> Tambah
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {missingDefaults.length > 0 && !seeding && (
+            <button type="button" onClick={() => createDefaults(missingDefaults)} className={btnSmall} title={`Buat ulang: ${missingDefaults.map(({ d }) => d.label).join(", ")}`}>
+              <RotateCcw className="h-3.5 w-3.5" /> Pulihkan standar
+            </button>
+          )}
+          <button onClick={openNew} className={`${btnPrimary} h-10 px-4`}>
+            <Plus className="h-4 w-4" /> Tambah
+          </button>
+        </div>
       </div>
 
+      {seeding && (
+        <div className="flex items-center gap-2 border-b border-gray-50 px-5 py-3 text-sm text-gray-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> Menyiapkan dokumen standar...
+        </div>
+      )}
+
+      {seedError && (
+        <div role="alert" className="flex items-center justify-between gap-3 border-b border-red-100 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700">
+          <span>Gagal menyiapkan dokumen standar: {seedError}</span>
+          <button type="button" onClick={() => createDefaults(missingDefaults)} className={btnSmall}>
+            Coba lagi
+          </button>
+        </div>
+      )}
+
       {fields.length === 0 ? (
-        <p className="px-5 py-10 text-center text-sm text-gray-500">
-          Belum ada form tambahan. Klik <b>Tambah</b> untuk meminta data seperti foto BPKB atau STNK.
-        </p>
+        !seeding && (
+          <p className="px-5 py-10 text-center text-sm text-gray-500">
+            Belum ada form. Klik <b>Pulihkan standar</b> atau <b>Tambah</b>.
+          </p>
+        )
       ) : (
         <ul className="divide-y divide-gray-50">
           {fields.map((f) => {
             const last = lastFilled(app.activities, f.id);
             const uploading = uploadingId === f.id;
             const downloading = downloadingId === f.id;
+            const hint = hintOf(f.label);
 
             return (
               <li key={f.id} className="flex items-start justify-between gap-4 px-5 py-4">
@@ -244,7 +351,10 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
                       </span>
                     )}
                   </p>
-                  <p className="mb-2 text-xs text-gray-400">{FIELD_TYPES[f.field_type]}</p>
+                  <p className="mb-2 text-xs text-gray-400">
+                    {FIELD_TYPES[f.field_type]}
+                    {hint && <span className="ml-1 text-gray-500">· {hint}</span>}
+                  </p>
                   <ValueView f={f} />
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -312,7 +422,7 @@ export default function FormFieldsPanel({ app, onChanged }: Props) {
               <label htmlFor="f-label" className="mb-2 block text-sm font-bold text-gray-900">
                 Nama field
               </label>
-              <input id="f-label" required maxLength={150} value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="Contoh: Foto BPKB" className={inputCls} />
+              <input id="f-label" required maxLength={150} value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="Contoh: Slip Gaji" className={inputCls} />
             </div>
 
             <div>

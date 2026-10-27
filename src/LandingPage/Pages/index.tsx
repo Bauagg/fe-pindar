@@ -12,6 +12,7 @@ import PopularPlus from "../Components/Iklan/popularplus";
 import PopularDeal from "../Components/Iklan/populardeal";
 import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinjamanBank";
 import RekomendasiMultifinance from "../Components/multifinance/RekomendasiMultifinance";
+import BannerMultifinance from "../Components/Iklan/bannerMultifinance";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -31,6 +32,9 @@ const LandingPageUdin: React.FC = () => {
           </div>
           <div>
             <RekomendasiApp />
+          </div>
+          <div className="mt-10 md:mt-12">
+            <BannerMultifinance />
           </div>
           <div>
             <RekomendasiMultifinance />
