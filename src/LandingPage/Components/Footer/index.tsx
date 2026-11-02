@@ -17,6 +17,14 @@ const Footer = () => {
       title: "Kartu Kredit",
       path: "/kartukredit",
     },
+    {
+      title: "Pinjaman Bank",
+      path: "/pinjaman-bank",
+    },
+    {
+      title: "Multifinance",
+      path: "/multi-finance",
+    },
   ];
 
   const informationLinks = [

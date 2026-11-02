@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom";
 import { FiMenu, FiX, FiHome, FiCreditCard, FiSearch } from "react-icons/fi";
 import { FaMoneyBillWave } from "react-icons/fa";
 import SearchPopup from "./SearchPopup";
+import { RiBankLine } from "react-icons/ri";
+import { HiOutlineBanknotes } from "react-icons/hi2";
 
 const Navbar = (): JSX.Element => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,6 +21,8 @@ const Navbar = (): JSX.Element => {
     { to: "/", icon: <FiHome size={20} />, label: "Beranda" },
     { to: "/pindar", icon: <FaMoneyBillWave size={20} />, label: "Pindar" },
     { to: "/kartukredit", icon: <FiCreditCard size={20} />, label: "Kartu Kredit" },
+    { to: "/pinjaman-bank", icon: <HiOutlineBanknotes size={20} />, label: "Pinjaman Bank" },
+    { to: "/multi-finance", icon: <RiBankLine size={20} />, label: "Multifinance" },
   ];
 
   const legalMenus = [

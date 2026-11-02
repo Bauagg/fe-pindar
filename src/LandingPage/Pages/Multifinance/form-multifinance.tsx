@@ -38,7 +38,7 @@ const initialForm: PublicForm = {
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
-  // { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: Home },
+  { value: "Jaminkan SHM", desc: "Dana dengan jaminan sertifikat hak milik.", icon: Home },
   { value: "Beli Kendaraan (Second)", desc: "Beli mobil atau motor (Second) dengan harga terbaik.", icon: Tag },
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
