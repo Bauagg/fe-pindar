@@ -40,6 +40,10 @@ const Footer = () => {
       title: "Kebijakan Privasi",
       path: "/legal/privacy",
     },
+    {
+      title: "Hubungi Kami",
+      path: "/legal/hubungi-kami",
+    },
   ];
 
   return (

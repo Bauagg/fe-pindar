@@ -1,8 +1,8 @@
 // pages/PindarDetail.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowRight, BadgeCheck, Clock3, CreditCard, FileText, Info, Landmark, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, BadgeCheck, CircleCheck, Clock3, CreditCard, FileText, Info, Landmark, ShieldCheck, Wallet } from "lucide-react";
 
 import Navbars from "../../Components/Navbar/index";
 import RedirectModal from "../../Components/Riderect/RiderectModal";
@@ -20,6 +20,51 @@ interface DetailItem {
   termsDocument: string;
 }
 
+interface TermsGroup {
+  title?: string;
+  items: string[];
+}
+
+// Ubah HTML persyaratan dari API menjadi grup + item agar bisa dirender rapi
+const parseTerms = (html: string): TermsGroup[] => {
+  if (!html || typeof window === "undefined") return [];
+
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const nodes = Array.from(doc.body.children);
+
+  const groups: TermsGroup[] = [];
+  let current: TermsGroup | null = null;
+
+  nodes.forEach((node, index) => {
+    const tag = node.tagName;
+
+    if (tag === "OL" || tag === "UL") {
+      if (!current) {
+        current = { items: [] };
+        groups.push(current);
+      }
+
+      Array.from(node.children).forEach((li) => {
+        const content = li.innerHTML.trim();
+        if (content) current!.items.push(content);
+      });
+
+      return;
+    }
+
+    const text = (node.textContent || "").trim();
+    if (!text) return;
+
+    // paragraf pertama sebelumnya disembunyikan (judul ganda), tetap dipertahankan
+    if (index === 0 && tag === "P") return;
+
+    current = { title: node.innerHTML.trim(), items: [] };
+    groups.push(current);
+  });
+
+  return groups.filter((g) => g.items.length > 0);
+};
+
 const PindarDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -29,6 +74,9 @@ const PindarDetail = () => {
   const [openRedirect, setOpenRedirect] = useState(false);
 
   const baseURL = process.env.REACT_APP_API_BASE_URL;
+
+  const termsGroups = useMemo(() => parseTerms(data?.termsDocument || ""), [data?.termsDocument]);
+  const termsCount = termsGroups.reduce((total, g) => total + g.items.length, 0);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -69,7 +117,7 @@ const PindarDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 font-signika">
+      <div className="min-h-screen bg-gray-50 font-signika overflow-x-hidden">
         <Navbars />
 
         <div className="flex items-center justify-center h-[70vh]">
@@ -89,7 +137,7 @@ const PindarDetail = () => {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-50 font-signika">
+      <div className="min-h-screen bg-gray-50 font-signika overflow-x-hidden">
         <Navbars />
 
         <div className="flex items-center justify-center h-[70vh] px-4">
@@ -146,7 +194,7 @@ const PindarDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-white font-signika">
+    <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-white font-signika overflow-x-hidden">
       <Navbars />
 
       {/* HERO */}
@@ -159,7 +207,7 @@ const PindarDetail = () => {
         <div className="relative max-w-7xl mx-auto px-4 lg:px-8 py-8 sm:py-10 lg:py-20">
           <div className="grid md:grid-cols-2 gap-6 lg:gap-10 items-center mt-10 sm:mt-12">
             {/* LEFT */}
-            <div>
+            <div className="min-w-0">
               <div
                 className="
                   inline-flex
@@ -175,7 +223,6 @@ const PindarDetail = () => {
                   font-semibold
                   mb-5
                   mt-5
-                  
                 ">
                 <BadgeCheck className="w-4 h-4" />
                 Pindar Terverifikasi
@@ -189,6 +236,7 @@ const PindarDetail = () => {
                   font-black
                   text-white
                   leading-tight
+                  break-words
                 ">
                 {data.lenderName}
               </h1>
@@ -229,7 +277,7 @@ const PindarDetail = () => {
             </div>
 
             {/* RIGHT */}
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-center lg:justify-end min-w-0">
               <div
                 className="
                   bg-white
@@ -288,6 +336,7 @@ const PindarDetail = () => {
                 <div
                   key={index}
                   className="
+                    min-w-0
                     bg-white
                     rounded-2xl
                     sm:rounded-[2rem]
@@ -329,10 +378,12 @@ const PindarDetail = () => {
 
       {/* CONTENT */}
       <section className="px-4 lg:px-8 pb-10 sm:pb-16">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-5 sm:gap-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           {/* INFORMASI */}
           <div
             className="
+              min-w-0
+              overflow-hidden
               bg-white
               rounded-2xl sm:rounded-[2rem]
               border border-gray-100
@@ -344,6 +395,7 @@ const PindarDetail = () => {
                 className="
                   w-11 h-11
                   sm:w-14 sm:h-14
+                  shrink-0
                   rounded-2xl
                   bg-red-50
                   flex items-center justify-center
@@ -351,10 +403,10 @@ const PindarDetail = () => {
                 <Info className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-red-500 font-bold uppercase text-xs sm:text-sm">Informasi</p>
 
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800">Tentang {data.lenderName}</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 break-words">Tentang {data.lenderName}</h2>
               </div>
             </div>
 
@@ -371,6 +423,16 @@ const PindarDetail = () => {
                 prose-ul:pl-5
                 prose-li:marker:text-red-500
                 text-sm md:text-base
+
+                break-words
+                [overflow-wrap:anywhere]
+                [&_*]:!whitespace-normal
+                [&_*]:max-w-full
+                [&_pre]:!whitespace-pre-wrap
+                [&_code]:break-all
+                [&_img]:h-auto
+                [&_table]:block
+                [&_table]:overflow-x-auto
               "
               dangerouslySetInnerHTML={{
                 __html: data.additionalInformation,
@@ -381,6 +443,8 @@ const PindarDetail = () => {
           {/* SYARAT */}
           <div
             className="
+              min-w-0
+              overflow-hidden
               bg-white
               rounded-2xl sm:rounded-[2rem]
               border border-gray-100
@@ -392,6 +456,7 @@ const PindarDetail = () => {
                 className="
                   w-11 h-11
                   sm:w-14 sm:h-14
+                  shrink-0
                   rounded-2xl
                   bg-red-50
                   flex items-center justify-center
@@ -399,57 +464,82 @@ const PindarDetail = () => {
                 <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
               </div>
 
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-red-500 font-bold uppercase text-xs sm:text-sm">Persyaratan</p>
 
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800">Dokumen Dibutuhkan</h2>
               </div>
+
+              {termsCount > 0 && <span className="shrink-0 rounded-full bg-red-50 border border-red-100 text-red-600 text-xs sm:text-sm font-bold px-3 py-1.5">{termsCount} item</span>}
             </div>
 
-            {/* CONTENT */}
-            <div
-              className="
-      [&>p:first-child]:hidden
+            {termsGroups.length > 0 ? (
+              <div className="space-y-6">
+                {termsGroups.map((group, gIndex) => (
+                  <div key={gIndex}>
+                    {group.title && (
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="w-1.5 h-5 rounded-full bg-red-500 shrink-0"></span>
 
-      [&_ol]:space-y-4
-      [&_ol]:list-none
-      [&_ol]:p-0
-      [&_ol]:m-0
+                        <h3 className="text-sm sm:text-base font-black text-gray-800 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: group.title }} />
+                      </div>
+                    )}
 
-      [&_li]:bg-white
-      [&_li]:border
-      [&_li]:border-gray-100
-      [&_li]:rounded-2xl
-      [&_li]:p-4
-      [&_li]:sm:p-5
-      [&_li]:shadow-sm
-      [&_li]:flex
-      [&_li]:gap-4
-      [&_li]:items-start
-      [&_li]:text-sm
-      [&_li]:sm:text-base
-      [&_li]:leading-relaxed
-      [&_li]:text-gray-700
+                    <ul className="space-y-3">
+                      {group.items.map((item, iIndex) => (
+                        <li key={iIndex} className="flex items-start gap-3 sm:gap-4 rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5 sm:p-4">
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                            <CircleCheck className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                          </div>
 
-      [&_li::before]:content-['✓']
-      [&_li::before]:min-w-8
-      [&_li::before]:h-8
-      [&_li::before]:rounded-xl
-      [&_li::before]:bg-red-50
-      [&_li::before]:text-red-500
-      [&_li::before]:font-bold
-      [&_li::before]:flex
-      [&_li::before]:items-center
-      [&_li::before]:justify-center
-      [&_li::before]:text-sm
-
-      [&_strong]:text-gray-900
-      [&_strong]:font-bold
-    "
-              dangerouslySetInnerHTML={{
-                __html: data.termsDocument,
-              }}
-            />
+                          <div
+                            className="
+                              min-w-0
+                              flex-1
+                              text-sm sm:text-base
+                              leading-relaxed
+                              text-gray-700
+                              break-words
+                              [overflow-wrap:anywhere]
+                              [&_*]:max-w-full
+                              [&_p]:m-0
+                              [&_p+p]:mt-2
+                              [&_strong]:text-gray-900
+                              [&_strong]:font-bold
+                              [&_ul]:mt-2
+                              [&_ul]:list-disc
+                              [&_ul]:pl-5
+                              [&_ul]:space-y-1
+                              [&_ol]:mt-2
+                              [&_ol]:list-decimal
+                              [&_ol]:pl-5
+                              [&_ol]:space-y-1
+                              [&_li]:marker:text-red-500
+                            "
+                            dangerouslySetInnerHTML={{ __html: item }}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // fallback bila format HTML dari API tidak berupa daftar
+              <div
+                className="
+                  text-sm sm:text-base
+                  leading-relaxed
+                  text-gray-700
+                  break-words
+                  [overflow-wrap:anywhere]
+                  [&_*]:max-w-full
+                  [&_strong]:text-gray-900
+                  [&_p+p]:mt-3
+                "
+                dangerouslySetInnerHTML={{ __html: data.termsDocument }}
+              />
+            )}
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { Building2, FileText, ShieldCheck } from "lucide-react";
+import { Building2, FileText, PhoneCall, ShieldCheck } from "lucide-react";
 
 interface Props {
   activeTab: string;
@@ -20,6 +20,11 @@ const tabs = [
     id: "privacy",
     label: "Kebijakan Privasi",
     icon: ShieldCheck,
+  },
+  {
+    id: "hubungi-kami",
+    label: "Hubungi Kami",
+    icon: PhoneCall,
   },
 ];
 

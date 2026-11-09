@@ -6,6 +6,7 @@ import LegalTabs from "../../Components/Legal/LegalTabs";
 import AboutUs from "../../Components/Legal/AboutUs";
 import TermsCondition from "../../Components/Legal/TermsCondition";
 import PrivacyPolicy from "../../Components/Legal/PrivacyPolicy";
+import ContactUs from "../../Components/Legal/Contactus";
 
 const LegalPage = () => {
   const { tab } = useParams();
@@ -44,6 +45,8 @@ const LegalPage = () => {
             {activeTab === "terms" && <TermsCondition />}
 
             {activeTab === "privacy" && <PrivacyPolicy />}
+
+            {activeTab === "hubungi-kami" && <ContactUs />}
           </div>
         </div>
       </section>

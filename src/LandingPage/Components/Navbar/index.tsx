@@ -26,9 +26,10 @@ const Navbar = (): JSX.Element => {
   ];
 
   const legalMenus = [
-    { to: "/legal/terms", label: "Syarat & Ketentuan" },
-    { to: "/legal/privacy", label: "Kebijakan Privasi" },
+    // { to: "/legal/terms", label: "Syarat & Ketentuan" },
+    // { to: "/legal/privacy", label: "Kebijakan Privasi" },
     { to: "/legal/about", label: "Tentang Kami" },
+    { to: "/legal/hubungi-kami", label: "Hubungi Kami" },
   ];
 
   return (
