@@ -76,7 +76,6 @@ const HeroUdin = () => {
         {/* ================= TRENDING ================= */}
         <div className="max-sm:mt-5 mt-10 px-4 sm:px-6 max-w-6xl mx-auto">
           <div className=" bg-gradient-to-r from-red-600 to-red-500 rounded-2xl sm:rounded-3xl p-6 sm:p-6 md:p-6 flex items-center justify-between gap-3 sm:gap-4 md:gap-6 shadow-xl">
-            {/* LEFT */}
             <div className="min-w-0">
               <h2
                 className="
@@ -88,7 +87,6 @@ const HeroUdin = () => {
               </h2>
             </div>
 
-            {/* RIGHT BUTTON */}
             <NavLink
               to="/education/trending"
               className="

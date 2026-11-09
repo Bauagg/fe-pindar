@@ -13,6 +13,7 @@ import PopularDeal from "../Components/Iklan/populardeal";
 import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinjamanBank";
 import RekomendasiMultifinance from "../Components/multifinance/RekomendasiMultifinance";
 import BannerMultifinance from "../Components/Iklan/bannerMultifinance";
+import VideoPindar from "../Components/Iklan/VideoPindar";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -27,6 +28,9 @@ const LandingPageUdin: React.FC = () => {
             <HeroSection />
           </div>
 
+          <div className="mt-6 md:mt-12">
+            <VideoPindar />
+          </div>
           <div className="mt-6 md:mt-12">
             <PopularPlus />
           </div>
