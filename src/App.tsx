@@ -26,6 +26,10 @@ import MultifinanceDashboard from "./Admin/pages/MultifinanceDashboard";
 import ApplicationsPage from "./Admin/pages/ApplicationsPage";
 import LoginRetailku from "./Admin/pages/LoginRetailku";
 import ApplicationDetailPage from "./Admin/pages/ApplicationDetailPage";
+import LoginSinarmas from "./Admin/pages/LoginSinarmas";
+import LoginCNAF from "./Admin/pages/LoginCnaf";
+import LoginTaf from "./Admin/pages/LoginTaf";
+import LoginMoladin from "./Admin/pages/LoginMoladin";
 
 // BARU: deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
@@ -82,6 +86,10 @@ const App = () => {
           {/* MULTIFINANCE (ADMIN) */}
           <Route path="/login/admin" element={<AdminLogin />} />
           <Route path="/retailku/login" element={<LoginRetailku />} />
+          <Route path="/sinarmas-multifinance/login" element={<LoginSinarmas />} />
+          <Route path="/cnaf/login" element={<LoginCNAF />} />
+          <Route path="/taf/login" element={<LoginTaf />} />
+          <Route path="/moladin/login" element={<LoginMoladin />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="multi-finance" replace />} />

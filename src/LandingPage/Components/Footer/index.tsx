@@ -5,44 +5,30 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   const menuLinks = [
-    {
-      title: "Beranda",
-      path: "/",
-    },
-    {
-      title: "Pindar",
-      path: "/pindar",
-    },
-    {
-      title: "Kartu Kredit",
-      path: "/kartukredit",
-    },
-    {
-      title: "Pinjaman Bank",
-      path: "/pinjaman-bank",
-    },
-    {
-      title: "Multifinance",
-      path: "/multi-finance",
-    },
+    { title: "Beranda", path: "/" },
+    { title: "Pindar", path: "/pindar" },
+    { title: "Kartu Kredit", path: "/kartukredit" },
+    { title: "Pinjaman Bank", path: "/pinjaman-bank" },
+    { title: "Multifinance", path: "/multi-finance" },
   ];
 
   const informationLinks = [
+    { title: "Tentang Kami", path: "/legal/about" },
+    { title: "Syarat & Ketentuan", path: "/legal/terms" },
+    { title: "Kebijakan Privasi", path: "/legal/privacy" },
+    { title: "Hubungi Kami", path: "/legal/hubungi-kami" },
+  ];
+
+  const certifications = [
     {
-      title: "Tentang Kami",
-      path: "/legal/about",
+      src: "/images/logo-pse.png",
+      alt: "Logo PSE - Penyelenggara Sistem Elektronik Terdaftar",
+      label: "",
     },
     {
-      title: "Syarat & Ketentuan",
-      path: "/legal/terms",
-    },
-    {
-      title: "Kebijakan Privasi",
-      path: "/legal/privacy",
-    },
-    {
-      title: "Hubungi Kami",
-      path: "/legal/hubungi-kami",
+      src: "/images/logo-iso.png",
+      alt: "Logo ISO - Sertifikasi Standar Internasional",
+      label: "",
     },
   ];
 
@@ -130,8 +116,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* MENU AND INFORMATION */}
-          {/* <div className="flex  items-start gap-10"> */}
           {/* MENU */}
           <div>
             <h3 className="text-lg font-black mb-5">Menu</h3>
@@ -181,7 +165,6 @@ const Footer = () => {
               ))}
             </div>
           </div>
-          {/* </div> */}
 
           {/* CONTACT */}
           <div>
@@ -210,25 +193,6 @@ const Footer = () => {
                 </div>
               </div>
 
-              {/* <div className="flex items-start gap-3">
-                <div
-                  className="
-                    w-11 h-11
-                    rounded-2xl
-                    bg-white/10
-                    flex items-center justify-center
-                    shrink-0
-                  ">
-                  <Phone className="w-5 h-5" />
-                </div>
-
-                <div>
-                  <p className="font-semibold text-sm sm:text-base">Telepon</p>
-
-                  <p className="text-red-100 text-sm">+62 812-3456-7890</p>
-                </div>
-              </div> */}
-
               <div className="flex items-start gap-3">
                 <div
                   className="
@@ -248,6 +212,42 @@ const Footer = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CERTIFICATIONS */}
+      <div className="border-t border-white/10">
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-4 sm:px-6 lg:px-8
+            py-8
+            flex flex-col md:flex-row
+            items-center justify-center md:justify-between
+            gap-6
+          ">
+          <p className="text-sm sm:text-base font-bold text-white text-center md:text-left">Terdaftar & Tersertifikasi</p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            {certifications.map((item, index) => (
+              <div
+                key={index}
+                className="
+                  flex items-center gap-3
+                  bg-white
+                  rounded-2xl
+                  px-4 py-3
+                  shadow-lg
+                  hover:scale-105
+                  transition-all duration-300
+                ">
+                <img src={item.src} alt={item.alt} className="h-12 sm:h-14 w-auto object-contain" />
+
+                {/* <span className="text-xs sm:text-sm font-semibold text-red-700 hidden sm:block">{item.label}</span> */}
+              </div>
+            ))}
           </div>
         </div>
       </div>
