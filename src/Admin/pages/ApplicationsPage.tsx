@@ -294,7 +294,7 @@ export default function ApplicationsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-extrabold text-gray-900">Pengajuan</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900">Nasabah</h1>
           {unread > 0 && (
             <button
               type="button"

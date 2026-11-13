@@ -62,11 +62,11 @@ export const NAV: NavItem[] = [
     // Kalau mau dibatasi: roles: ["super_admin", "admin", "admin_retailku"],
     children: [
       { to: "/admin/multifinance/summary", label: "Summary", icon: BarChart3 },
-      { to: "/admin/multifinance/list-pengajuan", label: "List Pengajuan", icon: List },
-      { to: "/admin/multifinance/pengajuan-disetujui", label: "Pengajuan Disetujui", icon: CheckCircle2 },
+      { to: "/admin/multifinance/list-pengajuan", label: "Nasabah", icon: List },
+      { to: "/admin/multifinance/pengajuan-disetujui", label: "Approved", icon: CheckCircle2 },
       { to: "/admin/multifinance/pencairan", label: "Disbursement", icon: FaMoneyBill },
       {
-        label: "Kreditur Multifinance",
+        label: "Kreditur",
         icon: Building2,
         children: [
           { to: "/admin/multifinance/retailku", label: "Retailku", icon: Building2 },

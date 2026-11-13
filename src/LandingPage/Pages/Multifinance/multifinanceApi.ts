@@ -96,6 +96,9 @@ const firstValidationError = (data: any): string | null => {
   return Array.isArray(first) && first[0] ? String(first[0]) : null;
 };
 
+/** Error dengan detail dari BE (status + errors per field), supaya UI bisa mengenali kasus tertentu (mis. nomor telepon sudah terdaftar). */
+const apiError = (message: string, status: number, errors?: Record<string, string[]>) => Object.assign(new Error(message), { status, errors });
+
 /** Kirim pengajuan (tanpa login). Melempar Error dengan pesan yang ramah untuk user. */
 export async function submitApplication(input: ApplicationInput): Promise<ApplicationResult> {
   let res: Response;
@@ -114,7 +117,7 @@ export async function submitApplication(input: ApplicationInput): Promise<Applic
 
   if (!res.ok) {
     if (res.status === 422) {
-      throw new Error(firstValidationError(data) ?? "Ada data yang belum sesuai. Periksa lagi data yang kamu isi.");
+      throw apiError(firstValidationError(data) ?? "Ada data yang belum sesuai. Periksa lagi data yang kamu isi.", 422, data?.errors);
     }
     if (res.status === 429) throw new Error("Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.");
     throw new Error(data?.message || "Pengajuan gagal dikirim. Coba lagi beberapa saat lagi.");
@@ -124,4 +127,49 @@ export async function submitApplication(input: ApplicationInput): Promise<Applic
     applicationNumber: data.data.application_number,
     accessToken: data.access_token,
   };
+}
+
+/**
+ * Upload dokumen pemohon (tanpa login, pakai access token dari submitApplication).
+ * Key pada `files` = `name` field di BE, mis. { foto_ktp_customer: File }.
+ * Dipanggil satu file per request supaya tidak kena batas post_max_size dan mudah di-retry.
+ */
+export async function uploadFormValues(token: string, files: Record<string, File>): Promise<void> {
+  const body = new FormData();
+  Object.entries(files).forEach(([name, file]) => body.append(name, file));
+
+  let res: Response;
+
+  try {
+    // Jangan set Content-Type manual, biar browser mengisi boundary multipart.
+    res = await fetch(`${API_URL}/multifinance/${token}/form-values`, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body,
+    });
+  } catch {
+    throw new Error("Koneksi terputus saat mengunggah. Periksa internet kamu lalu coba lagi.");
+  }
+
+  if (res.ok) return;
+
+  const data = await res.json().catch(() => null);
+
+  if (res.status === 413) throw new Error("Ukuran file terlalu besar untuk server. Coba foto dengan ukuran lebih kecil.");
+  if (res.status === 429) throw new Error("Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.");
+
+  if (res.status === 422) {
+    const raw = firstValidationError(data) ?? data?.message ?? "";
+    console.error("Upload 422:", data);
+
+    let msg = raw;
+    if (/failed to upload/i.test(raw)) msg = "File terlalu besar untuk server. Coba foto dengan ukuran lebih kecil.";
+    else if (/must be a file of type|mimes/i.test(raw)) msg = "Format file harus JPG, PNG, atau PDF.";
+    else if (/may not be greater than|max/i.test(raw)) msg = "Ukuran file terlalu besar.";
+    else if (/belum ada form tambahan/i.test(raw)) msg = "Dokumen belum bisa diunggah saat ini. Kamu bisa kirim lewat WhatsApp admin.";
+
+    throw apiError(msg || "File tidak valid. Gunakan JPG, PNG, atau PDF.", 422, data?.errors);
+  }
+
+  throw new Error(data?.message || "Gagal mengunggah dokumen. Coba lagi.");
 }
