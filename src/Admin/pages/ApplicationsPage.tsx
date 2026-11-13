@@ -9,10 +9,16 @@ import { fmtDate } from "../utils";
 import type { Application, Paginated, StatusKey } from "../types";
 import AssetCell, { ApplicantBadge } from "../components/AssetCell";
 import ActivityNote, { UnreadDot } from "../components/ActivityNote";
+import ExportApplicationsButton from "../components/ExportApplicationsButton";
 
 type Filter = "" | "unread" | StatusKey;
 
 const POLL_MS = 30000;
+
+/** Pilihan cepat jumlah data per halaman (default 10) */
+const PER_PAGE_OPTIONS = [10, 20, 50, 100, 200];
+const MIN_PER_PAGE = 1;
+const MAX_PER_PAGE = 200;
 
 /* ------------------------------------------------------------------ */
 /* Dropdown status: rapi di mobile, tablet, dan desktop                */
@@ -135,12 +141,85 @@ function StatusDropdown({ value, onChange }: { value: Filter; onChange: (v: Filt
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Pilihan jumlah data per halaman: preset + bisa isi sendiri          */
+/* ------------------------------------------------------------------ */
+function PerPageSelect({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const isPreset = PER_PAGE_OPTIONS.includes(value);
+  const [custom, setCustom] = useState(!isPreset);
+  const [draft, setDraft] = useState(String(value));
+
+  // Terapkan angka isian sendiri (dibatasi 1 - 200)
+  const commit = () => {
+    const n = Math.min(MAX_PER_PAGE, Math.max(MIN_PER_PAGE, Math.floor(Number(draft))));
+
+    if (!Number.isFinite(n) || n < MIN_PER_PAGE) {
+      setDraft(String(value)); // input tidak valid -> kembalikan
+      return;
+    }
+
+    setDraft(String(n));
+    if (PER_PAGE_OPTIONS.includes(n)) setCustom(false);
+    if (n !== value) onChange(n);
+  };
+
+  return (
+    <div className="flex items-center gap-2 text-gray-500">
+      <span className="whitespace-nowrap">Tampilkan</span>
+
+      <select
+        value={custom ? "custom" : String(value)}
+        onChange={(e) => {
+          if (e.target.value === "custom") {
+            setCustom(true);
+            setDraft(String(value));
+          } else {
+            setCustom(false);
+            onChange(Number(e.target.value));
+          }
+        }}
+        aria-label="Jumlah data per halaman"
+        className="rounded-lg bg-white px-2 py-1.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
+        {PER_PAGE_OPTIONS.map((n) => (
+          <option key={n} value={n}>
+            {n}
+          </option>
+        ))}
+        <option value="custom">Isi sendiri…</option>
+      </select>
+
+      {custom && (
+        <input
+          type="number"
+          inputMode="numeric"
+          min={MIN_PER_PAGE}
+          max={MAX_PER_PAGE}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commit();
+            }
+          }}
+          aria-label={`Jumlah data per halaman (${MIN_PER_PAGE}-${MAX_PER_PAGE})`}
+          className="w-20 rounded-lg bg-white px-2 py-1.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+        />
+      )}
+
+      <span className="whitespace-nowrap">/ halaman</span>
+    </div>
+  );
+}
+
 export default function ApplicationsPage() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<Filter>("");
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [res, setRes] = useState<Paginated<Application> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -176,7 +255,7 @@ export default function ApplicationsPage() {
     if (!quiet) setLoading(true);
     setError("");
 
-    const params = new URLSearchParams({ page: String(page), limit: "10" });
+    const params = new URLSearchParams({ page: String(page), limit: String(perPage) });
     if (status === "unread") params.set("unread", "1");
     else if (status) params.set("status", status);
     if (service) params.set("service_type", service);
@@ -190,7 +269,7 @@ export default function ApplicationsPage() {
     return () => {
       alive = false;
     };
-  }, [status, service, q, page, tick]);
+  }, [status, service, q, page, perPage, tick]);
 
   const rows = res?.data ?? [];
   const meta = res?.meta;
@@ -201,6 +280,11 @@ export default function ApplicationsPage() {
     setPage(1);
   };
 
+  const changePerPage = (n: number) => {
+    setPerPage(n);
+    setPage(1);
+  };
+
   const quickTabs: { key: Filter; label: string }[] = [
     { key: "", label: "Semua" },
     { key: "unread", label: "Belum dibaca" },
@@ -208,17 +292,21 @@ export default function ApplicationsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-extrabold text-gray-900">Pengajuan</h1>
-        {unread > 0 && (
-          <button
-            type="button"
-            onClick={() => changeStatus("unread")}
-            className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-red-200 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
-            <Bell className="h-3.5 w-3.5" />
-            {unread} pembaruan baru
-          </button>
-        )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-gray-900">Pengajuan</h1>
+          {unread > 0 && (
+            <button
+              type="button"
+              onClick={() => changeStatus("unread")}
+              className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-red-200 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
+              <Bell className="h-3.5 w-3.5" />
+              {unread} pembaruan baru
+            </button>
+          )}
+        </div>
+
+        <ExportApplicationsButton />
       </div>
       <p className="mt-1 text-sm text-gray-500">Semua pengajuan multifinance yang bisa diakses role kamu.</p>
 
@@ -304,13 +392,13 @@ export default function ApplicationsPage() {
                   const isUnread = a.is_read === false;
 
                   return (
-                    <tr key={a.id} onClick={() => navigate(`/admin/multi-finance/applications/${a.id}`)} className={`cursor-pointer transition-colors ${isUnread ? "bg-red-50/60 hover:bg-red-50" : "hover:bg-gray-50/70"}`}>
+                    <tr key={a.id} onClick={() => navigate(`/admin/detail/multifinanceapp/${a.id}`)} className={`cursor-pointer transition-colors ${isUnread ? "bg-red-50/60 hover:bg-red-50" : "hover:bg-gray-50/70"}`}>
                       <td className="relative px-5 py-4">
                         {isUnread && <span className="absolute inset-y-0 left-0 w-1 bg-red-500" aria-hidden="true" />}
                         <div className="flex items-center gap-2">
                           {isUnread && <UnreadDot />}
                           <Link
-                            to={`/admin/multi-finance/applications/${a.id}`}
+                            to={`/admin/detail/multifinanceapp/${a.id}`}
                             onClick={(e) => e.stopPropagation()}
                             className={`text-gray-900 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 ${isUnread ? "font-extrabold" : "font-semibold"}`}>
                             {a.applicant?.name}
@@ -340,21 +428,26 @@ export default function ApplicationsPage() {
         )}
 
         {meta && meta.total > 0 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+          <div className="flex flex-col gap-3 border-t border-gray-100 px-5 py-3 text-sm lg:flex-row lg:items-center lg:justify-between">
             <p className="text-gray-500">
               Halaman <b className="text-gray-900">{meta.current_page}</b> dari {meta.last_page} · {meta.total} pengajuan
             </p>
-            <div className="flex gap-2">
-              <button onClick={() => setPage((p) => p - 1)} disabled={meta.current_page <= 1 || loading} aria-label="Halaman sebelumnya" className="rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40">
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={meta.current_page >= meta.last_page || loading}
-                aria-label="Halaman berikutnya"
-                className="rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40">
-                <ChevronRight className="h-4 w-4" />
-              </button>
+
+            <div className="flex flex-wrap items-center justify-between gap-4 lg:justify-end">
+              <PerPageSelect value={perPage} onChange={changePerPage} />
+
+              <div className="flex gap-2">
+                <button onClick={() => setPage((p) => p - 1)} disabled={meta.current_page <= 1 || loading} aria-label="Halaman sebelumnya" className="rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={meta.current_page >= meta.last_page || loading}
+                  aria-label="Halaman berikutnya"
+                  className="rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}

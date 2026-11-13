@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, BadgeCheck, Bike, Car, Home, Loader2, MessageCircle, UserRound, X, XCircle } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { SERVICES } from "../constants";
@@ -201,6 +201,15 @@ export default function ApplicationDetailPage() {
   const [error, setError] = useState("");
   const [showSummary, setShowSummary] = useState(true);
   const [editing, setEditing] = useState<"applicant" | "asset" | null>(null);
+  // di dalam komponen, taruh di atas sebelum ada early return
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goBack = () => {
+    // key "default" = halaman ini dibuka langsung (refresh / link), tidak ada halaman sebelumnya
+    if (location.key !== "default") navigate(-1);
+    else navigate("/admin/multi-finance/applications");
+  };
 
   const load = useCallback(async () => {
     try {
@@ -222,11 +231,18 @@ export default function ApplicationDetailPage() {
   }, [load]);
 
   const back = (
-    <Link to="/admin/multi-finance/applications" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-red-600">
-      <ArrowLeft className="h-4 w-4" /> Kembali ke daftar
+    <Link
+      to="/admin/multi-finance/applications"
+      onClick={(e) => {
+        // biarkan ctrl/cmd+klik dan klik tengah tetap buka tab baru
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        goBack();
+      }}
+      className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-red-600">
+      <ArrowLeft className="h-4 w-4" /> Kembali
     </Link>
   );
-
   if (loading) {
     return (
       <div className="flex justify-center py-24">

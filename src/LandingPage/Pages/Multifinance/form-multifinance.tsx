@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, FileText, Home, Loader2, Phone, Repeat, Tag, User, X } from "lucide-react";
 import FloatingWaButton from "./floatingwabutton";
+import PhoneUsedModal from "./PhoneUseModal"; // sesuaikan path kalau file-nya ditaruh di folder lain
 
 import Navbars from "../../Components/Navbar/index";
 import { submitApplication, type FormState, type Layanan } from "./multifinanceApi";
@@ -43,6 +44,17 @@ const layananList = [
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
 
+// Deteksi error "nomor telepon sudah terdaftar" dari BE (HTTP 422, errors.applicant_phone).
+// Mendukung error yang membawa payload validasi, maupun error biasa yang hanya punya message.
+const isPhoneUsedError = (err: unknown): boolean => {
+  const e = err as any;
+
+  if (e?.errors?.applicant_phone || e?.response?.data?.errors?.applicant_phone) return true;
+
+  const msg = err instanceof Error ? err.message : "";
+  return /nomor telepon.*(sudah|terdaftar)/i.test(msg);
+};
+
 const MultiFinanceForm = () => {
   const navigate = useNavigate();
 
@@ -54,6 +66,10 @@ const MultiFinanceForm = () => {
   const [submitError, setSubmitError] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [refNumber, setRefNumber] = useState("");
+
+  // Popup nomor telepon sudah terdaftar
+  const [phoneUsedOpen, setPhoneUsedOpen] = useState(false);
+  const [usedPhone, setUsedPhone] = useState(""); // nomor yang ditolak BE
 
   const setField = <K extends FieldKey>(key: K, value: PublicForm[K]) => setForm((prev) => ({ ...prev, [key]: value }));
   const touch = (key: FieldKey) => setTouched((t) => ({ ...t, [key]: true }));
@@ -67,11 +83,14 @@ const MultiFinanceForm = () => {
     const e: Partial<Record<FieldKey, string>> = {};
 
     if (form.nama.trim().length < 3) e.nama = "Isi nama lengkap sesuai KTP (minimal 3 huruf).";
+
     if (!/^(\+62|62|0)8[1-9][0-9]{7,10}$/.test(form.telepon.replace(/[\s-]/g, ""))) e.telepon = "Gunakan nomor aktif, contoh: 081234567890";
+    else if (usedPhone && form.telepon === usedPhone) e.telepon = "Nomor ini sudah terdaftar. Gunakan nomor lain atau hubungi admin.";
+
     if (!form.layanan) e.layanan = "Pilih layanan yang kamu butuhkan.";
 
     return e;
-  }, [form]);
+  }, [form, usedPhone]);
 
   const isValid = Object.keys(errors).length === 0;
 
@@ -80,11 +99,11 @@ const MultiFinanceForm = () => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = openConfirm || openSuccess ? "hidden" : "";
+    document.body.style.overflow = openConfirm || openSuccess || phoneUsedOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [openConfirm, openSuccess]);
+  }, [openConfirm, openSuccess, phoneUsedOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,16 +135,32 @@ const MultiFinanceForm = () => {
       setOpenConfirm(false);
       setOpenSuccess(true);
     } catch (err) {
+      if (isPhoneUsedError(err)) {
+        // Nomor sudah dipakai: tutup konfirmasi, tampilkan popup khusus
+        setUsedPhone(form.telepon);
+        setTouched((t) => ({ ...t, telepon: true }));
+        setOpenConfirm(false);
+        setPhoneUsedOpen(true);
+        return;
+      }
+
       setSubmitError(err instanceof Error ? err.message : "Pengajuan gagal dikirim. Coba lagi.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleClosePhoneUsed = () => {
+    setPhoneUsedOpen(false);
+    // Arahkan user langsung ke kolom nomor telepon
+    setTimeout(() => document.getElementById("telepon")?.focus(), 50);
+  };
+
   const handleCloseSuccess = () => {
     setOpenSuccess(false);
     setForm(initialForm);
     setTouched({});
+    setUsedPhone("");
     navigate("/multi-finance");
   };
 
@@ -290,6 +325,9 @@ const MultiFinanceForm = () => {
           </div>
         </div>
       )}
+
+      {/* POPUP: NOMOR TELEPON SUDAH TERDAFTAR */}
+      <PhoneUsedModal open={phoneUsedOpen} onClose={handleClosePhoneUsed} phone={usedPhone} name={form.nama.trim()} />
 
       {/* POPUP: BERHASIL */}
       {openSuccess && (

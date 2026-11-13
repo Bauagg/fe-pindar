@@ -20,7 +20,8 @@
     "react-type-animation": "^3.2.0",
     "slick-carousel": "^1.8.1",
     "swiper": "^12.1.4",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "set PORT=8888 && react-scripts start",

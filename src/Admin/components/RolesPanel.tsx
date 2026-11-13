@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { isFullAdmin, useAuth } from "../auth/AuthContext";
 import { btnPrimary, card } from "./ui";
@@ -8,15 +9,26 @@ import type { Application, RoleItem } from "../types";
 interface Props {
   app: Application;
   onSaved: () => Promise<void> | void;
+  /** Dipanggil setelah pengajuan terhapus. Default: kembali ke halaman sebelumnya. */
+  onDeleted?: () => void;
 }
 
 /** Hanya tampil untuk super_admin & admin. Role lain (mis. admin retail) tidak melihat panel ini. */
 export default function RolesPanel(props: Props) {
   const { user } = useAuth();
   if (!isFullAdmin(user)) return null;
-  return <RolesPanelContent {...props} />;
+
+  return (
+    <>
+      <RolesPanelContent {...props} />
+      <DeletePanel app={props.app} onDeleted={props.onDeleted} />
+    </>
+  );
 }
 
+/* ------------------------------------------------------------------ */
+/* Role yang bisa melihat                                              */
+/* ------------------------------------------------------------------ */
 function RolesPanelContent({ app, onSaved }: Props) {
   const [all, setAll] = useState<RoleItem[]>([]);
   const [selected, setSelected] = useState<number[]>(app.roles.map((r) => r.id));
@@ -93,6 +105,102 @@ function RolesPanelContent({ app, onSaved }: Props) {
         Simpan akses
       </button>
       <p className="mt-3 text-xs text-gray-400">Kalau role kamu sendiri tidak dicentang, kamu tidak bisa membuka pengajuan ini lagi.</p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Hapus pengajuan                                                     */
+/* ------------------------------------------------------------------ */
+function DeletePanel({ app, onDeleted }: { app: Application; onDeleted?: () => void }) {
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
+
+  const matches = text.trim() === String(app.application_number);
+
+  const cancel = () => {
+    setConfirming(false);
+    setText("");
+    setError("");
+  };
+
+  const remove = async () => {
+    if (!matches) return;
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      await api(`/admin/multifinance/${app.id}/delete`, { method: "PUT" });
+
+      if (onDeleted) onDeleted();
+      else navigate(-1);
+    } catch (e) {
+      setError(errorMessage(e));
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <section className={`${card} mt-4 border-red-100 p-5`} aria-label="Hapus pengajuan">
+      <h2 className="flex items-center gap-2 font-extrabold text-red-700">
+        <Trash2 className="h-4 w-4" />
+        Hapus pengajuan
+      </h2>
+      <p className="mt-1 text-sm text-gray-500">Pengajuan ini akan dihapus dan tidak bisa dikembalikan. Hanya Super Admin dan Admin yang bisa melakukannya.</p>
+
+      {!confirming ? (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-red-600 ring-1 ring-red-200 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
+          <Trash2 className="h-4 w-4" />
+          Hapus pengajuan ini
+        </button>
+      ) : (
+        <div className="mt-4 rounded-xl bg-red-50 p-4">
+          <p className="flex items-start gap-2 text-sm font-semibold text-red-700">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Ketik nomor pengajuan <b className="select-all">{app.application_number}</b> untuk konfirmasi.
+            </span>
+          </p>
+
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && remove()}
+            placeholder={String(app.application_number)}
+            aria-label="Konfirmasi nomor pengajuan"
+            autoFocus
+            className="mt-3 w-full rounded-xl bg-white px-3 py-2.5 text-sm font-semibold text-gray-800 ring-1 ring-red-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+          />
+
+          {error && (
+            <p role="alert" className="mt-3 text-sm font-semibold text-red-700">
+              {error}
+            </p>
+          )}
+
+          <div className="mt-3 flex gap-2">
+            <button type="button" onClick={cancel} disabled={deleting} className="flex-1 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-50">
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={remove}
+              disabled={!matches || deleting}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">
+              {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Ya, hapus
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

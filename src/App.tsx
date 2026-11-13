@@ -30,6 +30,14 @@ import LoginSinarmas from "./Admin/pages/LoginSinarmas";
 import LoginCNAF from "./Admin/pages/LoginCnaf";
 import LoginTaf from "./Admin/pages/LoginTaf";
 import LoginMoladin from "./Admin/pages/LoginMoladin";
+import ApprovedApplicationsPage from "./Admin/pages/ApprovedApplicationsPage";
+import RetailkuPage from "./Admin/pages/Multifinance/Retailku";
+import MoladinPage from "./Admin/pages/Multifinance/Moladin";
+import SinarmasPage from "./Admin/pages/Multifinance/Sinarmas";
+import CnafPage from "./Admin/pages/Multifinance/cnaf";
+import TafPage from "./Admin/pages/Multifinance/taf";
+import SummaryMultifinancePage from "./Admin/pages/Multifinance/SummaryMultifinancePage";
+import DisbursementMultifinancePage from "./Admin/pages/Multifinance/Disbursementmultifinancepage";
 
 // BARU: deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
@@ -95,7 +103,20 @@ const App = () => {
               <Route index element={<Navigate to="multi-finance" replace />} />
               <Route path="multi-finance" element={<MultifinanceDashboard />} />
               <Route path="multi-finance/applications" element={<ApplicationsPage />} />
-              <Route path="multi-finance/applications/:id" element={<ApplicationDetailPage />} />
+              <Route path="detail/multifinanceapp/:id" element={<ApplicationDetailPage />} />
+
+              {/* multifinance super admin */}
+              <Route path="multifinance/summary" element={<SummaryMultifinancePage />} />
+              <Route path="multifinance/list-pengajuan" element={<ApplicationsPage />} />
+              <Route path="multifinance/pencairan" element={<DisbursementMultifinancePage />} />
+              <Route path="multifinance/retailku" element={<RetailkuPage />} />
+              <Route path="multifinance/moladin" element={<MoladinPage />} />
+              <Route path="multifinance/sinarmas" element={<SinarmasPage />} />
+              <Route path="multifinance/cnaf" element={<CnafPage />} />
+              <Route path="multifinance/taf" element={<TafPage />} />
+              <Route path="multifinance/pengajuan-disetujui" element={<ApprovedApplicationsPage title="Pengajuan Disetujui" description="Semua pengajuan multifinance yang sudah disetujui." lockedStatus="approved" />} />
+
+              {/* Disbrusment */}
             </Route>
           </Route>
         </Routes>
