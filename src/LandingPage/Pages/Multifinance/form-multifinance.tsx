@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, ClipboardList, Loader2, MessageCircle, Phone, User, X, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, ClipboardList, Info, Loader2, MessageCircle, Phone, User, X, Zap } from "lucide-react";
 import FloatingWaButton from "./floatingwabutton";
 import PhoneUsedModal from "./PhoneUseModal"; // sesuaikan path kalau file-nya ditaruh di folder lain
 import MultiFinanceFullForm, { emptyForm, isPhoneUsedError, layananList } from "./form-multifinanceFull";
@@ -332,6 +332,14 @@ const MultiFinanceForm = () => {
 
             {/* MODE 1: PENGAJUAN CEPAT (tanpa foto) */}
             <form id="quick-form" onSubmit={handleSubmit} noValidate className={`p-5 sm:p-8 space-y-8 ${mode === "cepat" ? "" : "hidden"}`}>
+              {/* INFO PALING ATAS */}
+              <div className="flex gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                <div>
+                  {/* <p className="text-sm font-black text-emerald-800">Isi lengkap, tinggal tunggu pencairan</p> */}
+                  <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-emerald-700">Dengan mengisi form ini, Anda masih akan dihubungi CS Pindar untuk mengirim dokumen, seperti KTP dan STNK kendaraan kamu..</p>
+                </div>
+              </div>
               {/* DATA DIRI */}
               <section className="space-y-5">
                 <SectionTitle title="Data Diri" />
