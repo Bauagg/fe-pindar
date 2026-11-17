@@ -34,6 +34,21 @@ const OPTIONS = {
 
 const YEARS = Array.from({ length: 30 }, (_, i) => String(new Date().getFullYear() - i));
 
+const MIN_YEAR: Record<string, number> = {
+  Motor: 2016,
+  Mobil: 2007,
+};
+
+// SESUAIKAN dengan value di layananList
+const LAYANAN_BATAS_TAHUN = ["Jaminkan BPKB", "Take Over Kendaraan"];
+
+const getMinYear = (layanan: string, jenis: string): number | undefined => (LAYANAN_BATAS_TAHUN.includes(layanan) ? MIN_YEAR[jenis] : undefined);
+
+const getYearOptions = (layanan: string, jenis: string) => {
+  const min = getMinYear(layanan, jenis);
+  return min ? YEARS.filter((y) => Number(y) >= min) : YEARS;
+};
+
 const tabs = [
   { key: "cepat", label: "Pengajuan Cepat", sub: "Isi data, tanpa upload foto", icon: Zap },
   { key: "lengkap", label: "Isi Formulir Lengkap", sub: "Tinggal tunggu pencairan", icon: ClipboardList },
@@ -127,7 +142,14 @@ const MultiFinanceForm = () => {
   const touch = (key: FieldKey) => setTouched((t) => ({ ...t, [key]: true }));
 
   const handleLayanan = (v: Layanan) => {
-    setField("layanan", v);
+    setForm((prev) => {
+      const min = getMinYear(v, prev.jenis);
+      return {
+        ...prev,
+        layanan: v,
+        tahun: min && prev.tahun && Number(prev.tahun) < min ? "" : prev.tahun,
+      };
+    });
     touch("layanan");
   };
 
@@ -153,6 +175,10 @@ const MultiFinanceForm = () => {
       if (!form.merek.trim()) e.merek = "Isi merek kendaraan.";
       if (!form.tipe.trim()) e.tipe = "Isi tipe kendaraan.";
       if (!form.tahun) e.tahun = "Pilih tahun kendaraan.";
+      else {
+        const min = getMinYear(form.layanan, form.jenis);
+        if (min && Number(form.tahun) < min) e.tahun = `Untuk ${form.jenis.toLowerCase()}, tahun minimal ${min}.`;
+      }
       if (!form.transmisi) e.transmisi = "Pilih transmisi.";
       if (!form.status_pembiayaan) e.status_pembiayaan = "Pilih status pembiayaan.";
     }
@@ -449,8 +475,16 @@ const MultiFinanceForm = () => {
                         <TextInput id="tipe" value={form.tipe} onChange={(v) => setField("tipe", v)} onBlur={() => touch("tipe")} placeholder="Contoh: Brio RS" hasError={!!err("tipe")} />
                       </FieldWrap>
 
-                      <FieldWrap id="tahun" label="Tahun" error={err("tahun")}>
-                        <SelectInput id="tahun" value={form.tahun} onChange={(v) => setField("tahun", v)} onBlur={() => touch("tahun")} options={YEARS} placeholder="Pilih tahun" hasError={!!err("tahun")} />
+                      <FieldWrap id="tahun" label="Tahun" error={err("tahun")} hint={getMinYear(form.layanan, form.jenis) ? `${form.jenis} minimal tahun ${getMinYear(form.layanan, form.jenis)}.` : undefined}>
+                        <SelectInput
+                          id="tahun"
+                          value={form.tahun}
+                          onChange={(v) => setField("tahun", v)}
+                          onBlur={() => touch("tahun")}
+                          options={getYearOptions(form.layanan, form.jenis)}
+                          placeholder="Pilih tahun"
+                          hasError={!!err("tahun")}
+                        />
                       </FieldWrap>
 
                       <FieldWrap id="transmisi" label="Transmisi" error={err("transmisi")}>
