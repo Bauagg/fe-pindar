@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BadgeCheck, Building2, FileText, Info, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, FileText, Info, ShieldCheck } from "lucide-react";
 
 import Navbars from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
@@ -58,6 +58,23 @@ const DetailPinjamanBank = () => {
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight">{data.namaBank}</h1>
 
               <p className="mt-5 text-white/90 text-sm sm:text-base leading-relaxed max-w-xl">{data.detailPinjaman}</p>
+
+              <div className="mt-8">
+                <button
+                  onClick={() => navigate(`/pinjamanbankform?bank=${encodeURIComponent(data.namaBank)}`)}
+                  className="
+      px-7 py-4 rounded-2xl
+      bg-white text-red-600
+      font-black text-sm md:text-base
+      flex items-center justify-center gap-2
+      shadow-xl
+      hover:scale-[1.03]
+      transition-all duration-300
+    ">
+                  Ajukan Sekarang
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* RIGHT */}

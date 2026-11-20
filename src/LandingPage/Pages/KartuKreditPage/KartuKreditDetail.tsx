@@ -167,17 +167,17 @@ const CreditCardDetail = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <button
-                  onClick={() => setOpenRedirect(true)}
+                  onClick={() => navigate(`/creditcard/form?card=${encodeURIComponent(data.title)}`)}
                   className="
-                    px-7 py-4 rounded-2xl
-                    bg-white text-red-600
-                    font-black
-                    flex items-center justify-center gap-2
-                    shadow-xl
-                    hover:scale-[1.03]
-                    transition-all duration-300
-                    taxt-sm md:text-base
-                  ">
+    px-7 py-4 rounded-2xl
+    bg-white text-red-600
+    font-black
+    flex items-center justify-center gap-2
+    shadow-xl
+    hover:scale-[1.03]
+    transition-all duration-300
+    text-sm md:text-base
+  ">
                   Ajukan Sekarang
                   <ArrowRight className="w-5 h-5" />
                 </button>

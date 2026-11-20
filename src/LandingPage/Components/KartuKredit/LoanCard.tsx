@@ -95,7 +95,8 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
           <div className="flex gap-3 pt-3">
             {/* AJUKAN */}
             <button
-              onClick={() => setOpenRedirect(true)}
+              // onClick={() => setOpenRedirect(true)}
+              onClick={handleDetail}
               className="
                 w-full py-3 rounded-xl
                 text-sm 

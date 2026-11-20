@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { ArrowRight, BarChart3, Building2, CheckCircle2, ChevronDown, FileText, LayoutDashboard, List, LogOut, Menu, Sparkles, X } from "lucide-react";
+import { ArrowRight, BarChart3, Building2, CheckCircle2, ChevronDown, CreditCard, FileText, Landmark, LayoutDashboard, List, LogOut, Menu, Sparkles, X } from "lucide-react";
 import { roleName, useAuth } from "../auth/AuthContext";
 import { ADMIN_LOGIN_PATH } from "../config";
 import { FaMoneyBill } from "react-icons/fa";
@@ -76,6 +76,28 @@ export const NAV: NavItem[] = [
           { to: "/admin/multifinance/taf", label: "TAF", icon: Building2 },
         ],
       },
+    ],
+  },
+  {
+    label: "Kartu Kredit",
+    icon: CreditCard,
+    roles: FULL_ADMIN,
+    children: [
+      { to: "/admin/credit-card/summary", label: "Summary", icon: BarChart3 },
+      { to: "/admin/credit-card/applications", label: "Nasabah", icon: List },
+      { to: "/admin/credit-card/approved", label: "Approved", icon: CheckCircle2 },
+      { to: "/admin/credit-card/disbursement", label: "Disbursement", icon: FaMoneyBill },
+    ],
+  },
+  {
+    label: "Pinjaman Bank",
+    icon: Landmark,
+    roles: FULL_ADMIN,
+    children: [
+      { to: "/admin/bank-loan/summary", label: "Summary", icon: BarChart3 },
+      { to: "/admin/bank-loan/applications", label: "Nasabah", icon: List },
+      { to: "/admin/bank-loan/approved", label: "Approved", icon: CheckCircle2 },
+      { to: "/admin/bank-loan/disbursement", label: "Disbursement", icon: FaMoneyBill },
     ],
   },
 ];
@@ -242,7 +264,7 @@ function Sidebar({ onNavigate, brand }: { onNavigate?: () => void; brand: BrandT
           <div className="min-w-0 leading-tight">
             <p className="truncate text-[15px] font-black tracking-tight text-gray-900">{theme.brandName}</p>
 
-            <p className="mt-0.5 text-xs font-semibold text-gray-400">{theme.subName}</p>
+            <p className="mt-0.5 text-xs font-semibold text-gray-400">Multi Dashboard</p>
           </div>
         </div>
 

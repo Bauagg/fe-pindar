@@ -5,6 +5,7 @@ import { FaMoneyBillWave } from "react-icons/fa";
 import SearchPopup from "./SearchPopup";
 import { RiBankLine } from "react-icons/ri";
 import { HiOutlineBanknotes } from "react-icons/hi2";
+import { Wallet } from "lucide-react";
 
 const Navbar = (): JSX.Element => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -23,6 +24,7 @@ const Navbar = (): JSX.Element => {
     { to: "/kartukredit", icon: <FiCreditCard size={20} />, label: "Kartu Kredit" },
     { to: "/pinjaman-bank", icon: <HiOutlineBanknotes size={20} />, label: "Pinjaman Bank" },
     { to: "/multi-finance", icon: <RiBankLine size={20} />, label: "Multifinance" },
+    { to: "/paylater", icon: <Wallet size={20} />, label: "Paylater" },
   ];
 
   const legalMenus = [

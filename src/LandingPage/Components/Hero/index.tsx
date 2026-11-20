@@ -83,12 +83,12 @@ const HeroUdin = () => {
           text-md sm:text-xl md:text-2xl
           leading-tight
         ">
-                Edukasi Pindar
+                Pindar Paylater
               </h2>
             </div>
 
             <NavLink
-              to="/education/trending"
+              to="/paylater"
               className="
         shrink-0
         inline-flex items-center gap-2

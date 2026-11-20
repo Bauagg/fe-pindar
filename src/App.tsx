@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LandingPage from "./LandingPage/Pages";
 import PindarPage from "./LandingPage/Pages/PindarPage/PindarPage";
@@ -38,15 +38,20 @@ import CnafPage from "./Admin/pages/Multifinance/cnaf";
 import TafPage from "./Admin/pages/Multifinance/taf";
 import SummaryMultifinancePage from "./Admin/pages/Multifinance/SummaryMultifinancePage";
 import DisbursementMultifinancePage from "./Admin/pages/Multifinance/Disbursementmultifinancepage";
+import { BankLoan, CreditCard } from "./Admin/features/finance-apps/modules";
+import CreditCardForm from "./LandingPage/Pages/KartuKreditPage/CreditCardForm";
+import BankLoanForm from "./LandingPage/Pages/PinjamanBankFix/BankLoanForm";
+import ListPayLater from "./LandingPage/Pages/PayLater/ListPayLater";
+import DetailPayLater from "./LandingPage/Pages/PayLater/DetailPayLater";
 
-// BARU: deklarasi tipe fbq supaya TypeScript tidak error
+// Deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
   interface Window {
     fbq?: (...args: any[]) => void;
   }
 }
 
-// BARU: kirim PageView setiap pindah halaman
+// Kirim PageView setiap pindah halaman
 const PixelRouteTracker = () => {
   const { pathname } = useLocation();
   const isFirst = useRef(true);
@@ -63,10 +68,24 @@ const PixelRouteTracker = () => {
   return null;
 };
 
+// Scroll ke paling atas setiap pindah halaman
+const ScrollToTop = () => {
+  const { pathname, hash } = useLocation();
+
+  useLayoutEffect(() => {
+    // Kalau URL punya anchor (#id), biarkan browser yang mengatur posisinya
+    if (hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, hash]);
+
+  return null;
+};
+
 const App = () => {
   return (
     <Router>
       <PixelRouteTracker />
+      <ScrollToTop />
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -76,16 +95,24 @@ const App = () => {
           <Route path="/kartukredit" element={<KartuKredit />} />
           <Route path="/creditcompare" element={<CreditCardCompare />} />
           <Route path="/creditcarddetail/:id" element={<CreditDetail />} />
+          <Route path="/creditcard/form" element={<CreditCardForm />} />
           <Route path="/legal/:tab" element={<LegalPage />} />
           <Route path="/legal" element={<Navigate to="/legal/about" replace />} />
           <Route path="/education" element={<EducationList />} />
           <Route path="/education/:id" element={<EducationDetail />} />
           <Route path="/education/trending" element={<TrendingEducation />} />
+
           {/* PINJAMAN BANK FIX */}
           <Route path="/pinjaman-bank" element={<ListPinjamanBank />} />
           <Route path="/pinjaman-bank/:id" element={<DetailPinjamanBank />} />
+          <Route path="/pinjamanbankform" element={<BankLoanForm />} />
+
           {/* PINJAMAN BANK MAINTENANCE */}
           <Route path="/pinjamanbank" element={<BankLoanMaintenance />} />
+
+          {/* PAYLATER */}
+          <Route path="/paylater" element={<ListPayLater />} />
+          <Route path="/paylater/:id" element={<DetailPayLater />} />
 
           {/* MULTIFINANCE (USER) */}
           <Route path="/multi-finance" element={<MultiFinance />} />
@@ -116,7 +143,21 @@ const App = () => {
               <Route path="multifinance/taf" element={<TafPage />} />
               <Route path="multifinance/pengajuan-disetujui" element={<ApprovedApplicationsPage title="Pengajuan Disetujui" description="Semua pengajuan multifinance yang sudah disetujui." lockedStatus="approved" />} />
 
-              {/* Disbrusment */}
+              {/* KARTU KREDIT */}
+              <Route path="credit-card/summary" element={<CreditCard.SummaryPage />} />
+              <Route path="credit-card/applications" element={<CreditCard.ListPage />} />
+              <Route path="credit-card/all" element={<CreditCard.AllPage />} />
+              <Route path="credit-card/approved" element={<CreditCard.ApprovedPage />} />
+              <Route path="credit-card/disbursement" element={<CreditCard.DisbursementPage />} />
+              <Route path="detail/credit-card/:id" element={<CreditCard.DetailPage />} />
+
+              {/* PINJAMAN BANK */}
+              <Route path="bank-loan/summary" element={<BankLoan.SummaryPage />} />
+              <Route path="bank-loan/applications" element={<BankLoan.ListPage />} />
+              <Route path="bank-loan/all" element={<BankLoan.AllPage />} />
+              <Route path="bank-loan/approved" element={<BankLoan.ApprovedPage />} />
+              <Route path="bank-loan/disbursement" element={<BankLoan.DisbursementPage />} />
+              <Route path="detail/bank-loan/:id" element={<BankLoan.DetailPage />} />
             </Route>
           </Route>
         </Routes>
