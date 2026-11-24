@@ -7,7 +7,7 @@ export type Layanan = "" | "Jaminkan BPKB" | "Jaminkan SHM" | "Beli Kendaraan (S
 export type Jenis = "" | "Mobil" | "Motor";
 export type Kepemilikan = "" | "Sendiri" | "Orang Lain";
 export type Transmisi = "" | "Matic" | "Manual";
-export type StatusPembiayaan = "" | "BPKB On Hand" | "Take Over";
+export type StatusPembiayaan = "" | "BPKB On Hand" | "BPKB Take Over";
 
 export interface FormState {
   nama: string;
@@ -50,7 +50,7 @@ const OWNERSHIP_MAP: Record<string, string> = {
 
 const FINANCING_MAP: Record<string, string> = {
   "BPKB On Hand": "bpkb_on_hand",
-  "Take Over": "take_over",
+  "BPKB Take Over": "take_over",
 };
 
 /** +62 812-3456-7890 / 62812... / 0812... -> 081234567890 (format lokal, tanpa spasi). */
@@ -64,7 +64,7 @@ export interface ApplicationResult {
 /** Ubah state form menjadi payload sesuai kolom BE. Field yang tidak relevan dikirim null. */
 export const toPayload = (f: FormState) => {
   const isShm = f.layanan === "Jaminkan SHM";
-  const isTakeOver = !isShm && f.status_pembiayaan === "Take Over";
+  const isTakeOver = !isShm && f.status_pembiayaan === "BPKB Take Over";
 
   return {
     applicant_name: f.nama.trim(),

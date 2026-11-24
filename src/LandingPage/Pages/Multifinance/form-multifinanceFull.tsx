@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowRight, Camera, CheckCircle2, FileText, Home, Info, Loader2, Phone, RefreshCw, Repeat, Tag, Trash2, User, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, Camera, Check, CheckCircle2, FileText, Home, Info, Loader2, Phone, Play, RefreshCw, Repeat, Tag, Trash2, User, X } from "lucide-react";
 import PhoneUsedModal from "./PhoneUseModal";
 import { submitApplication, uploadFormValues, type FormState, type Layanan } from "./multifinanceApi";
 
@@ -35,6 +35,13 @@ export const layananList = [
   { value: "Take Over Kendaraan", desc: "Pindahkan cicilan kendaraan ke tenor dan bunga lebih ringan.", icon: Repeat },
 ] as const;
 
+const LAYANAN_NOTE: Record<string, string> = {
+  "Jaminkan BPKB": "Syarat tahun: mobil min. 2007, motor min. 2016. BPKB, STNK, KTP, dan KK wajib diunggah.",
+  "Jaminkan SHM": "Isi jenis sertifikat (SHM atau SHGB). Dokumen kendaraan tidak diperlukan.",
+  "Beli Kendaraan (Second)": "Isi data kendaraan yang ingin kamu beli.",
+  "Take Over Kendaraan": "Untuk kendaraan yang masih dalam cicilan leasing. Syarat tahun: mobil min. 2007, motor min. 2016.",
+};
+
 // Deteksi error "nomor telepon sudah terdaftar" dari BE (HTTP 422, errors.applicant_phone).
 export const isPhoneUsedError = (err: unknown): boolean => {
   const e = err as any;
@@ -54,7 +61,7 @@ export const isPhoneUsedError = (err: unknown): boolean => {
 const MAX_BYTES = 15 * 1024 * 1024; // sama dengan BE: max:15360 (KB)
 const ACCEPT = "image/jpeg,image/png,application/pdf";
 const PHONE_RE = /^(\+62|62|0)8[1-9][0-9]{7,10}$/;
-const TAKE_OVER = "Take Over"; // leasing asal hanya diisi untuk status ini
+const TAKE_OVER = "BPKB Take Over"; // leasing asal hanya diisi untuk status ini
 
 // Nilai harus sama persis dengan tipe di multifinanceApi.ts (TipePemohon, Kepemilikan, Jenis, Transmisi, StatusPembiayaan).
 const OPTIONS = {
@@ -62,7 +69,7 @@ const OPTIONS = {
   kepemilikan: ["Sendiri", "Orang Lain"],
   jenis: ["Mobil", "Motor"],
   transmisi: ["Matic", "Manual"],
-  status_pembiayaan: ["BPKB On Hand", "Take Over"],
+  status_pembiayaan: ["BPKB On Hand", "BPKB Take Over"],
 };
 
 const YEARS = Array.from({ length: 30 }, (_, i) => String(new Date().getFullYear() - i));
@@ -138,6 +145,36 @@ const compressImage = (file: File, maxSide = 1600, quality = 0.8): Promise<File>
 /* =========================================
    KOMPONEN KECIL
 ========================================== */
+
+// Ganti dengan ID video kamu. Contoh: https://youtu.be/abc123XYZ  ->  "abc123XYZ"
+const YOUTUBE_ID = "m0YUk1EtO7k";
+
+const VideoPromo = ({ onOpen }: { onOpen: () => void }) => (
+  <button
+    type="button"
+    onClick={onOpen}
+    aria-label="Putar video panduan pengisian formulir"
+    className="group relative block aspect-video w-full overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-red-900 text-left shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100">
+    <img
+      src={`https://img.youtube.com/vi/${YOUTUBE_ID}/hqdefault.jpg`}
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-300 group-hover:scale-105 group-hover:opacity-100"
+      onError={(e) => (e.currentTarget.style.display = "none")}
+    />
+    <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+    <span className="absolute inset-0 flex items-center justify-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-xl ring-8 ring-white/20 transition group-hover:scale-110">
+        <Play className="h-7 w-7 translate-x-0.5 fill-current" />
+      </span>
+    </span>
+
+    <span className="absolute inset-x-0 bottom-0 p-4">
+      <span className="block text-sm font-black text-white">Video Edukasi</span>
+      <span className="block text-xs text-white/80">Tonton video panduan singkat · ketuk untuk memutar</span>
+    </span>
+  </button>
+);
 
 const baseInput = "w-full rounded-2xl border bg-gray-50 py-3.5 text-sm sm:text-base text-gray-800 placeholder-gray-400 outline-none transition focus:bg-white focus:ring-4";
 const stateInput = (hasError?: boolean) => (hasError ? "border-red-400 focus:ring-red-100" : "border-gray-200 focus:border-red-400 focus:ring-red-100");
@@ -325,6 +362,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
   const [openUpload, setOpenUpload] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [phoneUsedOpen, setPhoneUsedOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   // Proses kirim
   const [agree, setAgree] = useState(false);
@@ -367,7 +405,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     else if (usedPhone && form.telepon === usedPhone) e.telepon = "Nomor ini sudah terdaftar. Gunakan nomor lain atau hubungi admin.";
 
     if (!form.usia || !Number.isInteger(usia) || usia < 17 || usia > 80) e.usia = "Isi usia yang valid (17–80 tahun).";
-    if (form.alamat.trim().length < 10) e.alamat = "Isi alamat lengkap (minimal 10 karakter).";
+    if (!form.alamat.trim()) e.alamat = "Isi alamat lengkap.";
     if (!form.tipe_pemohon) e.tipe_pemohon = "Pilih tipe pemohon.";
     if (!form.layanan) e.layanan = "Pilih layanan yang kamu butuhkan.";
     if (!form.kepemilikan) e.kepemilikan = isSHM ? "Pilih nama pemilik sertifikat." : "Pilih nama pemilik BPKB.";
@@ -386,7 +424,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
         if (min && Number(form.tahun) < min) e.tahun = `Untuk ${form.jenis.toLowerCase()}, tahun minimal ${min}.`;
       }
       if (!form.transmisi) e.transmisi = "Pilih transmisi.";
-      if (!form.status_pembiayaan) e.status_pembiayaan = "Pilih status pembiayaan.";
+      if (!form.status_pembiayaan) e.status_pembiayaan = "Pilih status BPKB.";
     }
 
     if (!isSHM && form.status_pembiayaan === TAKE_OVER && !form.leasing_asal.trim()) e.leasing_asal = "Isi nama leasing asal.";
@@ -402,19 +440,34 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
   /* ---------- Efek ---------- */
 
   // Popup info muncul sekali, saat tab ini pertama kali dibuka
-  useEffect(() => {
-    if (active && !infoSeen) {
-      setInfoOpen(true);
-      setInfoSeen(true);
-    }
-  }, [active, infoSeen]);
+  // useEffect(() => {
+  //   if (active && !infoSeen) {
+  //     setInfoOpen(true);
+  //     setInfoSeen(true);
+  //   }
+  // }, [active, infoSeen]);
+
+  // useEffect(() => {
+  //   document.body.style.overflow = infoOpen || openConfirm || openUpload || openSuccess || phoneUsedOpen || videoOpen ? "hidden" : "";
+  //   return () => {
+  //     document.body.style.overflow = "";
+  //   };
+  // }, [infoOpen, openConfirm, openUpload, openSuccess, phoneUsedOpen, videoOpen]);
 
   useEffect(() => {
-    document.body.style.overflow = infoOpen || openConfirm || openUpload || openSuccess || phoneUsedOpen ? "hidden" : "";
+    document.body.style.overflow = openConfirm || openUpload || openSuccess || phoneUsedOpen || videoOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [infoOpen, openConfirm, openUpload, openSuccess, phoneUsedOpen]);
+  }, [openConfirm, openUpload, openSuccess, phoneUsedOpen, videoOpen]);
+
+  // Tutup popup video dengan tombol Esc
+  useEffect(() => {
+    if (!videoOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setVideoOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [videoOpen]);
 
   /* ---------- Dokumen ---------- */
 
@@ -601,7 +654,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     { label: "Merek / Tipe", value: veh([form.merek, form.tipe].filter(Boolean).join(" ")) },
     { label: "Tahun", value: veh(form.tahun) },
     { label: "Transmisi", value: veh(form.transmisi) },
-    { label: "Status Pembiayaan", value: veh(form.status_pembiayaan) },
+    { label: "Status BPKB", value: veh(form.status_pembiayaan) },
     { label: "Leasing Asal", value: veh(form.status_pembiayaan === TAKE_OVER ? form.leasing_asal : "") },
     { label: "Dokumen", value: queuedDocs.length ? `${queuedDocs.length} file` : "" },
   ].filter((s) => s.value);
@@ -619,7 +672,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
             <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-emerald-700">Lengkapi semua data dan dokumen di bawah ini. Setelah terkirim, pengajuan kamu tinggal menunggu proses pencairan.</p>
           </div>
         </div>
-
+        <VideoPromo onOpen={() => setVideoOpen(true)} />
         {/* DATA DIRI */}
         <section className="space-y-5">
           <SectionTitle title="Data Diri" />
@@ -649,14 +702,14 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
               />
             </FieldWrap>
 
-            <FieldWrap id="full-alamat" label="Alamat Lengkap" required error={err("alamat")} className="sm:col-span-2">
+            <FieldWrap id="full-alamat" label="Kota/Kabupaten" className="sm:col-span-2">
               <textarea
                 id="full-alamat"
                 rows={3}
                 value={form.alamat}
                 onChange={(e) => setField("alamat", e.target.value)}
                 onBlur={() => touch("alamat")}
-                placeholder="Jalan, RT/RW, kelurahan, kecamatan, kota"
+                placeholder="Masukkan Kota/Kabupaten"
                 className={`${baseInput} px-4 resize-none ${stateInput(!!err("alamat"))}`}
               />
             </FieldWrap>
@@ -668,7 +721,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
           <SectionTitle title="Layanan" desc="Pilih layanan yang kamu butuhkan." />
 
           <div data-invalid={err("layanan") ? "true" : "false"}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {layananList.map((l) => {
                 const Icon = l.icon;
                 const on = form.layanan === l.value;
@@ -687,6 +740,47 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
                     </div>
                     <p className="mt-3 text-sm font-black text-gray-900">{l.value}</p>
                     <p className="mt-0.5 text-xs text-gray-500">{l.desc}</p>
+                  </button>
+                );
+              })}
+            </div> */}
+
+            <div role="radiogroup" aria-label="Pilih layanan" className="space-y-3">
+              {layananList.map((l) => {
+                const Icon = l.icon;
+                const on = form.layanan === l.value;
+                const note = LAYANAN_NOTE[l.value];
+
+                return (
+                  <button
+                    type="button"
+                    key={l.value}
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => handleLayanan(l.value)}
+                    className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
+                      on ? "border-red-500 bg-red-50 shadow-md" : "border-gray-200 bg-white hover:border-red-300"
+                    }`}>
+                    {/* Kotak ceklist */}
+                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition ${on ? "border-red-600 bg-red-600 text-white" : "border-gray-300 bg-white"}`}>
+                      {on && <Check className="h-4 w-4" strokeWidth={3} />}
+                    </span>
+
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <Icon className={`h-4 w-4 shrink-0 ${on ? "text-red-600" : "text-red-400"}`} />
+                        <span className="text-sm font-black text-gray-900 sm:text-base">{l.value}</span>
+                      </span>
+
+                      <span className="mt-1 block text-xs text-gray-600 sm:text-sm">{l.desc}</span>
+
+                      {note && (
+                        <span className={`mt-2.5 flex gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold leading-relaxed sm:text-xs ${on ? "bg-white text-red-700" : "bg-gray-50 text-gray-500"}`}>
+                          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          {note}
+                        </span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
@@ -746,13 +840,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
                   />
                 </FieldWrap>
 
-                <FieldWrap
-                  id="full-status_pembiayaan"
-                  label="Status Pembiayaan"
-                  required
-                  error={err("status_pembiayaan")}
-                  hint="BPKB On Hand: BPKB ada di tangan kamu. Take Over: kendaraan masih dalam cicilan leasing."
-                  className="sm:col-span-2">
+                <FieldWrap id="full-status_pembiayaan" label="Status BPKB" required error={err("status_pembiayaan")} hint="BPKB On Hand: BPKB ada di tangan kamu. Take Over: kendaraan masih dalam cicilan leasing." className="sm:col-span-2">
                   <SelectInput
                     id="full-status_pembiayaan"
                     value={form.status_pembiayaan}
@@ -813,8 +901,29 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
         </button>
       </form>
 
+      {videoOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Video panduan pengisian formulir">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setVideoOpen(false)} />
+
+          <div className="relative w-full max-w-3xl animate-[popIn_.3s_ease]">
+            <button
+              type="button"
+              onClick={() => setVideoOpen(false)}
+              aria-label="Tutup video"
+              className="absolute -top-12 right-0 flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold text-white hover:bg-white/20">
+              <X className="h-4 w-4" />
+              Tutup
+            </button>
+
+            <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl">
+              <iframe src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_ID}?autoplay=1&rel=0`} title="Video panduan pengisian formulir" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* POPUP: INFO (muncul saat pertama kali buka tab lengkap) */}
-      {infoOpen && (
+      {/* {infoOpen && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="full-info-title">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setInfoOpen(false)} />
           <div className="relative bg-white w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl animate-[popIn_.3s_ease]">
@@ -859,7 +968,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* POPUP: PERNYATAAN & CROSS CHECK */}
       {openConfirm && (

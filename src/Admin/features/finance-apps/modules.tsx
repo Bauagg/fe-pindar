@@ -3,7 +3,7 @@ import ApplicationListPage from "./ApplicationListPage";
 import ApplicationDetailPage from "./ApplicationDetailPage";
 import SummaryPage from "./SummaryPage";
 import DisbursementPage from "./DisbursementPage";
-import { bankLoanConfig, creditCardConfig, type ModuleConfig } from "./config";
+import { bankLoanConfig, creditCardConfig, pinjamanDaringConfig, type ModuleConfig } from "./config";
 
 /** Halaman siap pakai per modul. Dipasang di router (lihat routes-snippet.tsx). */
 function build(config: ModuleConfig) {
@@ -25,3 +25,4 @@ function build(config: ModuleConfig) {
 
 export const CreditCard = build(creditCardConfig);
 export const BankLoan = build(bankLoanConfig);
+export const PinjamanDaring = build(pinjamanDaringConfig);

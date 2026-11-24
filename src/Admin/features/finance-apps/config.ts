@@ -1,5 +1,5 @@
 export interface ModuleConfig {
-  key: "credit-card" | "bank-loan";
+  key: "credit-card" | "bank-loan" | "pinjaman-daring";
   title: string; // "Kartu Kredit"
   productKey: "card_name" | "bank_name";
   productLabel: string; // "Nama kartu kredit"
@@ -7,6 +7,8 @@ export interface ModuleConfig {
   byKey: "by_card" | "by_bank";
   hasCompany: boolean;
   addressLabel: string;
+  /** Kalau diisi, semua request API modul ini membawa ?role_dummy=<nilai> (BE mengembalikan data kosong). */
+  dummy?: string;
   api: { admin: string; disbursement: string };
   routes: {
     summary: string;
@@ -17,6 +19,9 @@ export interface ModuleConfig {
     detail: (id: number | string) => string;
   };
 }
+
+/** Tambahkan ?role_dummy=... ke URL API kalau modulnya mode dummy. Modul biasa: URL tidak berubah. */
+export const withDummy = (url: string, config: Pick<ModuleConfig, "dummy">) => (config.dummy ? `${url}${url.includes("?") ? "&" : "?"}role_dummy=${encodeURIComponent(config.dummy)}` : url);
 
 export const creditCardConfig: ModuleConfig = {
   key: "credit-card",
@@ -55,5 +60,27 @@ export const bankLoanConfig: ModuleConfig = {
     approved: "/admin/bank-loan/approved",
     disbursement: "/admin/bank-loan/disbursement",
     detail: (id) => `/admin/detail/bank-loan/${id}`,
+  },
+};
+
+// SEMENTARA: BE Pindar belum ada, pakai endpoint bank-loan tapi datanya dikosongkan lewat role_dummy
+export const pinjamanDaringConfig: ModuleConfig = {
+  key: "pinjaman-daring",
+  title: "Pinjaman Daring (PINDAR)",
+  productKey: "bank_name",
+  productLabel: "Nama bank",
+  productPlaceholder: "mis. Nama APK Pindar",
+  byKey: "by_bank",
+  hasCompany: true,
+  addressLabel: "Alamat domisili",
+  dummy: "pindar",
+  api: { admin: "/admin/bank-loan", disbursement: "/admin/disbursement-bank-loan" },
+  routes: {
+    summary: "/admin/pinjaman-daring/summary",
+    list: "/admin/pinjaman-daring/applications",
+    all: "/admin/pinjaman-daring/all",
+    approved: "/admin/pinjaman-daring/approved",
+    disbursement: "/admin/pinjaman-daring/disbursement",
+    detail: (id) => `/admin/detail/pinjaman-daring/${id}`,
   },
 };

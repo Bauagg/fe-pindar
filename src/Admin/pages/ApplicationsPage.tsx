@@ -144,42 +144,54 @@ function StatusDropdown({ value, onChange }: { value: Filter; onChange: (v: Filt
 /* ------------------------------------------------------------------ */
 /* Pilihan jumlah data per halaman: preset + bisa isi sendiri          */
 /* ------------------------------------------------------------------ */
-function PerPageSelect({ value, onChange }: { value: number; onChange: (n: number) => void }) {
-  const isPreset = PER_PAGE_OPTIONS.includes(value);
-  const [custom, setCustom] = useState(!isPreset);
+function PerPageSelect({ value, onChange, pill = false }: { value: number; onChange: (n: number) => void; pill?: boolean }) {
+  const [customMode, setCustomMode] = useState(false);
   const [draft, setDraft] = useState(String(value));
 
-  // Terapkan angka isian sendiri (dibatasi 1 - 200)
+  // Mode isi sendiri aktif kalau dipilih manual, atau kalau value bukan preset
+  const custom = customMode || !PER_PAGE_OPTIONS.includes(value);
+
+  // Sinkronkan isian kalau value berubah dari selector lain
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
   const commit = () => {
     const n = Math.min(MAX_PER_PAGE, Math.max(MIN_PER_PAGE, Math.floor(Number(draft))));
 
     if (!Number.isFinite(n) || n < MIN_PER_PAGE) {
-      setDraft(String(value)); // input tidak valid -> kembalikan
+      setDraft(String(value));
       return;
     }
 
     setDraft(String(n));
-    if (PER_PAGE_OPTIONS.includes(n)) setCustom(false);
+    if (PER_PAGE_OPTIONS.includes(n)) setCustomMode(false);
     if (n !== value) onChange(n);
   };
 
+  const wrapCls = pill ? "inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-gray-600 ring-1 ring-gray-200" : "flex items-center gap-2 text-gray-500";
+
+  const fieldCls = pill
+    ? "rounded-md bg-transparent text-sm font-bold text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+    : "rounded-lg bg-white px-2 py-1.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500";
+
   return (
-    <div className="flex items-center gap-2 text-gray-500">
+    <div className={wrapCls}>
       <span className="whitespace-nowrap">Tampilkan</span>
 
       <select
         value={custom ? "custom" : String(value)}
         onChange={(e) => {
           if (e.target.value === "custom") {
-            setCustom(true);
+            setCustomMode(true);
             setDraft(String(value));
           } else {
-            setCustom(false);
+            setCustomMode(false);
             onChange(Number(e.target.value));
           }
         }}
         aria-label="Jumlah data per halaman"
-        className="rounded-lg bg-white px-2 py-1.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
+        className={fieldCls}>
         {PER_PAGE_OPTIONS.map((n) => (
           <option key={n} value={n}>
             {n}
@@ -204,11 +216,9 @@ function PerPageSelect({ value, onChange }: { value: number; onChange: (n: numbe
             }
           }}
           aria-label={`Jumlah data per halaman (${MIN_PER_PAGE}-${MAX_PER_PAGE})`}
-          className="w-20 rounded-lg bg-white px-2 py-1.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+          className={`w-16 ${fieldCls} ${pill ? "ring-1 ring-gray-200 px-2 py-0.5" : "w-20"}`}
         />
       )}
-
-      <span className="whitespace-nowrap">/ halaman</span>
     </div>
   );
 }
@@ -285,10 +295,7 @@ export default function ApplicationsPage() {
     setPage(1);
   };
 
-  const quickTabs: { key: Filter; label: string }[] = [
-    { key: "", label: "Semua" },
-    { key: "unread", label: "Belum dibaca" },
-  ];
+  const quickTabs: { key: Filter; label: string }[] = [{ key: "", label: "Semua" }];
 
   return (
     <div>
@@ -333,6 +340,7 @@ export default function ApplicationsPage() {
           })}
 
           <StatusDropdown value={status} onChange={changeStatus} />
+          <PerPageSelect pill value={perPage} onChange={changePerPage} />
         </div>
 
         {/* Kanan: layanan + pencarian */}

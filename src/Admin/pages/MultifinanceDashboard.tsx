@@ -1,12 +1,59 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Building2, CalendarDays, CheckCircle2, Clock, Loader2, Minus, NotebookPen, XCircle } from "lucide-react";
-import { api } from "../api";
-import { roleName, useAuth } from "../auth/AuthContext";
+import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Building2, CalendarDays, Car, CheckCircle2, Clock, CreditCard, Info, Landmark, Layers, Loader2, Minus, NotebookPen, Wallet, X, XCircle } from "lucide-react";
+import { api, errorMessage } from "../api";
+import { isFullAdmin, roleName, useAuth } from "../auth/AuthContext";
 import { SERVICES } from "../constants";
 import StatusBadge from "../components/StatusBadge";
-import type { Application, Paginated } from "../types";
-import AssetCell, { ApplicantBadge } from "../components/AssetCell";
+
+/* ------------------------------------------------------------------ */
+/* Tipe respons GET /dashboard                                         */
+/* ------------------------------------------------------------------ */
+
+type ProductKey = "pindar" | "multifinance" | "kartu_kredit" | "pinjaman_bank";
+type TabKey = "all" | ProductKey;
+
+type Summary = {
+  total: number;
+  today: number;
+  yesterday: number;
+  this_week: number;
+  last_week: number;
+  this_month: number;
+  last_month: number;
+};
+
+type RecentItem = {
+  id: number;
+  product: ProductKey;
+  product_label: string;
+  application_number: string;
+  applicant_name: string;
+  detail: string | null;
+  status: string;
+  created_at: string;
+};
+
+type Stats = Summary & {
+  by_status: Record<string, number>;
+  by_detail?: { name: string; count: number }[];
+  daily: { date: string; count: number }[];
+  monthly: { month: string; count: number }[];
+  recent?: RecentItem[];
+};
+
+type ProductStats = Stats & { label: string; available: boolean };
+
+type Partner = Summary & { role: string; label: string; type: string; product?: ProductKey };
+
+type DashboardData = {
+  scope: "all" | ProductKey;
+  role: { slug: string | null; name: string | null; type: string | null };
+  products: Partial<Record<ProductKey, ProductStats>>;
+  overall: Stats;
+  recent: RecentItem[];
+  partners?: Partner[];
+};
 
 /* ------------------------------------------------------------------ */
 /* Konfigurasi                                                         */
@@ -20,44 +67,33 @@ export const STATUS_CARDS = [
   { key: "rejected", label: "Ditolak", icon: XCircle, tone: "bg-red-50 text-red-600", color: "#ef4444" },
 ] as const;
 
-// Tab partner (hanya untuk super_admin & admin). value = query ?role=
-export const PARTNERS = [
-  { value: "", label: "Semua" },
-  { value: "admin_retailku", label: "Retailku" },
-  { value: "admin_moladin", label: "Moladin" },
-  { value: "admin_sinarmas", label: "Sinarmas" },
-  { value: "admin_cnaf", label: "CNAF" },
-  { value: "admin_taf", label: "TAF" },
+const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
+  { key: "all", label: "Semua", icon: Layers },
+  { key: "pindar", label: "Pindar", icon: Wallet },
+  { key: "multifinance", label: "Multi Finance", icon: Car },
+  { key: "kartu_kredit", label: "Kartu Kredit", icon: CreditCard },
+  { key: "pinjaman_bank", label: "Pinjaman Bank", icon: Landmark },
 ];
 
-export const FULL_ADMIN = ["super_admin", "admin"];
-
-export const normalizeRole = (r?: string | null) =>
-  (r || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[\s-]+/g, "_");
-
-/* ------------------------------------------------------------------ */
-/* Tipe respons GET /admin/multifinance/stats                          */
-/* ------------------------------------------------------------------ */
-
-type Summary = {
-  total: number;
-  today: number;
-  yesterday: number;
-  this_week: number;
-  last_week: number;
-  this_month: number;
-  last_month: number;
+const PRODUCT_LABEL: Record<ProductKey, string> = {
+  pindar: "Pindar",
+  multifinance: "Multi Finance",
+  kartu_kredit: "Kartu Kredit",
+  pinjaman_bank: "Pinjaman Bank",
 };
 
-export type Stats = Summary & {
-  by_status: Record<string, number>;
-  by_service?: Record<string, number>; // jumlah per layanan (service_type)
-  daily: { date: string; count: number }[]; // 14 hari terakhir
-  monthly: { month: string; count: number }[]; // 6 bulan terakhir
-  partners?: ({ role: string; label: string } & Summary)[]; // hanya super_admin/admin tanpa filter role
+const DETAIL_TITLE: Record<ProductKey, string> = {
+  pindar: "Per layanan",
+  multifinance: "Per layanan",
+  kartu_kredit: "Per kartu",
+  pinjaman_bank: "Per bank",
+};
+
+// SESUAIKAN dengan route halaman daftar pengajuan masing-masing produk (Pindar belum ada)
+const LIST_ROUTE: Partial<Record<ProductKey, string>> = {
+  multifinance: "/admin/multi-finance/applications",
+  kartu_kredit: "/admin/credit-card/applications",
+  pinjaman_bank: "/admin/bank-loan/applications",
 };
 
 export const fmtDate = (d?: string) => (d ? new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-");
@@ -68,13 +104,14 @@ export const num = (n: number) => n.toLocaleString("id-ID");
 /* ------------------------------------------------------------------ */
 
 export function Delta({ current, previous }: { current: number; previous: number }) {
-  if (current === 0 && previous === 0) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-500">
-        <Minus className="h-3 w-3" /> 0%
-      </span>
-    );
-  }
+  const flat = (
+    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-500">
+      <Minus className="h-3 w-3" /> 0%
+    </span>
+  );
+
+  if (current === 0 && previous === 0) return flat;
+
   if (previous === 0) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
@@ -84,13 +121,7 @@ export function Delta({ current, previous }: { current: number; previous: number
   }
 
   const pct = Math.round(((current - previous) / previous) * 100);
-  if (pct === 0) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-500">
-        <Minus className="h-3 w-3" /> 0%
-      </span>
-    );
-  }
+  if (pct === 0) return flat;
 
   const up = pct > 0;
   return (
@@ -153,7 +184,6 @@ function useDismiss(ref: React.RefObject<HTMLElement | null>, open: boolean, onC
 
 // Popup kecil yang menempel di titik yang diklik (posisi dalam persen dari area grafik)
 function Popup({ xPct, yPct, children }: { xPct: number; yPct: number; children: React.ReactNode }) {
-  // Jaga agar popup tidak keluar dari kiri/kanan kartu
   const align = xPct < 18 ? "translate(-10%, -115%)" : xPct > 82 ? "translate(-90%, -115%)" : "translate(-50%, -115%)";
 
   return (
@@ -185,7 +215,7 @@ function Grid({ max }: { max: number }) {
 export function LineChart({ data, color = "#dc2626", unit = "pengajuan" }: { data: Point[]; color?: string; unit?: string }) {
   const [active, setActive] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
-  const close = React.useCallback(() => setActive(null), []);
+  const close = useCallback(() => setActive(null), []);
   useDismiss(box, active !== null, close);
 
   const max = niceMax(Math.max(0, ...data.map((d) => d.value)));
@@ -255,7 +285,7 @@ export function LineChart({ data, color = "#dc2626", unit = "pengajuan" }: { dat
 export function BarChart({ data, color = "#dc2626", unit = "pengajuan" }: { data: Point[]; color?: string; unit?: string }) {
   const [active, setActive] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
-  const close = React.useCallback(() => setActive(null), []);
+  const close = useCallback(() => setActive(null), []);
   useDismiss(box, active !== null, close);
 
   const max = niceMax(Math.max(0, ...data.map((d) => d.value)));
@@ -315,13 +345,12 @@ export function BarChart({ data, color = "#dc2626", unit = "pengajuan" }: { data
 export function Donut({ slices, total }: { slices: { label: string; value: number; color: string }[]; total: number }) {
   const [active, setActive] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
-  const close = React.useCallback(() => setActive(null), []);
+  const close = useCallback(() => setActive(null), []);
   useDismiss(box, active !== null, close);
 
   const R = 52;
   const C = 2 * Math.PI * R;
 
-  // Hitung awal tiap irisan (dalam satuan panjang keliling)
   let acc = 0;
   const arcs = slices.map((s) => {
     const len = total > 0 ? (s.value / total) * C : 0;
@@ -330,7 +359,6 @@ export function Donut({ slices, total }: { slices: { label: string; value: numbe
     return arc;
   });
 
-  // Posisi popup = tengah irisan yang aktif
   let pop: { x: number; y: number } | null = null;
   if (active !== null && arcs[active]?.len > 0) {
     const mid = arcs[active].start + arcs[active].len / 2;
@@ -342,7 +370,6 @@ export function Donut({ slices, total }: { slices: { label: string; value: numbe
 
   return (
     <div ref={box} className="flex flex-col items-center gap-5">
-      {/* Donut */}
       <div className="relative mx-auto h-44 w-44">
         <svg viewBox="0 0 140 140" className="h-full w-full" role="img" aria-label="Distribusi status pengajuan">
           <g transform="rotate(-90 70 70)">
@@ -372,7 +399,6 @@ export function Donut({ slices, total }: { slices: { label: string; value: numbe
           </g>
         </svg>
 
-        {/* Angka di tengah (tidak menghalangi klik) */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-extrabold leading-none text-gray-900">{num(total)}</span>
           <span className="mt-1 text-[11px] font-semibold text-gray-400">total</span>
@@ -391,7 +417,6 @@ export function Donut({ slices, total }: { slices: { label: string; value: numbe
         )}
       </div>
 
-      {/* Keterangan (juga bisa diklik) */}
       <ul className="w-full space-y-1 text-sm">
         {arcs.map((a, i) => (
           <li key={a.label}>
@@ -424,17 +449,38 @@ export function Panel({ title, icon: Icon, children }: { title: string; icon: Re
   );
 }
 
+function RankList({ items }: { items: { name: string; count: number }[] }) {
+  if (items.length === 0) return <p className="py-6 text-center text-sm text-gray-400">Belum ada data.</p>;
+
+  const max = Math.max(1, ...items.map((i) => i.count));
+
+  return (
+    <ul className="space-y-3">
+      {items.map((i) => (
+        <li key={i.name}>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="truncate font-semibold text-gray-600">{i.name}</span>
+            <span className="shrink-0 font-extrabold text-gray-900">{num(i.count)}</span>
+          </div>
+          <div className="mt-1 h-2 rounded-full bg-gray-100">
+            <div className="h-2 rounded-full bg-red-500 transition-all" style={{ width: `${(i.count / max) * 100}%` }} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Halaman                                                             */
 /* ------------------------------------------------------------------ */
 
-export default function MultifinanceDashboard() {
+export default function Dashboard() {
   const { user } = useAuth();
-  const isFullAdmin = FULL_ADMIN.includes(normalizeRole(roleName(user)));
 
-  const [partner, setPartner] = useState(""); // "" = semua
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [recent, setRecent] = useState<Application[]>([]);
+  const [tab, setTab] = useState<TabKey>("all");
+  const [roleFilter, setRoleFilter] = useState(""); // filter partner (khusus full admin)
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -443,56 +489,93 @@ export default function MultifinanceDashboard() {
     setLoading(true);
     setError("");
 
-    const roleParam = isFullAdmin && partner ? `role=${partner}` : "";
-    const recentUrl = isFullAdmin ? `/admin/multifinance/all?limit=5${roleParam ? `&${roleParam}` : ""}` : "/admin/multifinance?limit=5";
-
-    Promise.all([api<{ data: Stats }>(`/admin/multifinance/stats${roleParam ? `?${roleParam}` : ""}`), api<Paginated<Application>>(recentUrl)])
-      .then(([s, r]) => {
-        if (!alive) return;
-        setStats(s.data);
-        setRecent(r.data);
-      })
-      .catch((e: Error) => alive && setError(e.message))
+    api<{ data: DashboardData }>(`/dashboard${roleFilter ? `?role=${encodeURIComponent(roleFilter)}` : ""}`)
+      .then((res) => alive && setData(res.data))
+      .catch((e) => alive && setError(errorMessage(e)))
       .finally(() => alive && setLoading(false));
 
     return () => {
       alive = false;
     };
-  }, [partner, isFullAdmin]);
+  }, [roleFilter]);
 
-  const daily = useMemo<Point[]>(() => (stats?.daily ?? []).map((d) => ({ label: new Date(`${d.date}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short" }), value: d.count })), [stats]);
+  // Admin/super admin => scope "all" (ada tab). Role partner => scope = produknya (tanpa tab).
+  const isAll = data ? data.scope === "all" : isFullAdmin(user);
+  const activeKey: TabKey = data && data.scope !== "all" ? data.scope : tab;
 
-  const monthly = useMemo<Point[]>(() => (stats?.monthly ?? []).map((m) => ({ label: new Date(`${m.month}-01T00:00:00`).toLocaleDateString("id-ID", { month: "short" }), value: m.count })), [stats]);
+  const view: Stats | undefined = useMemo(() => {
+    if (!data) return undefined;
+    if (activeKey === "all") return data.overall;
+    return data.products[activeKey];
+  }, [data, activeKey]);
 
-  const slices = STATUS_CARDS.map((c) => ({ label: c.label, value: stats?.by_status?.[c.key] ?? 0, color: c.color }));
-  const partnerLabel = PARTNERS.find((p) => p.value === partner)?.label;
+  const product = activeKey !== "all" ? data?.products[activeKey] : undefined;
+
+  const recent: RecentItem[] = activeKey === "all" ? data?.recent ?? [] : view?.recent ?? [];
+
+  const daily = useMemo<Point[]>(() => (view?.daily ?? []).map((d) => ({ label: new Date(`${d.date}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short" }), value: d.count })), [view]);
+
+  const monthly = useMemo<Point[]>(() => (view?.monthly ?? []).map((m) => ({ label: new Date(`${m.month}-01T00:00:00`).toLocaleDateString("id-ID", { month: "short" }), value: m.count })), [view]);
+
+  const slices = STATUS_CARDS.map((c) => ({ label: c.label, value: view?.by_status?.[c.key] ?? 0, color: c.color }));
+
+  // Panel breakdown: "Semua" => per produk, tab produk => per layanan/kartu/bank
+  const breakdown = useMemo(() => {
+    if (!data) return [];
+    if (activeKey === "all") {
+      return (Object.keys(data.products) as ProductKey[]).map((k) => ({ name: PRODUCT_LABEL[k], count: data.products[k]?.total ?? 0 }));
+    }
+    return (view?.by_detail ?? []).map((d) => ({ name: activeKey === "multifinance" ? SERVICES[d.name] || d.name : d.name, count: d.count }));
+  }, [data, activeKey, view]);
+
+  const partners = useMemo(() => (data?.partners ?? []).filter((p) => activeKey === "all" || p.product === activeKey), [data, activeKey]);
+
+  const partnerLabel = data?.partners?.find((p) => p.role === roleFilter)?.label ?? roleFilter;
+  const scopeLabel = activeKey === "all" ? "semua produk" : PRODUCT_LABEL[activeKey];
+  const listRoute = activeKey !== "all" ? LIST_ROUTE[activeKey] : undefined;
 
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">Halo, {user?.name?.split(" ")[0] || "Admin"}</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Kamu masuk sebagai {roleName(user)}. Ini ringkasan pengajuan{isFullAdmin && partner ? ` ${partnerLabel}` : " yang bisa kamu lihat"}.
+        Kamu masuk sebagai {roleName(user)}. Ini ringkasan pengajuan {scopeLabel}
+        {roleFilter ? ` (${partnerLabel})` : ""}.
       </p>
 
-      {/* Tab partner: hanya super_admin & admin */}
-      {isFullAdmin && (
-        <div role="tablist" aria-label="Pilih partner" className="mt-6 flex flex-wrap gap-2">
-          {PARTNERS.map((p) => {
-            const active = partner === p.value;
+      {/* TAB PRODUK: hanya super_admin & admin */}
+      {isAll && (
+        <div role="tablist" aria-label="Pilih produk" className="mt-6 flex flex-wrap gap-2">
+          {TABS.map((t) => {
+            const on = tab === t.key;
+            const Icon = t.icon;
+            const total = t.key === "all" ? data?.overall.total : data?.products[t.key]?.total;
+
             return (
               <button
-                key={p.value || "all"}
+                key={t.key}
                 type="button"
                 role="tab"
-                aria-selected={active}
-                onClick={() => setPartner(p.value)}
-                className={`rounded-full px-4 py-2 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 ${
-                  active ? "bg-red-600 text-white" : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50"
+                aria-selected={on}
+                onClick={() => setTab(t.key)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 ${
+                  on ? "bg-red-600 text-white" : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50"
                 }`}>
-                {p.label}
+                <Icon className="h-4 w-4" />
+                {t.label}
+                {total !== undefined && <span className={`rounded-full px-1.5 py-0.5 text-[11px] ${on ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>{num(total)}</span>}
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Chip filter partner */}
+      {roleFilter && (
+        <div className="mt-3">
+          <button type="button" onClick={() => setRoleFilter("")} className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100">
+            Partner: {partnerLabel}
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 
@@ -502,19 +585,27 @@ export default function MultifinanceDashboard() {
         </div>
       )}
 
-      <div className={`transition-opacity ${loading && stats ? "opacity-50" : ""}`}>
+      {/* Pindar belum punya BE */}
+      {product && !product.available && (
+        <div className="mt-6 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <p className="text-sm font-semibold text-amber-800">Data Pindar belum terhubung. Angka di bawah akan terisi setelah integrasinya tersedia.</p>
+        </div>
+      )}
+
+      <div className={`transition-opacity ${loading && data ? "opacity-50" : ""}`}>
         {/* Perbandingan periode */}
         <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Perbandingan periode">
-          {stats ? (
+          {view ? (
             <>
               <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-red-600 to-red-500 p-5 text-white">
-                <p className="text-sm font-semibold text-red-100">Total semua pengajuan</p>
-                <p className="mt-3 text-3xl font-extrabold">{num(stats.total)}</p>
-                <p className="mt-1 text-xs font-semibold text-red-100">{isFullAdmin && partner ? partnerLabel : "Sejak awal"}</p>
+                <p className="text-sm font-semibold text-red-100">Total pengajuan</p>
+                <p className="mt-3 text-3xl font-extrabold">{num(view.total)}</p>
+                <p className="mt-1 text-xs font-semibold text-red-100">{roleFilter ? partnerLabel : scopeLabel}</p>
               </div>
-              <CompareCard title="Hari ini" current={stats.today} previous={stats.yesterday} previousLabel="Kemarin" />
-              <CompareCard title="Minggu ini" current={stats.this_week} previous={stats.last_week} previousLabel="Minggu lalu" />
-              <CompareCard title="Bulan ini" current={stats.this_month} previous={stats.last_month} previousLabel="Bulan lalu" />
+              <CompareCard title="Hari ini" current={view.today} previous={view.yesterday} previousLabel="Kemarin" />
+              <CompareCard title="Minggu ini" current={view.this_week} previous={view.last_week} previousLabel="Minggu lalu" />
+              <CompareCard title="Bulan ini" current={view.this_month} previous={view.last_month} previousLabel="Bulan lalu" />
             </>
           ) : (
             Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-[132px] animate-pulse rounded-2xl bg-gray-100" />)
@@ -528,14 +619,14 @@ export default function MultifinanceDashboard() {
               <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <p className="mt-4 text-3xl font-extrabold text-gray-900">{stats ? num(stats.by_status?.[key] ?? 0) : <span className="inline-block h-8 w-10 animate-pulse rounded bg-gray-100" />}</p>
+              <p className="mt-4 text-3xl font-extrabold text-gray-900">{view ? num(view.by_status?.[key] ?? 0) : <span className="inline-block h-8 w-10 animate-pulse rounded bg-gray-100" />}</p>
               <p className="mt-1 text-sm font-semibold text-gray-500">{label}</p>
             </div>
           ))}
         </section>
 
         {/* Grafik */}
-        {stats && (
+        {view && (
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Panel title="Tren 14 hari terakhir" icon={CalendarDays}>
@@ -543,18 +634,21 @@ export default function MultifinanceDashboard() {
               </Panel>
             </div>
             <Panel title="Distribusi status" icon={BarChart3}>
-              <Donut slices={slices} total={stats.total} />
+              <Donut slices={slices} total={view.total} />
             </Panel>
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-2">
               <Panel title="Pengajuan per bulan (6 bulan terakhir)" icon={BarChart3}>
                 <BarChart data={monthly} />
               </Panel>
             </div>
+            <Panel title={activeKey === "all" ? "Per produk" : DETAIL_TITLE[activeKey]} icon={Layers}>
+              <RankList items={breakdown} />
+            </Panel>
           </div>
         )}
 
-        {/* Perbandingan antar partner: super_admin & admin, tampilan "Semua" */}
-        {isFullAdmin && !partner && stats?.partners && (
+        {/* Data per partner: hanya full admin, tanpa filter partner */}
+        {isAll && !roleFilter && partners.length > 0 && (
           <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5" aria-label="Perbandingan partner">
             <h2 className="mb-4 flex items-center gap-2 font-extrabold text-gray-900">
               <Building2 className="h-4 w-4 text-red-600" />
@@ -562,27 +656,30 @@ export default function MultifinanceDashboard() {
             </h2>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {stats.partners.map((p) => (
+              {partners.map((p) => (
                 <button
                   key={p.role}
                   type="button"
-                  onClick={() => setPartner(p.role)}
+                  onClick={() => setRoleFilter(p.role)}
                   className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 text-left transition hover:border-red-200 hover:bg-red-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
                   <p className="text-sm font-extrabold text-gray-900">{p.label}</p>
+                  {p.product && <p className="text-[11px] font-semibold text-gray-400">{PRODUCT_LABEL[p.product]}</p>}
                   <p className="mt-2 text-2xl font-extrabold text-gray-900">{num(p.total)}</p>
                   <p className="text-xs font-semibold text-gray-400">total pengajuan</p>
 
                   <dl className="mt-3 space-y-1.5 text-xs">
-                    {[
-                      ["Hari ini", p.today, p.yesterday],
-                      ["Minggu ini", p.this_week, p.last_week],
-                      ["Bulan ini", p.this_month, p.last_month],
-                    ].map(([label, cur, prev]) => (
-                      <div key={label as string} className="flex items-center justify-between gap-2">
+                    {(
+                      [
+                        ["Hari ini", p.today, p.yesterday],
+                        ["Minggu ini", p.this_week, p.last_week],
+                        ["Bulan ini", p.this_month, p.last_month],
+                      ] as [string, number, number][]
+                    ).map(([label, cur, prev]) => (
+                      <div key={label} className="flex items-center justify-between gap-2">
                         <dt className="font-semibold text-gray-500">{label}</dt>
                         <dd className="flex items-center gap-1.5 font-extrabold text-gray-800">
-                          {num(cur as number)}
-                          <Delta current={cur as number} previous={prev as number} />
+                          {num(cur)}
+                          <Delta current={cur} previous={prev} />
                         </dd>
                       </div>
                     ))}
@@ -597,12 +694,14 @@ export default function MultifinanceDashboard() {
         <section className="mt-6 rounded-2xl border border-gray-100 bg-white">
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
             <h2 className="font-extrabold text-gray-900">Pengajuan terbaru</h2>
-            <Link to="/admin/multi-finance/applications" className="text-sm font-bold text-red-600 hover:text-red-700">
-              Lihat semua
-            </Link>
+            {listRoute && (
+              <Link to={listRoute} className="text-sm font-bold text-red-600 hover:text-red-700">
+                Lihat semua
+              </Link>
+            )}
           </div>
 
-          {loading && !stats && !error ? (
+          {loading && !data && !error ? (
             <div className="flex justify-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-red-600" />
             </div>
@@ -614,29 +713,28 @@ export default function MultifinanceDashboard() {
                 <thead className="text-xs font-bold text-gray-400">
                   <tr>
                     <th className="px-5 py-3">Pemohon</th>
-                    <th className="px-5 py-3">Layanan</th>
-                    <th className="px-5 py-3">Jaminan</th>
+                    {activeKey === "all" && <th className="px-5 py-3">Produk</th>}
+                    <th className="px-5 py-3">Detail</th>
                     <th className="px-5 py-3">Tanggal</th>
                     <th className="px-5 py-3">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {recent.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50/60">
+                  {recent.map((r) => (
+                    <tr key={`${r.product}-${r.id}`} className="hover:bg-gray-50/60">
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-gray-900">{a.applicant?.name}</p>
-                          <ApplicantBadge type={a.applicant?.type} />
-                        </div>
-                        <p className="text-xs text-gray-400">{a.application_number}</p>
+                        <p className="font-bold text-gray-900">{r.applicant_name}</p>
+                        <p className="text-xs text-gray-400">{r.application_number}</p>
                       </td>
-                      <td className="px-5 py-4 font-semibold text-gray-700">{SERVICES[a.service_type] || a.service_type}</td>
+                      {activeKey === "all" && (
+                        <td className="px-5 py-4">
+                          <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{r.product_label}</span>
+                        </td>
+                      )}
+                      <td className="px-5 py-4 font-semibold text-gray-700">{r.product === "multifinance" ? (r.detail && SERVICES[r.detail]) || r.detail || "-" : r.detail || "-"}</td>
+                      <td className="px-5 py-4 text-gray-600">{fmtDate(r.created_at)}</td>
                       <td className="px-5 py-4">
-                        <AssetCell a={a} />
-                      </td>
-                      <td className="px-5 py-4 text-gray-600">{fmtDate(a.created_at)}</td>
-                      <td className="px-5 py-4">
-                        <StatusBadge value={a.status.value} />
+                        <StatusBadge value={r.status} />
                       </td>
                     </tr>
                   ))}

@@ -1,14 +1,46 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { BarChart3, Building2, CalendarDays, Layers, Loader2 } from "lucide-react";
-import { api } from "../../api";
-import { roleName, useAuth } from "../../auth/AuthContext";
+import { api, errorMessage } from "../../api";
+import { isFullAdmin, useAuth } from "../../auth/AuthContext";
 import { SERVICES } from "../../constants";
 import StatusBadge from "../../components/StatusBadge";
 import type { Application, Paginated } from "../../types";
 import AssetCell, { ApplicantBadge } from "../../components/AssetCell";
-import { BarChart, CompareCard, Delta, Donut, FULL_ADMIN, LineChart, PARTNERS, Panel, STATUS_CARDS, fmtDate, normalizeRole, num } from "../MultifinanceDashboard";
-import type { Point, Stats } from "../MultifinanceDashboard";
+import { BarChart, CompareCard, Delta, Donut, LineChart, Panel, STATUS_CARDS, fmtDate, num } from "../MultifinanceDashboard";
+import type { Point } from "../MultifinanceDashboard";
+
+/* ------------------------------------------------------------------ */
+/* Tipe respons GET /admin/multifinance/stats                          */
+/* ------------------------------------------------------------------ */
+
+type Summary = {
+  total: number;
+  today: number;
+  yesterday: number;
+  this_week: number;
+  last_week: number;
+  this_month: number;
+  last_month: number;
+};
+
+type Stats = Summary & {
+  by_status: Record<string, number>;
+  by_service?: Record<string, number>;
+  daily: { date: string; count: number }[];
+  monthly: { month: string; count: number }[];
+  partners?: ({ role: string; label: string } & Summary)[];
+};
+
+// Tab partner. value = query ?role= (samakan dengan PARTNERS di MultifinanceAdminController)
+const PARTNERS = [
+  { value: "", label: "Semua" },
+  { value: "admin_retailku", label: "Retailku" },
+  { value: "admin_moladin", label: "Moladin" },
+  { value: "admin_sinarmas", label: "Sinarmas" },
+  { value: "admin_cnaf", label: "CNAF" },
+  { value: "admin_taf", label: "TAF" },
+];
 
 const SERVICE_COLORS = ["#dc2626", "#0ea5e9", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#14b8a6", "#64748b"];
 
@@ -20,7 +52,7 @@ const prettify = (k: string) => {
 
 export default function SummaryMultifinancePage() {
   const { user } = useAuth();
-  const isFullAdmin = FULL_ADMIN.includes(normalizeRole(roleName(user)));
+  const fullAdmin = isFullAdmin(user);
 
   const [partner, setPartner] = useState(""); // "" = semua
   const [stats, setStats] = useState<Stats | null>(null);
@@ -29,13 +61,13 @@ export default function SummaryMultifinancePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!isFullAdmin) return;
+    if (!fullAdmin) return;
 
     let alive = true;
     setLoading(true);
     setError("");
 
-    const roleParam = partner ? `role=${partner}` : "";
+    const roleParam = partner ? `role=${encodeURIComponent(partner)}` : "";
 
     Promise.all([api<{ data: Stats }>(`/admin/multifinance/stats${roleParam ? `?${roleParam}` : ""}`), api<Paginated<Application>>(`/admin/multifinance/all?limit=5${roleParam ? `&${roleParam}` : ""}`)])
       .then(([s, r]) => {
@@ -43,13 +75,13 @@ export default function SummaryMultifinancePage() {
         setStats(s.data);
         setRecent(r.data);
       })
-      .catch((e: Error) => alive && setError(e.message))
+      .catch((e) => alive && setError(errorMessage(e)))
       .finally(() => alive && setLoading(false));
 
     return () => {
       alive = false;
     };
-  }, [partner, isFullAdmin]);
+  }, [partner, fullAdmin]);
 
   const daily = useMemo<Point[]>(() => (stats?.daily ?? []).map((d) => ({ label: new Date(`${d.date}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short" }), value: d.count })), [stats]);
 
@@ -72,7 +104,7 @@ export default function SummaryMultifinancePage() {
   const partnerLabel = PARTNERS.find((p) => p.value === partner)?.label;
 
   // Khusus super_admin & admin
-  if (!isFullAdmin) return <Navigate to="/admin/multi-finance" replace />;
+  if (!fullAdmin) return <Navigate to="/admin/multi-finance" replace />;
 
   return (
     <div>
@@ -227,16 +259,18 @@ export default function SummaryMultifinancePage() {
                   <p className="text-xs font-semibold text-gray-400">total pengajuan</p>
 
                   <dl className="mt-3 space-y-1.5 text-xs">
-                    {[
-                      ["Hari ini", p.today, p.yesterday],
-                      ["Minggu ini", p.this_week, p.last_week],
-                      ["Bulan ini", p.this_month, p.last_month],
-                    ].map(([label, cur, prev]) => (
-                      <div key={label as string} className="flex items-center justify-between gap-2">
+                    {(
+                      [
+                        ["Hari ini", p.today, p.yesterday],
+                        ["Minggu ini", p.this_week, p.last_week],
+                        ["Bulan ini", p.this_month, p.last_month],
+                      ] as [string, number, number][]
+                    ).map(([label, cur, prev]) => (
+                      <div key={label} className="flex items-center justify-between gap-2">
                         <dt className="font-semibold text-gray-500">{label}</dt>
                         <dd className="flex items-center gap-1.5 font-extrabold text-gray-800">
-                          {num(cur as number)}
-                          <Delta current={cur as number} previous={prev as number} />
+                          {num(cur)}
+                          <Delta current={cur} previous={prev} />
                         </dd>
                       </div>
                     ))}

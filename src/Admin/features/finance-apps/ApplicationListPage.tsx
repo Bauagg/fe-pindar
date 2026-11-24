@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Bell, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 import { ActivityNote, StatusBadge, UnreadDot, api, card, errorMessage, inputCls } from "./shared";
 import type { ModuleConfig } from "./config";
@@ -32,7 +32,8 @@ type Props = {
 export default function ApplicationListPage({ config, title, description, all = false, role, lockedStatus, showUnread = true, actions }: Props) {
   const navigate = useNavigate();
   const endpoint = all ? `${config.api.admin}/all` : config.api.admin;
-
+  const [sp] = useSearchParams();
+  const dummy = sp.get("role_dummy");
   const [status, setStatus] = useState<Filter>("");
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
@@ -89,6 +90,7 @@ export default function ApplicationListPage({ config, title, description, all = 
     if (effectiveStatus) params.set("status", effectiveStatus);
     if (all && role) params.set("role", role);
     if (q) params.set("search", q);
+    if (dummy) params.set("role_dummy", dummy);
 
     api<Paginated<Application>>(`${endpoint}?${params}`)
       .then((r) => alive && setRes(r))
@@ -110,10 +112,12 @@ export default function ApplicationListPage({ config, title, description, all = 
     setPage(1);
   };
 
-  const quickTabs: { key: Filter; label: string }[] = [
-    { key: "", label: "Semua" },
-    { key: "unread", label: "Belum dibaca" },
-  ];
+  const changePerPage = (n: number) => {
+    setPerPage(n);
+    setPage(1);
+  };
+
+  const quickTabs: { key: Filter; label: string }[] = [{ key: "", label: "Semua" }];
 
   const colSpanMin = config.hasCompany ? "min-w-[920px]" : "min-w-[780px]";
 
@@ -158,6 +162,7 @@ export default function ApplicationListPage({ config, title, description, all = 
               );
             })}
           {!lockedStatus && <StatusDropdown value={status} onChange={changeStatus} />}
+          <PerPageSelect pill value={perPage} options={PER_PAGE_OPTIONS} max={MAX_PER_PAGE} onChange={changePerPage} />
         </div>
 
         <div className="relative w-full lg:w-96">

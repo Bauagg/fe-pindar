@@ -38,7 +38,7 @@ type NavItem = {
   children?: NavChild[];
 };
 
-const DASHBOARD_PATH = "/admin/multi-finance";
+const DASHBOARD_PATH = "/admin/dashboard";
 
 export const NAV: NavItem[] = [
   {
@@ -53,6 +53,17 @@ export const NAV: NavItem[] = [
     label: "Pengajuan",
     icon: FileText,
     roles: ["admin_retailku", "admin_moladin", "admin_cnaf", "admin_sinarmas", "admin_taf"],
+  },
+  {
+    label: "Pindar",
+    icon: CreditCard,
+    roles: FULL_ADMIN,
+    children: [
+      { to: "/admin/pinjaman-daring/summary", label: "Summary", icon: BarChart3 },
+      { to: "/admin/pinjaman-daring/applications", label: "Nasabah", icon: List },
+      { to: "/admin/pinjaman-daring/approved", label: "Approved", icon: CheckCircle2 },
+      { to: "/admin/pinjaman-daring/disbursement", label: "Disbursement", icon: FaMoneyBill },
+    ],
   },
   {
     label: "Multifinance",
@@ -78,6 +89,7 @@ export const NAV: NavItem[] = [
       },
     ],
   },
+
   {
     label: "Kartu Kredit",
     icon: CreditCard,
@@ -87,6 +99,17 @@ export const NAV: NavItem[] = [
       { to: "/admin/credit-card/applications", label: "Nasabah", icon: List },
       { to: "/admin/credit-card/approved", label: "Approved", icon: CheckCircle2 },
       { to: "/admin/credit-card/disbursement", label: "Disbursement", icon: FaMoneyBill },
+      {
+        label: "Kreditur",
+        icon: Building2,
+        children: [
+          { to: "/admin/credit-card/bca-cc", label: "BCA", icon: Building2 },
+          { to: "/admin/credit-card/bni-cc", label: "BNI", icon: Building2 },
+          { to: "/admin/credit-card/bri-cc", label: "BRI", icon: Building2 },
+          { to: "/admin/credit-card/mandiri-cc", label: "Mandiri", icon: Building2 },
+          { to: "/admin/credit-card/cimb-cc", label: "CIMB", icon: Building2 },
+        ],
+      },
     ],
   },
   {
@@ -98,6 +121,19 @@ export const NAV: NavItem[] = [
       { to: "/admin/bank-loan/applications", label: "Nasabah", icon: List },
       { to: "/admin/bank-loan/approved", label: "Approved", icon: CheckCircle2 },
       { to: "/admin/bank-loan/disbursement", label: "Disbursement", icon: FaMoneyBill },
+      {
+        label: "Kreditur",
+        icon: Building2,
+        children: [
+          { to: "/admin/bank-loan/bca-kta", label: "BCA", icon: Building2 },
+          { to: "/admin/bank-loan/bni-kta", label: "BNI", icon: Building2 },
+          { to: "/admin/bank-loan/bri-kta", label: "BRI", icon: Building2 },
+          { to: "/admin/bank-loan/mandiri-kta", label: "Mandiri", icon: Building2 },
+          { to: "/admin/bank-loan/cimb-kta", label: "CIMB", icon: Building2 },
+          { to: "/admin/bank-loan/mayapada-kta", label: "Mayapada", icon: Building2 },
+          { to: "/admin/bank-loan/ocbc-kta", label: "OCBC", icon: Building2 },
+        ],
+      },
     ],
   },
 ];

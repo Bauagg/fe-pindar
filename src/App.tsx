@@ -43,6 +43,9 @@ import CreditCardForm from "./LandingPage/Pages/KartuKreditPage/CreditCardForm";
 import BankLoanForm from "./LandingPage/Pages/PinjamanBankFix/BankLoanForm";
 import ListPayLater from "./LandingPage/Pages/PayLater/ListPayLater";
 import DetailPayLater from "./LandingPage/Pages/PayLater/DetailPayLater";
+import { BcaCardPage, BniCardPage, BriCardPage, CimbCardPage, MandiriCardPage } from "./Admin/pages/Kreditur/AdminCc";
+import { KtaBca, KtaBni, KtaBri, KtaMandiri, KtaMayapada, KtaOcbc } from "./Admin/pages/Kreditur/AdminKta";
+import PindarEmpty from "./Admin/features/finance-apps/PindarEmpty";
 
 // Deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
@@ -127,8 +130,8 @@ const App = () => {
           <Route path="/moladin/login" element={<LoginMoladin />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="multi-finance" replace />} />
-              <Route path="multi-finance" element={<MultifinanceDashboard />} />
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<MultifinanceDashboard />} />
               <Route path="multi-finance/applications" element={<ApplicationsPage />} />
               <Route path="detail/multifinanceapp/:id" element={<ApplicationDetailPage />} />
 
@@ -143,6 +146,15 @@ const App = () => {
               <Route path="multifinance/taf" element={<TafPage />} />
               <Route path="multifinance/pengajuan-disetujui" element={<ApprovedApplicationsPage title="Pengajuan Disetujui" description="Semua pengajuan multifinance yang sudah disetujui." lockedStatus="approved" />} />
 
+              {/* PINDAR */}
+              {/* PINDAR (sementara kosong, BE belum ada) */}
+              <Route path="pinjaman-daring/summary" element={<PindarEmpty title="Ringkasan Pindar" />} />
+              <Route path="pinjaman-daring/applications" element={<PindarEmpty title="Nasabah Pindar" />} />
+              <Route path="pinjaman-daring/all" element={<PindarEmpty title="Semua Pengajuan Pindar" />} />
+              <Route path="pinjaman-daring/approved" element={<PindarEmpty title="Pindar Disetujui" />} />
+              <Route path="pinjaman-daring/disbursement" element={<PindarEmpty title="Pencairan Pindar" />} />
+              <Route path="detail/pinjaman-daring/:id" element={<PindarEmpty title="Detail Pindar" />} />
+
               {/* KARTU KREDIT */}
               <Route path="credit-card/summary" element={<CreditCard.SummaryPage />} />
               <Route path="credit-card/applications" element={<CreditCard.ListPage />} />
@@ -150,6 +162,11 @@ const App = () => {
               <Route path="credit-card/approved" element={<CreditCard.ApprovedPage />} />
               <Route path="credit-card/disbursement" element={<CreditCard.DisbursementPage />} />
               <Route path="detail/credit-card/:id" element={<CreditCard.DetailPage />} />
+              <Route path="credit-card/bca-cc" element={<BcaCardPage />} />
+              <Route path="credit-card/bri-cc" element={<BriCardPage />} />
+              <Route path="credit-card/bni-cc" element={<BniCardPage />} />
+              <Route path="credit-card/mandiri-cc" element={<MandiriCardPage />} />
+              <Route path="credit-card/cimb-cc" element={<CimbCardPage />} />
 
               {/* PINJAMAN BANK */}
               <Route path="bank-loan/summary" element={<BankLoan.SummaryPage />} />
@@ -158,6 +175,12 @@ const App = () => {
               <Route path="bank-loan/approved" element={<BankLoan.ApprovedPage />} />
               <Route path="bank-loan/disbursement" element={<BankLoan.DisbursementPage />} />
               <Route path="detail/bank-loan/:id" element={<BankLoan.DetailPage />} />
+              <Route path="bank-loan/bca-kta" element={<KtaBca />} />
+              <Route path="bank-loan/bni-kta" element={<KtaBni />} />
+              <Route path="bank-loan/bri-kta" element={<KtaBri />} />
+              <Route path="bank-loan/mandiri-kta" element={<KtaMandiri />} />
+              <Route path="bank-loan/mayapada-kta" element={<KtaMayapada />} />
+              <Route path="bank-loan/ocbc-kta" element={<KtaOcbc />} />
             </Route>
           </Route>
         </Routes>
