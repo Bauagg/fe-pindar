@@ -46,6 +46,8 @@ import DetailPayLater from "./LandingPage/Pages/PayLater/DetailPayLater";
 import { BcaCardPage, BniCardPage, BriCardPage, CimbCardPage, MandiriCardPage } from "./Admin/pages/Kreditur/AdminCc";
 import { KtaBca, KtaBni, KtaBri, KtaMandiri, KtaMayapada, KtaOcbc } from "./Admin/pages/Kreditur/AdminKta";
 import PindarEmpty from "./Admin/features/finance-apps/PindarEmpty";
+import BiddingPage from "./Admin/pages/Bidding/BiddingPage";
+import BiddingDetailPage from "./Admin/pages/Bidding/BiddingDetailPage";
 
 // Deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
@@ -181,6 +183,10 @@ const App = () => {
               <Route path="bank-loan/mandiri-kta" element={<KtaMandiri />} />
               <Route path="bank-loan/mayapada-kta" element={<KtaMayapada />} />
               <Route path="bank-loan/ocbc-kta" element={<KtaOcbc />} />
+
+              {/* BIDDING DATA */}
+              <Route path="/admin/bidding" element={<BiddingPage />} />
+              <Route path="/admin/bidding/:product/:id" element={<BiddingDetailPage />} />
             </Route>
           </Route>
         </Routes>

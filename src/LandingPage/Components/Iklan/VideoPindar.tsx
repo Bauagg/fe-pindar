@@ -12,7 +12,7 @@ type VideoType = {
 };
 
 // Tambah video lain di sini kalau mau
-const VIDEOS: VideoType[] = [{ id: "y2pTRfnOmtE", title: "Popular Plus Video" }];
+const VIDEOS: VideoType[] = [{ id: "Mt4JtIEWvSw", title: "Popular Plus Video" }];
 
 const VideoPindar = () => {
   const paginationRef = useRef<HTMLDivElement>(null);

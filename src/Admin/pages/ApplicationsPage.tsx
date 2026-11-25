@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Check, ChevronDown, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+import { Bell, Bike, Car, Check, ChevronDown, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { SERVICES, STATUS } from "../constants";
 import StatusBadge from "../components/StatusBadge";
@@ -19,6 +19,13 @@ const POLL_MS = 30000;
 const PER_PAGE_OPTIONS = [10, 20, 50, 100, 200];
 const MIN_PER_PAGE = 1;
 const MAX_PER_PAGE = 200;
+/** Layanan yang menampilkan filter jenis kendaraan. SESUAIKAN dengan key di SERVICES */
+const VEHICLE_SERVICES = ["jaminkan_bpkb", "take_over", "beli_kendaraan_second"];
+
+const VEHICLE_TYPES = [
+  { key: "motor", label: "Motor", Icon: Bike },
+  { key: "mobil", label: "Mobil", Icon: Car },
+] as const;
 
 /* ------------------------------------------------------------------ */
 /* Dropdown status: rapi di mobile, tablet, dan desktop                */
@@ -234,6 +241,8 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [service, setService] = useState("");
+  const [vehicleType, setVehicleType] = useState("");
+  const showVehicleFilter = VEHICLE_SERVICES.includes(service);
   const [tick, setTick] = useState(0);
   const silent = useRef(false);
 
@@ -269,6 +278,7 @@ export default function ApplicationsPage() {
     if (status === "unread") params.set("unread", "1");
     else if (status) params.set("status", status);
     if (service) params.set("service_type", service);
+    if (service && showVehicleFilter && vehicleType) params.set("vehicle_type", vehicleType);
     if (q) params.set("search", q);
 
     api<Paginated<Application>>(`/admin/multifinance?${params}`)
@@ -279,7 +289,7 @@ export default function ApplicationsPage() {
     return () => {
       alive = false;
     };
-  }, [status, service, q, page, perPage, tick]);
+  }, [status, service, vehicleType, q, page, perPage, tick]);
 
   const rows = res?.data ?? [];
   const meta = res?.meta;
@@ -345,10 +355,33 @@ export default function ApplicationsPage() {
 
         {/* Kanan: layanan + pencarian */}
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+          {showVehicleFilter && (
+            <div role="group" aria-label="Filter jenis kendaraan" className="inline-flex items-center gap-1 rounded-full bg-white p-1 ring-1 ring-gray-200">
+              {VEHICLE_TYPES.map(({ key, label, Icon }) => {
+                const active = vehicleType === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={active}
+                    aria-label={label}
+                    title={label}
+                    onClick={() => {
+                      setVehicleType(active ? "" : key); // klik lagi = batal pilih
+                      setPage(1);
+                    }}
+                    className={`rounded-full p-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500 ${active ? "bg-red-600 text-white" : "text-gray-500 hover:bg-gray-50"}`}>
+                    <Icon className="h-4 w-4" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <select
             value={service}
             onChange={(e) => {
               setService(e.target.value);
+              setVehicleType("");
               setPage(1);
             }}
             aria-label="Filter layanan"

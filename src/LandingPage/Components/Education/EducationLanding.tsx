@@ -22,7 +22,8 @@ const EducationLanding = () => {
   useEffect(() => {
     const fetchContents = async () => {
       try {
-        const response = await fetch(`${baseURL}/api/content/list?limit=4`);
+        // Ambil 6: tablet/desktop tampil 6, HP tampil 4 (sisanya tidak dirender)
+        const response = await fetch(`${baseURL}/api/content/list?limit=6`);
         const result = await response.json();
 
         setContents(result.data.contents || []);
@@ -59,7 +60,7 @@ const EducationLanding = () => {
         {/* LOADING */}
         {loading ? (
           <>
-            {/* MOBILE LOADING */}
+            {/* MOBILE LOADING (1 besar + 3 kecil = 4) */}
             <div className="md:hidden space-y-4">
               <div className="bg-white rounded-[2rem] overflow-hidden shadow-lg animate-pulse">
                 <div className="h-44 bg-gray-200" />
@@ -83,9 +84,9 @@ const EducationLanding = () => {
               ))}
             </div>
 
-            {/* DESKTOP LOADING */}
+            {/* DESKTOP & TABLET LOADING (6) */}
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, index) => (
+              {[...Array(6)].map((_, index) => (
                 <div key={index} className="bg-white rounded-[2rem] overflow-hidden shadow-lg animate-pulse">
                   <div className="h-60 bg-gray-200" />
 
@@ -100,7 +101,7 @@ const EducationLanding = () => {
           </>
         ) : (
           <>
-            {/* MOBILE LAYOUT */}
+            {/* MOBILE LAYOUT (4 item) */}
             <div className="md:hidden space-y-4">
               {/* FIRST CARD */}
               {contents[0] && (
@@ -155,7 +156,7 @@ const EducationLanding = () => {
                 </NavLink>
               )}
 
-              {/* LIST CARD */}
+              {/* LIST CARD (3 item => total HP = 4) */}
               {contents.slice(1, 4).map((item) => (
                 <NavLink
                   key={item.id}
@@ -191,9 +192,9 @@ const EducationLanding = () => {
               ))}
             </div>
 
-            {/* DESKTOP LAYOUT */}
+            {/* DESKTOP & TABLET LAYOUT (6 item) */}
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {contents.slice(0, 3).map((item) => (
+              {contents.slice(0, 6).map((item) => (
                 <NavLink
                   key={item.id}
                   to={`/education/${item.id}`}

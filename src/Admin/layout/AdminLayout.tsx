@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { ArrowRight, BarChart3, Building2, CheckCircle2, ChevronDown, CreditCard, FileText, Landmark, LayoutDashboard, List, LogOut, Menu, Sparkles, X } from "lucide-react";
+import { ArrowRight, BarChart3, Building2, CheckCircle2, ChevronDown, CreditCard, Database, FileText, Landmark, LayoutDashboard, List, LogOut, Menu, Sparkles, X } from "lucide-react";
 import { roleName, useAuth } from "../auth/AuthContext";
 import { ADMIN_LOGIN_PATH } from "../config";
 import { FaMoneyBill } from "react-icons/fa";
@@ -135,6 +135,13 @@ export const NAV: NavItem[] = [
         ],
       },
     ],
+  },
+
+  {
+    to: "/admin/bidding",
+    label: "Bidding Data",
+    icon: Database,
+    roles: FULL_ADMIN,
   },
 ];
 

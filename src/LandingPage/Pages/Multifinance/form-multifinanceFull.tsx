@@ -147,7 +147,7 @@ const compressImage = (file: File, maxSide = 1600, quality = 0.8): Promise<File>
 ========================================== */
 
 // Ganti dengan ID video kamu. Contoh: https://youtu.be/abc123XYZ  ->  "abc123XYZ"
-const YOUTUBE_ID = "m0YUk1EtO7k";
+const YOUTUBE_ID = "YeTYZ3JhbfY";
 
 const VideoPromo = ({ onOpen }: { onOpen: () => void }) => (
   <button
@@ -170,8 +170,8 @@ const VideoPromo = ({ onOpen }: { onOpen: () => void }) => (
     </span>
 
     <span className="absolute inset-x-0 bottom-0 p-4">
-      <span className="block text-sm font-black text-white">Video Edukasi</span>
-      <span className="block text-xs text-white/80">Tonton video panduan singkat · ketuk untuk memutar</span>
+      <span className="block text-sm font-black text-white">TONTON DULU SEBELUM MENGAJUKAN!</span>
+      <span className="block text-xs text-white/80">Banyak yang ditolak karena hal sepele. Cek di video ini · ketuk untuk memutar</span>
     </span>
   </button>
 );
@@ -664,6 +664,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
   return (
     <>
       <form id="full-form" onSubmit={handleSubmit} noValidate className={`p-5 sm:p-8 space-y-8 ${active ? "" : "hidden"}`}>
+        <VideoPromo onOpen={() => setVideoOpen(true)} />
         {/* INFO PALING ATAS */}
         <div className="flex gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
@@ -672,7 +673,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
             <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-emerald-700">Lengkapi semua data dan dokumen di bawah ini. Setelah terkirim, pengajuan kamu tinggal menunggu proses pencairan.</p>
           </div>
         </div>
-        <VideoPromo onOpen={() => setVideoOpen(true)} />
+
         {/* DATA DIRI */}
         <section className="space-y-5">
           <SectionTitle title="Data Diri" />
