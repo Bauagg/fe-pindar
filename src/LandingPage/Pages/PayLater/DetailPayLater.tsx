@@ -65,7 +65,7 @@ const DetailPayLater = () => {
             <div>
               <div className="inline-flex items-center gap-2 bg-white/20 border border-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white text-xs sm:text-sm font-semibold mb-5">
                 <BadgeCheck className="w-4 h-4" />
-                Pindar PayLater
+                Pindar <span className="mx-0.5 inline-block -skew-x-12 align-middle text-[0.85em] font-black text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">✕</span> Paylater
               </div>
 
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight">{data.nama}</h1>

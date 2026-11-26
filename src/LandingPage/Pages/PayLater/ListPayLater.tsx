@@ -15,7 +15,9 @@ const ListPayLater = () => {
           <div className="mt-20 pb-8 text-center sm:text-left">
             <p className="text-sm text-gray-500 hidden md:block">Home {">"} Pindar PayLater</p>
 
-            <h1 className="mt-2 text-3xl md:text-4xl font-black text-gray-900">Pindar PayLater</h1>
+            <h1 className="mt-2 text-3xl md:text-4xl font-black text-gray-900">
+              Pindar <span className="mx-0.5 inline-block -skew-x-12 align-middle text-[0.85em] font-black text-black drop-shadow-[0_0_6px_rgba(0,0,0,0.35)]">✕</span> PayLater
+            </h1>
 
             <p className="mt-2 text-sm md:text-base text-gray-500 max-w-2xl">Belanja sekarang, bayar nanti. Bandingkan layanan PayLater populer di Indonesia sesuai kebutuhanmu.</p>
           </div>

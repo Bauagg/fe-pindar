@@ -22,8 +22,8 @@ const EducationLanding = () => {
   useEffect(() => {
     const fetchContents = async () => {
       try {
-        // Ambil 6: tablet/desktop tampil 6, HP tampil 4 (sisanya tidak dirender)
-        const response = await fetch(`${baseURL}/api/content/list?limit=6`);
+        // Ambil 7: HP tampil 7 (1 besar + 6 kecil), tablet/desktop tampil 6 (slice dari 7)
+        const response = await fetch(`${baseURL}/api/content/list?limit=7`);
         const result = await response.json();
 
         setContents(result.data.contents || []);
@@ -60,7 +60,7 @@ const EducationLanding = () => {
         {/* LOADING */}
         {loading ? (
           <>
-            {/* MOBILE LOADING (1 besar + 3 kecil = 4) */}
+            {/* MOBILE LOADING (1 besar + 6 kecil = 7) */}
             <div className="md:hidden space-y-4">
               <div className="bg-white rounded-[2rem] overflow-hidden shadow-lg animate-pulse">
                 <div className="h-44 bg-gray-200" />
@@ -71,7 +71,7 @@ const EducationLanding = () => {
                 </div>
               </div>
 
-              {[...Array(3)].map((_, index) => (
+              {[...Array(6)].map((_, index) => (
                 <div key={index} className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md animate-pulse">
                   <div className="flex-1">
                     <div className="h-3 bg-gray-200 rounded w-24 mb-3" />
@@ -101,7 +101,7 @@ const EducationLanding = () => {
           </>
         ) : (
           <>
-            {/* MOBILE LAYOUT (4 item) */}
+            {/* MOBILE LAYOUT (7 item) */}
             <div className="md:hidden space-y-4">
               {/* FIRST CARD */}
               {contents[0] && (
@@ -156,8 +156,8 @@ const EducationLanding = () => {
                 </NavLink>
               )}
 
-              {/* LIST CARD (3 item => total HP = 4) */}
-              {contents.slice(1, 4).map((item) => (
+              {/* LIST CARD (6 item => total HP = 7) */}
+              {contents.slice(1, 7).map((item) => (
                 <NavLink
                   key={item.id}
                   to={`/education/${item.id}`}

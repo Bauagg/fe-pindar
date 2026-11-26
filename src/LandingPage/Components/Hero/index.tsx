@@ -79,11 +79,11 @@ const HeroUdin = () => {
             <div className="min-w-0">
               <h2
                 className="
-          text-white font-bold
-          text-md sm:text-xl md:text-2xl
-          leading-tight
-        ">
-                Pindar Paylater
+    text-white font-bold
+    text-md sm:text-xl md:text-2xl
+    leading-tight
+  ">
+                Pindar <span className="mx-0.5 inline-block -skew-x-12 align-middle text-[0.85em] font-black text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">✕</span> Paylater
               </h2>
             </div>
 

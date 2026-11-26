@@ -275,7 +275,7 @@ const CreditCardDetail = () => {
       <section className="px-4 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-6">
           {/* INFORMASI */}
-          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-6 lg:p-8">
+          {/* <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-6 lg:p-8">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
                 <Info className="w-6 h-6 text-red-500" />
@@ -315,7 +315,7 @@ const CreditCardDetail = () => {
                 <h3 className="font-bold text-gray-800 mt-1">{formatRupiah(data.latePaymentChargePenalty)}</h3>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* FEATURES */}
           <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-6 lg:p-8">
@@ -357,26 +357,24 @@ const CreditCardDetail = () => {
               ))}
             </div>
           </div>
-        </div>
 
-        {/* TERMS */}
-        <div className="max-w-7xl mx-auto mt-6">
-          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-6 lg:p-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-red-500" />
+          <div className="max-w-7xl mx-auto mt-6">
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-6 lg:p-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-red-500" />
+                </div>
+
+                <div>
+                  <p className="text-red-500 font-bold uppercase text-sm">Persyaratan</p>
+
+                  <h2 className="text-xl md:text-3xl font-black text-gray-800">Dokumen Dibutuhkan</h2>
+                </div>
               </div>
 
-              <div>
-                <p className="text-red-500 font-bold uppercase text-sm">Persyaratan</p>
-
-                <h2 className="text-xl md:text-3xl font-black text-gray-800">Dokumen Dibutuhkan</h2>
-              </div>
-            </div>
-
-            {/* CONTENT */}
-            <div
-              className="
+              {/* CONTENT */}
+              <div
+                className="
       [&>p:first-child]:hidden
 
       [&_ol]:space-y-4
@@ -414,12 +412,15 @@ const CreditCardDetail = () => {
       [&_strong]:text-gray-900
       [&_strong]:font-bold
     "
-              dangerouslySetInnerHTML={{
-                __html: data.termsDocument,
-              }}
-            />
+                dangerouslySetInnerHTML={{
+                  __html: data.termsDocument,
+                }}
+              />
+            </div>
           </div>
         </div>
+
+        {/* TERMS */}
       </section>
 
       <RedirectModal open={openRedirect} onClose={() => setOpenRedirect(false)} lenderName={data.title} lenderImage={`${baseURL}/api${data.imageLink}`} redirectUrl={data.redirectLink || "#"} />

@@ -6,7 +6,7 @@ const sections = [
     content: `
       Pindar dapat mengumpulkan informasi tertentu terkait penggunaan platform.
     `,
-    list: ["Alamat IP", "Jenis perangkat", "Browser dan sistem operasi", "Aktivitas penggunaan platform", "Data analytics dan cookies"],
+    list: ["Alamat IP", "Jenis perangkat", "Browser dan sistem operasi", "Aktivitas penggunaan platform", "Data analytics dan cookies", "Data yang Anda isi secara sukarela pada formulir pengajuan produk"],
   },
   {
     title: "Penggunaan Informasi",
@@ -14,6 +14,24 @@ const sections = [
       Informasi yang dikumpulkan digunakan untuk mendukung dan meningkatkan kualitas layanan Pindar.
     `,
     list: ["Menyediakan dan mengoptimalkan layanan Pindar", "Analisis penggunaan platform", "Pengukuran traffic dan performa platform", "Peningkatan pengalaman pengguna"],
+  },
+  {
+    title: "Pengisian Formulir dan Pembagian Data kepada Mitra",
+    content: `
+      Pindar.id menyediakan formulir pengajuan pada berbagai produk keuangan, seperti Pinjaman Daring (Pindar), Kartu Kredit, Kredit Tanpa Agunan (KTA), serta Multifinance dan Leaseback BPKB. Formulir ini hadir untuk membantu Anda menyampaikan kebutuhan dengan mudah, sekaligus menghubungkan Anda dengan penyedia layanan keuangan yang paling sesuai.
+
+      Setelah Anda mengisi dan mengirimkan formulir pada produk apa pun di Pindar.id, data yang Anda berikan berpotensi diteruskan kepada pihak lain yang sah, legal, dan terpercaya, seperti bank, perusahaan pembiayaan, penyelenggara pinjaman daring yang berizin, maupun lembaga jasa keuangan lainnya yang bekerja sama dengan Pindar.id.
+
+      Pembagian data ini dilakukan semata-mata agar permohonan Anda dapat ditindaklanjuti dengan baik, mulai dari proses verifikasi, penilaian kelayakan, penawaran produk, hingga komunikasi lanjutan oleh mitra terkait. Dengan begitu, Anda tidak perlu mengisi data yang sama berulang kali di banyak tempat.
+
+      Dengan mengirimkan formulir, Anda memahami dan menyetujui bahwa data tersebut dapat dibagikan kepada mitra sebagaimana dijelaskan di atas. Setelah data diterima oleh mitra, pengelolaan dan penggunaannya tunduk pada kebijakan privasi masing-masing mitra. Kami menganjurkan Anda untuk membaca kebijakan tersebut agar Anda semakin tenang dan paham bagaimana data Anda dilindungi.
+    `,
+    list: [
+      "Data hanya dapat diteruskan kepada mitra yang legal, berizin, dan diawasi oleh otoritas yang berwenang",
+      "Data digunakan untuk menindaklanjuti pengajuan yang Anda kirimkan",
+      "Mitra dapat menghubungi Anda melalui kontak yang Anda cantumkan pada formulir",
+      "Pindar.id berupaya bekerja sama dengan mitra yang menjunjung tinggi kepatuhan regulasi dan perlindungan data",
+    ],
   },
   {
     title: "Tautan dan Layanan Pihak Ketiga",
@@ -81,7 +99,7 @@ const PrivacyPolicy = () => {
         <div>
           <h2 className="text-xl md:text-3xl font-black text-gray-800">Kebijakan Privasi</h2>
 
-          <p className="mt-2 text-gray-500  text-xs md:text-base">Terakhir diperbarui: 11 Mei 2026</p>
+          <p className="mt-2 text-gray-500  text-xs md:text-base">Terakhir diperbarui: 26 November 2026</p>
         </div>
       </div>
 
@@ -98,7 +116,7 @@ const PrivacyPolicy = () => {
       <div className="space-y-6">
         {sections.map((section, index) => (
           <div key={index} className="bg-white border border-gray-100 rounded-[2rem] shadow-lg p-6 lg:p-8">
-            <h3 className="text-xlmd:text-2xl font-black text-gray-800">
+            <h3 className="text-xl md:text-2xl font-black text-gray-800">
               {index + 1}. {section.title}
             </h3>
 

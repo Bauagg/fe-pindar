@@ -1,8 +1,8 @@
 // pages/MultiFinanceFullForm.tsx
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowRight, Camera, Check, CheckCircle2, FileText, Home, Info, Loader2, Phone, Play, RefreshCw, Repeat, Tag, Trash2, User, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Camera, Check, CheckCircle2, FileText, Home, Info, Loader2, Phone, Play, RefreshCw, Repeat, Tag, Trash2, User, X } from "lucide-react";
 import PhoneUsedModal from "./PhoneUseModal";
 import { submitApplication, uploadFormValues, type FormState, type Layanan } from "./multifinanceApi";
 
@@ -88,6 +88,20 @@ const getYearOptions = (layanan: string, jenis: string) => {
   const min = getMinYear(layanan, jenis);
   return min ? YEARS.filter((y) => Number(y) >= min) : YEARS;
 };
+
+/* ---------- Tahapan form ---------- */
+
+type Step = 1 | 2 | 3;
+
+const STEPS: { no: Step; label: string }[] = [
+  { no: 1, label: "Data Diri" },
+  { no: 2, label: "Layanan" },
+  { no: 3, label: "Dokumen" },
+];
+
+// Field yang divalidasi pada tiap tahap
+const STEP1_FIELDS: (keyof FormState)[] = ["nama", "telepon", "usia", "alamat", "tipe_pemohon"];
+const STEP2_FIELDS: (keyof FormState)[] = ["layanan", "kepemilikan", "jenis_surat", "jenis", "merek", "tipe", "tahun", "transmisi", "status_pembiayaan", "leasing_asal"];
 
 type DocDef = {
   name: string; // HARUS sama dengan `name` field di BE (DEFAULT_FORM_FIELDS)
@@ -232,6 +246,40 @@ const SectionTitle = ({ title, desc }: { title: string; desc?: string }) => (
   </div>
 );
 
+/* ---------- Indikator tahapan ---------- */
+
+const Stepper = ({ current }: { current: Step }) => (
+  <ol className="flex items-center" aria-label="Tahapan pengisian">
+    {STEPS.map((s, i) => {
+      const done = current > s.no;
+      const on = current === s.no;
+
+      return (
+        <li key={s.no} className={`flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}`} aria-current={on ? "step" : undefined}>
+          <div className="flex flex-col items-center gap-1.5">
+            <span
+              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-black transition-all duration-300 ${
+                done ? "bg-green-500 text-white" : on ? "bg-red-600 text-white ring-4 ring-red-100" : "bg-gray-100 text-gray-400"
+              }`}>
+              {done ? <Check className="h-4 w-4" strokeWidth={3} /> : s.no}
+            </span>
+            <span className={`text-[11px] font-bold sm:text-xs ${on ? "text-red-600" : done ? "text-green-600" : "text-gray-400"}`}>{s.label}</span>
+          </div>
+
+          {i < STEPS.length - 1 && <span className={`mx-2 mb-5 h-0.5 flex-1 rounded transition-all duration-300 ${done ? "bg-green-400" : "bg-gray-200"}`} />}
+        </li>
+      );
+    })}
+  </ol>
+);
+
+const BackButton = ({ label, onClick, disabled }: { label: string; onClick: () => void; disabled?: boolean }) => (
+  <button type="button" onClick={onClick} disabled={disabled} className="inline-flex items-center gap-2 text-sm font-bold text-red-600 hover:text-red-700 disabled:opacity-50">
+    <ArrowLeft className="h-4 w-4" />
+    {label}
+  </button>
+);
+
 /* ---------- Slot upload dokumen ---------- */
 
 type DocSlotProps = {
@@ -340,11 +388,14 @@ const DocSlot = ({ doc, required, file, status, message, showError, disabled, on
 
 type Props = {
   active: boolean; // true saat tab "Isi Formulir Lengkap" sedang dibuka
-  onBackToSimple: () => void;
+  onBackToSimple?: () => void;
 };
 
-const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
+const MultiFinanceFullForm = ({ active }: Props) => {
   const navigate = useNavigate();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const [step, setStep] = useState<Step>(1);
 
   const [form, setForm] = useState<FormState>(emptyForm);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -356,8 +407,6 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
   const [docMsg, setDocMsg] = useState<Record<string, string>>({});
 
   // Popup
-  const [infoOpen, setInfoOpen] = useState(false);
-  const [infoSeen, setInfoSeen] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openUpload, setOpenUpload] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
@@ -405,7 +454,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     else if (usedPhone && form.telepon === usedPhone) e.telepon = "Nomor ini sudah terdaftar. Gunakan nomor lain atau hubungi admin.";
 
     if (!form.usia || !Number.isInteger(usia) || usia < 17 || usia > 80) e.usia = "Isi usia yang valid (17–80 tahun).";
-    if (!form.alamat.trim()) e.alamat = "Isi alamat lengkap.";
+    if (!form.alamat.trim()) e.alamat = "Isi Kota/Kabupaten.";
     if (!form.tipe_pemohon) e.tipe_pemohon = "Pilih tipe pemohon.";
     if (!form.layanan) e.layanan = "Pilih layanan yang kamu butuhkan.";
     if (!form.kepemilikan) e.kepemilikan = isSHM ? "Pilih nama pemilik sertifikat." : "Pilih nama pemilik BPKB.";
@@ -437,22 +486,9 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
 
   const err = (k: keyof FormState) => (touched[k] ? errors[k] : undefined);
 
+  const stepHasError = (fields: (keyof FormState)[]) => fields.some((k) => errors[k]);
+
   /* ---------- Efek ---------- */
-
-  // Popup info muncul sekali, saat tab ini pertama kali dibuka
-  // useEffect(() => {
-  //   if (active && !infoSeen) {
-  //     setInfoOpen(true);
-  //     setInfoSeen(true);
-  //   }
-  // }, [active, infoSeen]);
-
-  // useEffect(() => {
-  //   document.body.style.overflow = infoOpen || openConfirm || openUpload || openSuccess || phoneUsedOpen || videoOpen ? "hidden" : "";
-  //   return () => {
-  //     document.body.style.overflow = "";
-  //   };
-  // }, [infoOpen, openConfirm, openUpload, openSuccess, phoneUsedOpen, videoOpen]);
 
   useEffect(() => {
     document.body.style.overflow = openConfirm || openUpload || openSuccess || phoneUsedOpen || videoOpen ? "hidden" : "";
@@ -468,6 +504,36 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [videoOpen]);
+
+  /* ---------- Navigasi tahap ---------- */
+
+  const scrollToFormTop = () => {
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
+
+  const scrollToInvalid = () => {
+    setTimeout(() => document.querySelector<HTMLElement>('#full-form [data-invalid="true"]')?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+  };
+
+  const goToStep = (s: Step) => {
+    setStep(s);
+    scrollToFormTop();
+  };
+
+  const handleNext = () => {
+    const fields = step === 1 ? STEP1_FIELDS : STEP2_FIELDS;
+
+    setTouched((t) => ({ ...t, ...Object.fromEntries(fields.map((k) => [k, true])) }));
+
+    if (stepHasError(fields)) {
+      scrollToInvalid();
+      return;
+    }
+
+    if (step === 1) window.fbq?.("track", "Contact", { content_name: "Form Multi Finance Tahap 1" });
+
+    goToStep((step + 1) as Step);
+  };
 
   /* ---------- Dokumen ---------- */
 
@@ -532,11 +598,30 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Tekan Enter di tahap 1 / 2 = lanjut ke tahap berikutnya, bukan kirim
+    if (step < 3) {
+      handleNext();
+      return;
+    }
+
     setTouched(Object.fromEntries(Object.keys(emptyForm).map((k) => [k, true])));
     setSubmitted(true);
 
+    // Kalau ada error di tahap sebelumnya, kembalikan ke tahap tersebut
+    if (stepHasError(STEP1_FIELDS)) {
+      goToStep(1);
+      scrollToInvalid();
+      return;
+    }
+
+    if (stepHasError(STEP2_FIELDS)) {
+      goToStep(2);
+      scrollToInvalid();
+      return;
+    }
+
     if (!isValid) {
-      setTimeout(() => document.querySelector<HTMLElement>('#full-form [data-invalid="true"]')?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+      scrollToInvalid();
       return;
     }
 
@@ -616,14 +701,16 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     }
   };
 
+  // Nomor sudah terdaftar -> balik ke tahap 1 dan fokus ke kolom telepon
   const handleClosePhoneUsed = () => {
     setPhoneUsedOpen(false);
+    setStep(1);
 
     setTimeout(() => {
       const el = document.getElementById("full-telepon");
       el?.scrollIntoView({ behavior: "smooth", block: "center" });
       el?.focus();
-    }, 50);
+    }, 100);
   };
 
   const handleFinish = () => {
@@ -636,6 +723,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     setDocMsg({});
     setAccessToken("");
     setUsedPhone("");
+    setStep(1);
     navigate("/multi-finance");
   };
 
@@ -646,7 +734,7 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
     { label: "Nomor Telepon", value: form.telepon },
     { label: "Usia", value: form.usia ? `${form.usia} tahun` : "" },
     { label: "Tipe Pemohon", value: form.tipe_pemohon },
-    { label: "Alamat", value: form.alamat },
+    { label: "Kota/Kabupaten", value: form.alamat },
     { label: "Layanan", value: form.layanan },
     { label: isSHM ? "Sertifikat Atas Nama" : "BPKB Atas Nama", value: form.kepemilikan },
     { label: "Jenis Sertifikat", value: isSHM ? form.jenis_surat : "" },
@@ -663,245 +751,282 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
 
   return (
     <>
-      <form id="full-form" onSubmit={handleSubmit} noValidate className={`p-5 sm:p-8 space-y-8 ${active ? "" : "hidden"}`}>
-        <VideoPromo onOpen={() => setVideoOpen(true)} />
-        {/* INFO PALING ATAS */}
-        <div className="flex gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <Info className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-          <div>
-            <p className="text-sm font-black text-emerald-800">Isi lengkap, tinggal tunggu pencairan</p>
-            <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-emerald-700">Lengkapi semua data dan dokumen di bawah ini. Setelah terkirim, pengajuan kamu tinggal menunggu proses pencairan.</p>
-          </div>
-        </div>
+      <form ref={formRef} id="full-form" onSubmit={handleSubmit} noValidate className={`scroll-mt-28 space-y-8 p-5 sm:p-8 ${active ? "" : "hidden"}`}>
+        {/* INDIKATOR TAHAP */}
+        {/* <Stepper current={step} /> */}
+        {/* INDIKATOR TAHAP (tampil mulai tahap 2) */}
+        {step > 1 && <Stepper current={step} />}
 
-        {/* DATA DIRI */}
-        <section className="space-y-5">
-          <SectionTitle title="Data Diri" />
+        {/* =========================================
+            TAHAP 1: VIDEO, INFO, DATA DIRI
+        ========================================== */}
+        {step === 1 && (
+          <div className="space-y-8">
+            <VideoPromo onOpen={() => setVideoOpen(true)} />
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <FieldWrap id="full-nama" label="Nama sesuai KTP" required error={err("nama")} className="sm:col-span-2">
-              <TextInput id="full-nama" icon={User} value={form.nama} onChange={(v) => setField("nama", v)} onBlur={() => touch("nama")} placeholder="Contoh: Budi Santoso" hasError={!!err("nama")} />
-            </FieldWrap>
-
-            <FieldWrap id="full-telepon" label="Nomor Telepon / WhatsApp" required error={err("telepon")}>
-              <TextInput id="full-telepon" icon={Phone} type="tel" inputMode="tel" value={form.telepon} onChange={(v) => setField("telepon", v)} onBlur={() => touch("telepon")} placeholder="081234567890" hasError={!!err("telepon")} />
-            </FieldWrap>
-
-            <FieldWrap id="full-usia" label="Usia" required error={err("usia")}>
-              <TextInput id="full-usia" type="number" inputMode="numeric" value={form.usia} onChange={(v) => setField("usia", v)} onBlur={() => touch("usia")} placeholder="Contoh: 35" hasError={!!err("usia")} />
-            </FieldWrap>
-
-            <FieldWrap id="full-tipe_pemohon" label="Tipe Pemohon" required error={err("tipe_pemohon")} className="sm:col-span-2">
-              <SelectInput
-                id="full-tipe_pemohon"
-                value={form.tipe_pemohon}
-                onChange={(v) => setField("tipe_pemohon", v)}
-                onBlur={() => touch("tipe_pemohon")}
-                options={OPTIONS.tipe_pemohon}
-                placeholder="Pilih tipe pemohon"
-                hasError={!!err("tipe_pemohon")}
-              />
-            </FieldWrap>
-
-            <FieldWrap id="full-alamat" label="Kota/Kabupaten" className="sm:col-span-2">
-              <textarea
-                id="full-alamat"
-                rows={3}
-                value={form.alamat}
-                onChange={(e) => setField("alamat", e.target.value)}
-                onBlur={() => touch("alamat")}
-                placeholder="Masukkan Kota/Kabupaten"
-                className={`${baseInput} px-4 resize-none ${stateInput(!!err("alamat"))}`}
-              />
-            </FieldWrap>
-          </div>
-        </section>
-
-        {/* LAYANAN */}
-        <section className="space-y-4">
-          <SectionTitle title="Layanan" desc="Pilih layanan yang kamu butuhkan." />
-
-          <div data-invalid={err("layanan") ? "true" : "false"}>
-            {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {layananList.map((l) => {
-                const Icon = l.icon;
-                const on = form.layanan === l.value;
-
-                return (
-                  <button
-                    type="button"
-                    key={l.value}
-                    onClick={() => handleLayanan(l.value)}
-                    aria-pressed={on}
-                    className={`text-left rounded-2xl border p-4 transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
-                      on ? "border-red-500 bg-red-50 shadow-md" : "border-gray-200 bg-white hover:border-red-300"
-                    }`}>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${on ? "bg-red-500 text-white" : "bg-red-50 text-red-500"}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <p className="mt-3 text-sm font-black text-gray-900">{l.value}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">{l.desc}</p>
-                  </button>
-                );
-              })}
-            </div> */}
-
-            <div role="radiogroup" aria-label="Pilih layanan" className="space-y-3">
-              {layananList.map((l) => {
-                const Icon = l.icon;
-                const on = form.layanan === l.value;
-                const note = LAYANAN_NOTE[l.value];
-
-                return (
-                  <button
-                    type="button"
-                    key={l.value}
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => handleLayanan(l.value)}
-                    className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
-                      on ? "border-red-500 bg-red-50 shadow-md" : "border-gray-200 bg-white hover:border-red-300"
-                    }`}>
-                    {/* Kotak ceklist */}
-                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition ${on ? "border-red-600 bg-red-600 text-white" : "border-gray-300 bg-white"}`}>
-                      {on && <Check className="h-4 w-4" strokeWidth={3} />}
-                    </span>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 shrink-0 ${on ? "text-red-600" : "text-red-400"}`} />
-                        <span className="text-sm font-black text-gray-900 sm:text-base">{l.value}</span>
-                      </span>
-
-                      <span className="mt-1 block text-xs text-gray-600 sm:text-sm">{l.desc}</span>
-
-                      {note && (
-                        <span className={`mt-2.5 flex gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold leading-relaxed sm:text-xs ${on ? "bg-white text-red-700" : "bg-gray-50 text-gray-500"}`}>
-                          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                          {note}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            {err("layanan") && <p className="mt-1.5 text-xs sm:text-sm text-red-500 font-semibold">{err("layanan")}</p>}
-          </div>
-        </section>
-
-        {/* DATA SERTIFIKAT (SHM) / KENDARAAN */}
-        <section className="space-y-5">
-          <SectionTitle title={isSHM ? "Data Sertifikat" : "Data Kendaraan"} desc={isSHM ? "Isi data sertifikat yang dijaminkan." : "Isi sesuai kendaraan yang dijaminkan atau dibeli."} />
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <FieldWrap id="full-kepemilikan" label={isSHM ? "Sertifikat Atas Nama" : "BPKB Atas Nama"} required error={err("kepemilikan")}>
-              <SelectInput
-                id="full-kepemilikan"
-                value={form.kepemilikan}
-                onChange={(v) => setField("kepemilikan", v)}
-                onBlur={() => touch("kepemilikan")}
-                options={OPTIONS.kepemilikan}
-                placeholder="Pilih pemilik"
-                hasError={!!err("kepemilikan")}
-              />
-            </FieldWrap>
-
-            {isSHM ? (
-              <FieldWrap id="full-jenis_surat" label="Jenis Sertifikat" required error={err("jenis_surat")}>
-                <TextInput id="full-jenis_surat" value={form.jenis_surat} onChange={(v) => setField("jenis_surat", v)} onBlur={() => touch("jenis_surat")} placeholder="Contoh: SHM atau SHGB" hasError={!!err("jenis_surat")} />
-              </FieldWrap>
-            ) : (
-              <>
-                <FieldWrap id="full-jenis" label="Jenis Kendaraan" required error={err("jenis")}>
-                  <SelectInput id="full-jenis" value={form.jenis} onChange={(v) => setField("jenis", v)} onBlur={() => touch("jenis")} options={OPTIONS.jenis} placeholder="Pilih jenis" hasError={!!err("jenis")} />
-                </FieldWrap>
-
-                <FieldWrap id="full-merek" label="Merek" required error={err("merek")}>
-                  <TextInput id="full-merek" value={form.merek} onChange={(v) => setField("merek", v)} onBlur={() => touch("merek")} placeholder="Contoh: Honda" hasError={!!err("merek")} />
-                </FieldWrap>
-
-                <FieldWrap id="full-tipe" label="Tipe" required error={err("tipe")}>
-                  <TextInput id="full-tipe" value={form.tipe} onChange={(v) => setField("tipe", v)} onBlur={() => touch("tipe")} placeholder="Contoh: Brio RS" hasError={!!err("tipe")} />
-                </FieldWrap>
-
-                <FieldWrap id="tahun" label="Tahun" error={err("tahun")} hint={getMinYear(form.layanan, form.jenis) ? `${form.jenis} minimal tahun ${getMinYear(form.layanan, form.jenis)}.` : undefined}>
-                  <SelectInput id="tahun" value={form.tahun} onChange={(v) => setField("tahun", v)} onBlur={() => touch("tahun")} options={getYearOptions(form.layanan, form.jenis)} placeholder="Pilih tahun" hasError={!!err("tahun")} />
-                </FieldWrap>
-
-                <FieldWrap id="full-transmisi" label="Transmisi" required error={err("transmisi")}>
-                  <SelectInput
-                    id="full-transmisi"
-                    value={form.transmisi}
-                    onChange={(v) => setField("transmisi", v)}
-                    onBlur={() => touch("transmisi")}
-                    options={OPTIONS.transmisi}
-                    placeholder="Pilih transmisi"
-                    hasError={!!err("transmisi")}
-                  />
-                </FieldWrap>
-
-                <FieldWrap id="full-status_pembiayaan" label="Status BPKB" required error={err("status_pembiayaan")} hint="BPKB On Hand: BPKB ada di tangan kamu. Take Over: kendaraan masih dalam cicilan leasing." className="sm:col-span-2">
-                  <SelectInput
-                    id="full-status_pembiayaan"
-                    value={form.status_pembiayaan}
-                    onChange={(v) => setField("status_pembiayaan", v)}
-                    onBlur={() => touch("status_pembiayaan")}
-                    options={OPTIONS.status_pembiayaan}
-                    placeholder="Pilih status"
-                    hasError={!!err("status_pembiayaan")}
-                  />
-                </FieldWrap>
-
-                {form.status_pembiayaan === TAKE_OVER && (
-                  <FieldWrap id="full-leasing_asal" label="Leasing Asal" required error={err("leasing_asal")} className="sm:col-span-2">
-                    <TextInput id="full-leasing_asal" value={form.leasing_asal} onChange={(v) => setField("leasing_asal", v)} onBlur={() => touch("leasing_asal")} placeholder="Contoh: Adira Finance" hasError={!!err("leasing_asal")} />
-                  </FieldWrap>
-                )}
-              </>
-            )}
-          </div>
-        </section>
-
-        {/* DOKUMEN */}
-        <section className="space-y-5">
-          <SectionTitle title="Dokumen Pendukung" desc="Foto atau scan dokumen asli. Pastikan jelas, tidak buram, dan semua sisi terlihat." />
-
-          {(["pribadi", "kendaraan"] as const)
-            .filter((g) => !(isSHM && g === "kendaraan"))
-            .map((group) => (
-              <div key={group} className="space-y-3">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-gray-400">{group === "pribadi" ? "Dokumen Pribadi" : "Dokumen Kendaraan"}</p>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {DOCS.filter((d) => d.group === group).map((d) => (
-                    <DocSlot
-                      key={d.name}
-                      doc={d}
-                      required={isDocRequired(d)}
-                      file={files[d.name] ?? null}
-                      status={docStatus[d.name] ?? "idle"}
-                      message={docMsg[d.name]}
-                      showError={submitted}
-                      disabled={busy}
-                      onPick={(f) => handlePick(d, f)}
-                      onClear={() => handleClear(d)}
-                    />
-                  ))}
-                </div>
+            {/* INFO */}
+            <div className="flex gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+              <div>
+                <p className="text-sm font-black text-emerald-800">Isi lengkap, tinggal tunggu pencairan</p>
+                <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-emerald-700">Lengkapi semua data dan dokumen di bawah ini. Setelah terkirim, pengajuan kamu tinggal menunggu proses pencairan.</p>
               </div>
-            ))}
-        </section>
+            </div>
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-red-200 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300 disabled:opacity-60">
-          Kirim Pengajuan Lengkap
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
+            {/* DATA DIRI */}
+            <section className="space-y-5">
+              <SectionTitle title="Data Diri" desc="Cukup 3 tahap singkat. Mulai dari data diri kamu dulu." />
+
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <FieldWrap id="full-nama" label="Nama sesuai KTP" required error={err("nama")} className="sm:col-span-2">
+                  <TextInput id="full-nama" icon={User} value={form.nama} onChange={(v) => setField("nama", v)} onBlur={() => touch("nama")} placeholder="Contoh: Budi Santoso" hasError={!!err("nama")} />
+                </FieldWrap>
+
+                <FieldWrap id="full-telepon" label="Nomor Telepon / WhatsApp" required error={err("telepon")}>
+                  <TextInput id="full-telepon" icon={Phone} type="tel" inputMode="tel" value={form.telepon} onChange={(v) => setField("telepon", v)} onBlur={() => touch("telepon")} placeholder="081234567890" hasError={!!err("telepon")} />
+                </FieldWrap>
+
+                <FieldWrap id="full-usia" label="Usia" required error={err("usia")}>
+                  <TextInput id="full-usia" type="number" inputMode="numeric" value={form.usia} onChange={(v) => setField("usia", v)} onBlur={() => touch("usia")} placeholder="Contoh: 35" hasError={!!err("usia")} />
+                </FieldWrap>
+
+                <FieldWrap id="full-tipe_pemohon" label="Tipe Pemohon" required error={err("tipe_pemohon")} className="sm:col-span-2">
+                  <SelectInput
+                    id="full-tipe_pemohon"
+                    value={form.tipe_pemohon}
+                    onChange={(v) => setField("tipe_pemohon", v)}
+                    onBlur={() => touch("tipe_pemohon")}
+                    options={OPTIONS.tipe_pemohon}
+                    placeholder="Pilih tipe pemohon"
+                    hasError={!!err("tipe_pemohon")}
+                  />
+                </FieldWrap>
+
+                <FieldWrap id="full-alamat" label="Kota/Kabupaten" required error={err("alamat")} className="sm:col-span-2">
+                  <textarea
+                    id="full-alamat"
+                    rows={3}
+                    value={form.alamat}
+                    onChange={(e) => setField("alamat", e.target.value)}
+                    onBlur={() => touch("alamat")}
+                    placeholder="Masukkan Kota/Kabupaten"
+                    className={`${baseInput} px-4 resize-none ${stateInput(!!err("alamat"))}`}
+                  />
+                </FieldWrap>
+              </div>
+            </section>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-red-200 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+              Cek Peluang Dana Saya
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        )}
+
+        {/* =========================================
+            TAHAP 2: LAYANAN + DATA KENDARAAN / SHM
+        ========================================== */}
+        {step === 2 && (
+          <div className="space-y-8">
+            <BackButton label="Kembali ke Data Diri" onClick={() => goToStep(1)} />
+
+            {/* LAYANAN */}
+            <section className="space-y-4">
+              <SectionTitle title="Layanan" desc="Pilih layanan yang kamu butuhkan." />
+
+              <div data-invalid={err("layanan") ? "true" : "false"}>
+                <div role="radiogroup" aria-label="Pilih layanan" className="space-y-3">
+                  {layananList.map((l) => {
+                    const Icon = l.icon;
+                    const on = form.layanan === l.value;
+                    const note = LAYANAN_NOTE[l.value];
+
+                    return (
+                      <button
+                        type="button"
+                        key={l.value}
+                        role="radio"
+                        aria-checked={on}
+                        onClick={() => handleLayanan(l.value)}
+                        className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 ${
+                          on ? "border-red-500 bg-red-50 shadow-md" : "border-gray-200 bg-white hover:border-red-300"
+                        }`}>
+                        {/* Kotak ceklist */}
+                        <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition ${on ? "border-red-600 bg-red-600 text-white" : "border-gray-300 bg-white"}`}>
+                          {on && <Check className="h-4 w-4" strokeWidth={3} />}
+                        </span>
+
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-2">
+                            <Icon className={`h-4 w-4 shrink-0 ${on ? "text-red-600" : "text-red-400"}`} />
+                            <span className="text-sm font-black text-gray-900 sm:text-base">{l.value}</span>
+                          </span>
+
+                          <span className="mt-1 block text-xs text-gray-600 sm:text-sm">{l.desc}</span>
+
+                          {note && (
+                            <span className={`mt-2.5 flex gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold leading-relaxed sm:text-xs ${on ? "bg-white text-red-700" : "bg-gray-50 text-gray-500"}`}>
+                              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                              {note}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {err("layanan") && <p className="mt-1.5 text-xs sm:text-sm text-red-500 font-semibold">{err("layanan")}</p>}
+              </div>
+            </section>
+
+            {/* DATA SERTIFIKAT (SHM) / KENDARAAN */}
+            <section className="space-y-5">
+              <SectionTitle title={isSHM ? "Data Sertifikat" : "Data Kendaraan"} desc={isSHM ? "Isi data sertifikat yang dijaminkan." : "Isi sesuai kendaraan yang dijaminkan atau dibeli."} />
+
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <FieldWrap id="full-kepemilikan" label={isSHM ? "Sertifikat Atas Nama" : "BPKB Atas Nama"} required error={err("kepemilikan")}>
+                  <SelectInput
+                    id="full-kepemilikan"
+                    value={form.kepemilikan}
+                    onChange={(v) => setField("kepemilikan", v)}
+                    onBlur={() => touch("kepemilikan")}
+                    options={OPTIONS.kepemilikan}
+                    placeholder="Pilih pemilik"
+                    hasError={!!err("kepemilikan")}
+                  />
+                </FieldWrap>
+
+                {isSHM ? (
+                  <FieldWrap id="full-jenis_surat" label="Jenis Sertifikat" required error={err("jenis_surat")}>
+                    <TextInput id="full-jenis_surat" value={form.jenis_surat} onChange={(v) => setField("jenis_surat", v)} onBlur={() => touch("jenis_surat")} placeholder="Contoh: SHM atau SHGB" hasError={!!err("jenis_surat")} />
+                  </FieldWrap>
+                ) : (
+                  <>
+                    <FieldWrap id="full-jenis" label="Jenis Kendaraan" required error={err("jenis")}>
+                      <SelectInput id="full-jenis" value={form.jenis} onChange={(v) => setField("jenis", v)} onBlur={() => touch("jenis")} options={OPTIONS.jenis} placeholder="Pilih jenis" hasError={!!err("jenis")} />
+                    </FieldWrap>
+
+                    <FieldWrap id="full-merek" label="Merek" required error={err("merek")}>
+                      <TextInput id="full-merek" value={form.merek} onChange={(v) => setField("merek", v)} onBlur={() => touch("merek")} placeholder="Contoh: Honda" hasError={!!err("merek")} />
+                    </FieldWrap>
+
+                    <FieldWrap id="full-tipe" label="Tipe" required error={err("tipe")}>
+                      <TextInput id="full-tipe" value={form.tipe} onChange={(v) => setField("tipe", v)} onBlur={() => touch("tipe")} placeholder="Contoh: Brio RS" hasError={!!err("tipe")} />
+                    </FieldWrap>
+
+                    <FieldWrap id="full-tahun" label="Tahun" required error={err("tahun")} hint={getMinYear(form.layanan, form.jenis) ? `${form.jenis} minimal tahun ${getMinYear(form.layanan, form.jenis)}.` : undefined}>
+                      <SelectInput
+                        id="full-tahun"
+                        value={form.tahun}
+                        onChange={(v) => setField("tahun", v)}
+                        onBlur={() => touch("tahun")}
+                        options={getYearOptions(form.layanan, form.jenis)}
+                        placeholder="Pilih tahun"
+                        hasError={!!err("tahun")}
+                      />
+                    </FieldWrap>
+
+                    <FieldWrap id="full-transmisi" label="Transmisi" required error={err("transmisi")}>
+                      <SelectInput
+                        id="full-transmisi"
+                        value={form.transmisi}
+                        onChange={(v) => setField("transmisi", v)}
+                        onBlur={() => touch("transmisi")}
+                        options={OPTIONS.transmisi}
+                        placeholder="Pilih transmisi"
+                        hasError={!!err("transmisi")}
+                      />
+                    </FieldWrap>
+
+                    <FieldWrap
+                      id="full-status_pembiayaan"
+                      label="Status BPKB"
+                      required
+                      error={err("status_pembiayaan")}
+                      hint="BPKB On Hand: BPKB ada di tangan kamu. Take Over: kendaraan masih dalam cicilan leasing."
+                      className="sm:col-span-2">
+                      <SelectInput
+                        id="full-status_pembiayaan"
+                        value={form.status_pembiayaan}
+                        onChange={(v) => setField("status_pembiayaan", v)}
+                        onBlur={() => touch("status_pembiayaan")}
+                        options={OPTIONS.status_pembiayaan}
+                        placeholder="Pilih status"
+                        hasError={!!err("status_pembiayaan")}
+                      />
+                    </FieldWrap>
+
+                    {form.status_pembiayaan === TAKE_OVER && (
+                      <FieldWrap id="full-leasing_asal" label="Leasing Asal" required error={err("leasing_asal")} className="sm:col-span-2">
+                        <TextInput id="full-leasing_asal" value={form.leasing_asal} onChange={(v) => setField("leasing_asal", v)} onBlur={() => touch("leasing_asal")} placeholder="Contoh: Adira Finance" hasError={!!err("leasing_asal")} />
+                      </FieldWrap>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-red-200 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+              Satu Langkah Lagi, Ayo Selesaikan!
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        )}
+
+        {/* =========================================
+            TAHAP 3: DOKUMEN PENDUKUNG
+        ========================================== */}
+        {step === 3 && (
+          <div className="space-y-8">
+            <BackButton label="Kembali ke Layanan" onClick={() => goToStep(2)} disabled={busy} />
+
+            <section className="space-y-5">
+              <SectionTitle title="Dokumen Pendukung" desc="Foto atau scan dokumen asli. Pastikan jelas, tidak buram, dan semua sisi terlihat." />
+
+              {(["pribadi", "kendaraan"] as const)
+                .filter((g) => !(isSHM && g === "kendaraan"))
+                .map((group) => (
+                  <div key={group} className="space-y-3">
+                    <p className="text-xs font-extrabold uppercase tracking-wider text-gray-400">{group === "pribadi" ? "Dokumen Pribadi" : "Dokumen Kendaraan"}</p>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {DOCS.filter((d) => d.group === group).map((d) => (
+                        <DocSlot
+                          key={d.name}
+                          doc={d}
+                          required={isDocRequired(d)}
+                          file={files[d.name] ?? null}
+                          status={docStatus[d.name] ?? "idle"}
+                          message={docMsg[d.name]}
+                          showError={submitted}
+                          disabled={busy}
+                          onPick={(f) => handlePick(d, f)}
+                          onClear={() => handleClear(d)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </section>
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-red-200 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300 disabled:opacity-60">
+              Ajukan Sekarang, Tinggal Tunggu Pencairan
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        )}
       </form>
 
+      {/* POPUP: VIDEO */}
       {videoOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Video panduan pengisian formulir">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setVideoOpen(false)} />
@@ -922,54 +1047,6 @@ const MultiFinanceFullForm = ({ active, onBackToSimple }: Props) => {
           </div>
         </div>
       )}
-
-      {/* POPUP: INFO (muncul saat pertama kali buka tab lengkap) */}
-      {/* {infoOpen && (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="full-info-title">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setInfoOpen(false)} />
-          <div className="relative bg-white w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl animate-[popIn_.3s_ease]">
-            <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-700 px-6 py-5 text-white flex items-center gap-3 rounded-t-[2rem]">
-              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center">
-                <Info className="w-6 h-6" />
-              </div>
-              <h3 id="full-info-title" className="text-lg sm:text-xl font-black">
-                Isi Formulir Lengkap
-              </h3>
-            </div>
-
-            <div className="p-6">
-              <p className="text-sm sm:text-base leading-relaxed text-gray-700">
-                Dengan mengisi data dan dokumen secara lengkap di halaman ini, pengajuan kamu <span className="font-black text-gray-900">tinggal menunggu proses pencairan</span>.
-              </p>
-
-              <ul className="mt-4 space-y-2.5 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-600">
-                <li className="flex gap-2.5">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-                  Siapkan foto KTP, Kartu Keluarga, serta BPKB dan STNK (untuk layanan kendaraan).
-                </li>
-                <li className="flex gap-2.5">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-                  Format JPG, PNG, atau PDF, maksimal 2 MB per file.
-                </li>
-              </ul>
-
-              <div className="mt-6 flex flex-col gap-3">
-                <button onClick={() => setInfoOpen(false)} className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-sm sm:text-base shadow-lg">
-                  Mengerti, Lanjut Isi
-                </button>
-                <button
-                  onClick={() => {
-                    setInfoOpen(false);
-                    onBackToSimple();
-                  }}
-                  className="w-full py-3 rounded-2xl border border-gray-200 text-gray-700 font-bold text-sm sm:text-base hover:bg-gray-50">
-                  Pakai Pengajuan Cepat Saja
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* POPUP: PERNYATAAN & CROSS CHECK */}
       {openConfirm && (
