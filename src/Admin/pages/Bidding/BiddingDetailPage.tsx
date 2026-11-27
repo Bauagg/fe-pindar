@@ -5,7 +5,7 @@ import { api, errorMessage } from "../../api";
 import StatusBadge from "../../components/StatusBadge";
 import { card } from "../../components/ui";
 import { fmtDate } from "../../utils";
-import { CompleteBadge, ProductBadge } from "./BiddingPage";
+import { ClaimBadge, ProductBadge } from "./BiddingPage";
 
 /* Bentuk detail mengikuti formatter backend (formatApplication), jadi dibuat longgar. */
 type Detail = Record<string, any>;
@@ -31,6 +31,8 @@ const SKIP_KEYS = new Set([
   "latest_activity",
   "read_at",
   "updated_at",
+  "claim",
+  "shared_at",
 ]);
 
 const LABELS: Record<string, string> = {
@@ -127,6 +129,22 @@ function formRows(d: Detail) {
   return [];
 }
 
+/** Info pengambilan oleh client bidding. */
+function claimRows(d: Detail) {
+  const claim = d.claim ?? {};
+  const c = claim.client ?? null;
+
+  const rows: { label: string; value: unknown; field?: string }[] = [{ label: "Dibagikan", value: d.shared_at, field: "shared_at" }];
+
+  if (claim.is_claimed && c) {
+    rows.push({ label: "Diclaim oleh", value: c.name }, { label: "Perusahaan", value: c.company_name }, { label: "No. telepon client", value: c.phone }, { label: "Waktu diclaim", value: claim.claimed_at, field: "claimed_at" });
+  } else {
+    rows.push({ label: "Diclaim oleh", value: "Belum diclaim client" });
+  }
+
+  return rows;
+}
+
 export default function BiddingDetailPage() {
   const { product, id } = useParams();
   const [d, setD] = useState<Detail | null>(null);
@@ -138,7 +156,7 @@ export default function BiddingDetailPage() {
     setLoading(true);
     setError("");
 
-    api<{ data: Detail }>(`/admin/bidding/${product}/${id}`)
+    api<{ data: Detail }>(`/admin/bidding/data/${product}/${id}`)
       .then((r) => alive && setD(r.data))
       .catch((e) => alive && setError(errorMessage(e)))
       .finally(() => alive && setLoading(false));
@@ -149,7 +167,7 @@ export default function BiddingDetailPage() {
   }, [product, id]);
 
   const back = (
-    <Link to="/admin/bidding" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
+    <Link to="/admin/bidding/data" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
       Kembali ke bidding
     </Link>
@@ -183,7 +201,6 @@ export default function BiddingDetailPage() {
   const assetRows = objectRows(d.asset);
   const fields = formRows(d);
   const approvals: any[] = Array.isArray(d.approval_infos) ? d.approval_infos : [];
-  const activities: any[] = Array.isArray(d.activities) ? d.activities : [];
 
   return (
     <div>
@@ -192,12 +209,16 @@ export default function BiddingDetailPage() {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-extrabold text-gray-900">{d.applicant?.name ?? d.applicant_name ?? "Detail bidding"}</h1>
         {d.product_label && <ProductBadge label={d.product_label} />}
-        <CompleteBadge value={Boolean(d.is_complete)} />
-        {statusValue && <StatusBadge value={statusValue} />}
+        <ClaimBadge value={Boolean(d.claim?.is_claimed)} />
+        {/* {statusValue && <StatusBadge value={statusValue} />} */}
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-6">
+          <Section title="Status bidding">
+            <Rows rows={claimRows(d)} />
+          </Section>
+
           <Section title="Data pemohon">
             <Rows rows={applicantRows} />
           </Section>

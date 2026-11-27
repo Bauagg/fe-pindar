@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FileText, Plus, Save, ShieldCheck, Trash2, Upload, BadgeCheck, ListChecks, Pencil, X } from "lucide-react";
+import { FileText, Plus, Save, ShieldCheck, Trash2, Upload, BadgeCheck, ListChecks, Pencil, X, Undo2, Share2 } from "lucide-react";
 import { FieldValue, StatusBadge, STATUS, api, apiForm, apiJson, card, errorMessage, inputCls } from "./shared";
 import type { ModuleConfig } from "./config";
 import type { Application, ApprovalInfo, FieldType, Role, StatusKey } from "./types";
@@ -168,6 +168,60 @@ export function RolesPanel({ config, app, onChanged }: PanelProps) {
         {saving ? "Menyimpan…" : "Simpan akses"}
       </button>
       {picked.length === 0 && <p className="mt-2 text-xs font-semibold text-red-600">Pilih minimal satu role.</p>}
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Bagikan ke bidding (hanya super_admin & admin, diatur di halaman)   */
+/* ------------------------------------------------------------------ */
+export function SharePanel({ config, app, onChanged }: PanelProps) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [ok, setOk] = useState("");
+
+  if (!config.biddingShare) return null;
+
+  const shared = Boolean(app.is_shared);
+
+  const toggle = async () => {
+    setBusy(true);
+    setError("");
+    setOk("");
+    try {
+      await apiJson(`${config.api.admin}/${app.id}/share-bidding`, shared ? "DELETE" : "POST");
+      setOk(shared ? "Pengajuan ditarik dari bidding." : "Pengajuan dibagikan ke bidding.");
+      onChanged();
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className={`${card} p-5`}>
+      <CardTitle icon={Share2} title="Bagikan ke bidding" tone="bg-sky-50 text-sky-600" />
+      <p className="mt-2 text-sm text-gray-500">{shared ? "Pengajuan ini sudah ada di bidding. Kamu bisa menariknya kembali kapan saja." : "Pengajuan ini belum ada di bidding. Bagikan agar muncul di daftar bidding."}</p>
+
+      {error && (
+        <div className="mt-3">
+          <Alert>{error}</Alert>
+        </div>
+      )}
+      {ok && <p className="mt-3 text-sm font-semibold text-emerald-600">{ok}</p>}
+
+      {shared ? (
+        <button type="button" onClick={toggle} disabled={busy} className={`${btnGhost} mt-4 w-full`}>
+          <Undo2 className="h-4 w-4" />
+          {busy ? "Memproses…" : "Tarik dari bidding"}
+        </button>
+      ) : (
+        <button type="button" onClick={toggle} disabled={busy} className={`${btnPrimary} mt-4 w-full`}>
+          <Share2 className="h-4 w-4" />
+          {busy ? "Memproses…" : "Bagikan ke bidding"}
+        </button>
+      )}
     </section>
   );
 }

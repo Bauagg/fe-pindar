@@ -6,6 +6,7 @@ import { ArrowRight, BadgeCheck, Bike, Car, Clock3, FileText, Info, Landmark, Ne
 
 import Navbars from "../../Components/Navbar/index";
 import { multifinanceList } from "../../Components/multifinance/multifinanceData"; // sesuaikan path
+import { FaqMultifinance } from "../../Components/Legal/FAQ";
 
 const layananList = [
   { value: "Jaminkan BPKB", desc: "Dana cepat dengan jaminan BPKB, kendaraan tetap dipakai.", icon: FileText },
@@ -179,6 +180,8 @@ const MultiFinance = () => {
             </button>
           </div>
         </div>
+
+        <FaqMultifinance className="mt-10" />
       </section>
     </div>
   );

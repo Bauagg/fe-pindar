@@ -14,6 +14,7 @@ import RekomendasiPinjamanBank from "../RekomendasiPinjamanBank/RekomendasiPinja
 import RekomendasiMultifinance from "../Components/multifinance/RekomendasiMultifinance";
 import BannerMultifinance from "../Components/Iklan/bannerMultifinance";
 import VideoPindar from "../Components/Iklan/VideoPindar";
+import KprSection from "../Components/Kpr/KprSection";
 
 const LandingPageUdin: React.FC = () => {
   return (
@@ -36,6 +37,9 @@ const LandingPageUdin: React.FC = () => {
           </div>
           <div>
             <RekomendasiApp />
+          </div>
+          <div>
+            <KprSection />
           </div>
           <div className="mt-10 md:mt-12">
             <BannerMultifinance />

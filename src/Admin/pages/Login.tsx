@@ -48,11 +48,11 @@ export default function Login() {
           <div className="rounded-xl bg-white px-3 py-2">
             <img src={LOGO_SRC} alt="Pindar" className="h-8 w-auto" />
           </div>
-          <span className="text-lg font-extrabold">Pindar Multifinance</span>
+          <span className="text-lg font-extrabold">Pindar Multi Dashboard</span>
         </div>
 
         <div>
-          <h1 className="max-w-md text-4xl font-extrabold leading-tight">Semua pengajuan Multifinance, dari masuk sampai disetujui.</h1>
+          <h1 className="max-w-md text-4xl font-extrabold leading-tight">Semua pengajuan produk, dari masuk sampai disetujui.</h1>
           <p className="mt-4 max-w-md text-red-100">Pantau status, minta dokumen tambahan, dan putuskan pengajuan dalam satu panel.</p>
         </div>
 
@@ -70,8 +70,8 @@ export default function Login() {
             <span className="text-lg font-extrabold text-gray-900">Admin</span>
           </div>
 
-          <h2 className="text-2xl font-extrabold text-gray-900">Dashboard Multifinance</h2>
-          <p className="mt-2 text-sm text-gray-500">Masuk ke Dashboard Multifinance.</p>
+          <h2 className="text-2xl font-extrabold text-gray-900">Pindar Multi Dashboard</h2>
+          <p className="mt-2 text-sm text-gray-500">Masuk ke Multi Dashboard.</p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
             {error && (

@@ -48,6 +48,11 @@ import { KtaBca, KtaBni, KtaBri, KtaMandiri, KtaMayapada, KtaOcbc } from "./Admi
 import PindarEmpty from "./Admin/features/finance-apps/PindarEmpty";
 import BiddingPage from "./Admin/pages/Bidding/BiddingPage";
 import BiddingDetailPage from "./Admin/pages/Bidding/BiddingDetailPage";
+import BiddingSummaryPage from "./Admin/pages/Bidding/BiddingSummaryPage";
+import BiddingClientsPage from "./Admin/pages/Bidding/BiddingClientsPage";
+import ClientBiddingApp from "./Admin/pages/Clients";
+import Kpr from "./LandingPage/Pages/Kpr/Kpr";
+import KprForm from "./LandingPage/Pages/Kpr/KprForm";
 
 // Deklarasi tipe fbq supaya TypeScript tidak error
 declare global {
@@ -119,9 +124,16 @@ const App = () => {
           <Route path="/paylater" element={<ListPayLater />} />
           <Route path="/paylater/:id" element={<DetailPayLater />} />
 
+          {/* KPR */}
+          <Route path="/kpr" element={<Kpr />} />
+          <Route path="/kpr/form" element={<KprForm />} />
+
           {/* MULTIFINANCE (USER) */}
           <Route path="/multi-finance" element={<MultiFinance />} />
           <Route path="/multi-finance/form" element={<MultiFinanceForm />} />
+
+          {/* CLIENT BIDDING */}
+          <Route path="/client/*" element={<ClientBiddingApp />} />
 
           {/* MULTIFINANCE (ADMIN) */}
           <Route path="/login/admin" element={<AdminLogin />} />
@@ -185,8 +197,10 @@ const App = () => {
               <Route path="bank-loan/ocbc-kta" element={<KtaOcbc />} />
 
               {/* BIDDING DATA */}
-              <Route path="/admin/bidding" element={<BiddingPage />} />
+              <Route path="/admin/bidding/summary" element={<BiddingSummaryPage />} />
+              <Route path="/admin/bidding/data" element={<BiddingPage />} />
               <Route path="/admin/bidding/:product/:id" element={<BiddingDetailPage />} />
+              <Route path="/admin/bidding/client" element={<BiddingClientsPage />} />
             </Route>
           </Route>
         </Routes>

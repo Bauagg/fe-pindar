@@ -7,7 +7,7 @@ import type { Application } from "./types";
 import { fmtDateTime, fmtDay, waLink } from "./format";
 import { Alert, CardTitle, Info, btnDanger } from "./ui-parts";
 import EditApplicantModal from "./EditApplicantModal";
-import { ApprovalInfoPanel, FormFieldsPanel, RolesPanel, StatusPanel } from "./Panels";
+import { ApprovalInfoPanel, FormFieldsPanel, RolesPanel, SharePanel, StatusPanel } from "./Panels";
 
 const EditButton = ({ onClick }: { onClick: () => void }) => (
   <button type="button" onClick={onClick} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500">
@@ -211,6 +211,7 @@ export default function ApplicationDetailPage({ config }: { config: ModuleConfig
           <StatusPanel config={config} app={app} onChanged={load} />
           <ActivityPanel activities={app.activities ?? []} />
           <RolesPanel config={config} app={app} onChanged={load} />
+          {canEdit && <SharePanel config={config} app={app} onChanged={load} />}
         </div>
       </div>
 

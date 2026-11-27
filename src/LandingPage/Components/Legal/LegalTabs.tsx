@@ -1,4 +1,5 @@
 import { Building2, FileText, PhoneCall, ShieldCheck } from "lucide-react";
+import { FaRegCircleQuestion } from "react-icons/fa6";
 
 interface Props {
   activeTab: string;
@@ -21,10 +22,17 @@ const tabs = [
     label: "Kebijakan Privasi",
     icon: ShieldCheck,
   },
+
   {
     id: "hubungi-kami",
     label: "Hubungi Kami",
     icon: PhoneCall,
+  },
+
+  {
+    id: "faq",
+    label: "FAQ",
+    icon: FaRegCircleQuestion,
   },
 ];
 

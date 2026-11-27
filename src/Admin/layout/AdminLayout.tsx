@@ -138,10 +138,14 @@ export const NAV: NavItem[] = [
   },
 
   {
-    to: "/admin/bidding",
-    label: "Bidding Data",
+    label: "Bidding",
     icon: Database,
     roles: FULL_ADMIN,
+    children: [
+      { to: "/admin/bidding/summary", label: "Summary", icon: BarChart3 },
+      { to: "/admin/bidding/data", label: "Data", icon: List },
+      { to: "/admin/bidding/client", label: "Client", icon: List },
+    ],
   },
 ];
 

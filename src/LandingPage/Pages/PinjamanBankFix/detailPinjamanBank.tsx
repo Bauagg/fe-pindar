@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, BadgeCheck, Building2, FileText, Info, ShieldChe
 import Navbars from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import { dummyPinjamanBank } from "../../../types/dummyPinjamanBank";
+import { FaqKta } from "../../Components/Legal/FAQ";
 
 const DetailPinjamanBank = () => {
   const navigate = useNavigate();
@@ -166,6 +167,7 @@ const DetailPinjamanBank = () => {
             </div>
           </div>
         </div>
+        <FaqKta className="mt-10" />
       </section>
 
       <Footer />

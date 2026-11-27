@@ -5,7 +5,7 @@ import { FaMoneyBillWave } from "react-icons/fa";
 import SearchPopup from "./SearchPopup";
 import { RiBankLine } from "react-icons/ri";
 import { HiOutlineBanknotes } from "react-icons/hi2";
-import { Wallet } from "lucide-react";
+import { HomeIcon, Wallet } from "lucide-react";
 
 const Navbar = (): JSX.Element => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,12 +19,13 @@ const Navbar = (): JSX.Element => {
   }, []);
 
   const menuItems = [
-    { to: "/", icon: <FiHome size={20} />, label: "Beranda" },
+    // { to: "/", icon: <FiHome size={20} />, label: "Beranda" },
     { to: "/pindar", icon: <FaMoneyBillWave size={20} />, label: "Pindar" },
     { to: "/kartukredit", icon: <FiCreditCard size={20} />, label: "Kartu Kredit" },
     { to: "/pinjaman-bank", icon: <HiOutlineBanknotes size={20} />, label: "Pinjaman Bank" },
     { to: "/multi-finance", icon: <RiBankLine size={20} />, label: "Multifinance" },
     { to: "/paylater", icon: <Wallet size={20} />, label: "Paylater" },
+    { to: "/kpr", icon: <HomeIcon size={20} />, label: "KPR" },
   ];
 
   const legalMenus = [
@@ -32,6 +33,7 @@ const Navbar = (): JSX.Element => {
     // { to: "/legal/privacy", label: "Kebijakan Privasi" },
     { to: "/legal/about", label: "Tentang Kami" },
     { to: "/legal/hubungi-kami", label: "Hubungi Kami" },
+    { to: "/legal/faq", label: "FAQ" },
   ];
 
   return (

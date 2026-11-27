@@ -6,6 +6,7 @@ import { ArrowRight, BadgeCheck, CircleCheck, Clock3, CreditCard, FileText, Info
 
 import Navbars from "../../Components/Navbar/index";
 import RedirectModal from "../../Components/Riderect/RiderectModal";
+import { FaqPindar } from "../../Components/Legal/FAQ";
 
 interface DetailItem {
   id: string;
@@ -542,6 +543,8 @@ const PindarDetail = () => {
             )}
           </div>
         </div>
+
+        <FaqPindar className="mt-10" />
       </section>
 
       <RedirectModal open={openRedirect} onClose={() => setOpenRedirect(false)} lenderName={data.lenderName} lenderImage={`${baseURL}/api${data.imageLink}`} redirectUrl={data.directLink} />

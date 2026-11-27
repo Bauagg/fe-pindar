@@ -6,7 +6,13 @@ import { card, inputCls } from "../../components/ui";
 import { fmtDate } from "../../utils";
 
 type Product = "" | "multifinance" | "kartu_kredit" | "pinjaman_bank";
-type Complete = "" | "1" | "0";
+type Claimed = "" | "1" | "0";
+
+interface ClaimedBy {
+  id: number;
+  name: string;
+  company_name: string | null;
+}
 
 interface BiddingRow {
   id: number;
@@ -14,8 +20,11 @@ interface BiddingRow {
   product_label: string;
   name: string;
   phone: string | null; // sudah disamarkan backend: 081*****
-  is_complete: boolean;
+  shared_at: string;
   created_at: string;
+  is_claimed: boolean;
+  claimed_by: ClaimedBy | null;
+  claimed_at: string | null;
 }
 
 interface BiddingList {
@@ -30,24 +39,24 @@ const PRODUCTS: { key: Product; label: string }[] = [
   { key: "pinjaman_bank", label: "Pinjaman Bank" },
 ];
 
-const COMPLETE_OPTIONS: { key: Complete; label: string }[] = [
-  { key: "", label: "Semua kelengkapan" },
-  { key: "1", label: "Lengkap" },
-  { key: "0", label: "Belum lengkap" },
+const CLAIMED_OPTIONS: { key: Claimed; label: string }[] = [
+  { key: "", label: "Semua status" },
+  { key: "0", label: "Belum diclaim" },
+  { key: "1", label: "Sudah diclaim" },
 ];
 
 const PER_PAGE_OPTIONS = [10, 20, 50];
 
-export function CompleteBadge({ value }: { value: boolean }) {
+export function ClaimBadge({ value }: { value: boolean }) {
   return value ? (
     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
       <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-      Lengkap
+      Sudah diclaim
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">
       <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
-      Belum lengkap
+      Belum diclaim
     </span>
   );
 }
@@ -59,7 +68,7 @@ export function ProductBadge({ label }: { label: string }) {
 export default function BiddingPage() {
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product>("");
-  const [complete, setComplete] = useState<Complete>("");
+  const [claimed, setClaimed] = useState<Claimed>("");
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
@@ -84,10 +93,10 @@ export default function BiddingPage() {
 
     const params = new URLSearchParams({ page: String(page), limit: String(perPage) });
     if (product) params.set("product", product);
-    if (complete) params.set("complete", complete);
+    if (claimed) params.set("claimed", claimed);
     if (q) params.set("search", q);
 
-    api<BiddingList>(`/admin/bidding?${params}`)
+    api<BiddingList>(`/admin/bidding/data?${params}`)
       .then((r) => alive && setRes(r))
       .catch((e) => alive && setError(errorMessage(e)))
       .finally(() => alive && setLoading(false));
@@ -95,18 +104,18 @@ export default function BiddingPage() {
     return () => {
       alive = false;
     };
-  }, [product, complete, q, page, perPage]);
+  }, [product, claimed, q, page, perPage]);
 
   const rows = res?.data ?? [];
   const meta = res?.meta;
-  const hasFilter = Boolean(product || complete || q);
+  const hasFilter = Boolean(product || claimed || q);
 
   const detailPath = (r: BiddingRow) => `/admin/bidding/${r.product}/${r.id}`;
 
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-gray-900">Bidding</h1>
-      <p className="mt-1 text-sm text-gray-500">Gabungan data multifinance, kartu kredit, dan pinjaman bank. Nomor telepon disamarkan di daftar.</p>
+      <p className="mt-1 text-sm text-gray-500">Data multifinance, kartu kredit, dan pinjaman bank yang sudah dibagikan ke bidding.</p>
 
       {/* Filter bar */}
       <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -133,14 +142,14 @@ export default function BiddingPage() {
 
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
           <select
-            value={complete}
+            value={claimed}
             onChange={(e) => {
-              setComplete(e.target.value as Complete);
+              setClaimed(e.target.value as Claimed);
               setPage(1);
             }}
-            aria-label="Filter kelengkapan data"
+            aria-label="Filter status pengambilan"
             className={`${inputCls} sm:w-52`}>
-            {COMPLETE_OPTIONS.map((o) => (
+            {CLAIMED_OPTIONS.map((o) => (
               <option key={o.key || "all"} value={o.key}>
                 {o.label}
               </option>
@@ -166,17 +175,18 @@ export default function BiddingPage() {
             <Loader2 className="h-5 w-5 animate-spin text-red-600" />
           </div>
         ) : rows.length === 0 ? (
-          <p className="px-5 py-16 text-center text-sm text-gray-500">{hasFilter ? "Tidak ada data yang cocok dengan filter ini." : "Belum ada data bidding."}</p>
+          <p className="px-5 py-16 text-center text-sm text-gray-500">{hasFilter ? "Tidak ada data yang cocok dengan filter ini." : "Belum ada data yang dibagikan ke bidding."}</p>
         ) : (
           <div className={`overflow-x-auto transition-opacity ${loading ? "opacity-50" : ""}`}>
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="border-b border-gray-100 text-xs font-bold text-gray-400">
                 <tr>
                   <th className="px-5 py-3">Nama</th>
                   <th className="px-5 py-3">Telepon</th>
                   <th className="px-5 py-3">Produk</th>
-                  <th className="px-5 py-3">Kelengkapan</th>
-                  <th className="px-5 py-3">Tanggal</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Diclaim oleh</th>
+                  <th className="px-5 py-3">Dibagikan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -192,9 +202,22 @@ export default function BiddingPage() {
                       <ProductBadge label={r.product_label} />
                     </td>
                     <td className="px-5 py-4">
-                      <CompleteBadge value={r.is_complete} />
+                      <ClaimBadge value={r.is_claimed} />
                     </td>
-                    <td className="px-5 py-4 text-gray-600">{fmtDate(r.created_at)}</td>
+                    <td className="px-5 py-4">
+                      {r.claimed_by ? (
+                        <div>
+                          <p className="font-semibold text-gray-900">{r.claimed_by.name}</p>
+                          <p className="text-xs text-gray-400">
+                            {r.claimed_by.company_name ? `${r.claimed_by.company_name} · ` : ""}
+                            {r.claimed_at ? fmtDate(r.claimed_at) : ""}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600">{fmtDate(r.shared_at)}</td>
                   </tr>
                 ))}
               </tbody>

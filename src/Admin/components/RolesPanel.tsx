@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CheckCircle2, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, Share2, Trash2, Undo2 } from "lucide-react";
 import { api, errorMessage } from "../api";
 import { isFullAdmin, useAuth } from "../auth/AuthContext";
 import { btnPrimary, card } from "./ui";
@@ -21,6 +21,7 @@ export default function RolesPanel(props: Props) {
   return (
     <>
       <RolesPanelContent {...props} />
+      <SharePanel app={props.app} onSaved={props.onSaved} />
       <DeletePanel app={props.app} onDeleted={props.onDeleted} />
     </>
   );
@@ -105,6 +106,68 @@ function RolesPanelContent({ app, onSaved }: Props) {
         Simpan akses
       </button>
       <p className="mt-3 text-xs text-gray-400">Kalau role kamu sendiri tidak dicentang, kamu tidak bisa membuka pengajuan ini lagi.</p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Bagikan ke bidding                                                  */
+/* ------------------------------------------------------------------ */
+function SharePanel({ app, onSaved }: { app: Application; onSaved: () => Promise<void> | void }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const shared = !!app.is_shared;
+
+  const toggleShare = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await api(`/admin/multifinance/${app.id}/share-bidding`, {
+        method: shared ? "DELETE" : "POST",
+      });
+      await onSaved();
+      setMsg({
+        ok: true,
+        text: shared ? "Pengajuan ditarik dari bidding." : "Pengajuan dibagikan ke bidding.",
+      });
+    } catch (e) {
+      setMsg({ ok: false, text: errorMessage(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className={`${card} mt-4 p-5`} aria-label="Bagikan ke bidding">
+      <h2 className="flex items-center gap-2 font-extrabold text-gray-900">
+        <Share2 className="h-4 w-4" />
+        Bagikan ke bidding
+      </h2>
+      <p className="mt-1 text-sm text-gray-500">{shared ? "Pengajuan ini sudah ada di bidding. Kamu bisa menariknya kembali kapan saja." : "Pengajuan ini belum ada di bidding. Bagikan agar muncul di daftar bidding."}</p>
+
+      {msg && (
+        <p role={msg.ok ? "status" : "alert"} className={`mt-3 flex items-center gap-2 text-sm font-semibold ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
+          {msg.ok && <CheckCircle2 className="h-4 w-4" />}
+          {msg.text}
+        </p>
+      )}
+
+      {shared ? (
+        <button
+          type="button"
+          onClick={toggleShare}
+          disabled={busy}
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-700 ring-1 ring-gray-200 transition hover:bg-gray-50 disabled:opacity-50">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Undo2 className="h-4 w-4" />}
+          Tarik dari bidding
+        </button>
+      ) : (
+        <button type="button" onClick={toggleShare} disabled={busy} className={`${btnPrimary} mt-4 w-full`}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+          Bagikan ke bidding
+        </button>
+      )}
     </section>
   );
 }

@@ -11,12 +11,14 @@ const Footer = () => {
     { title: "Pinjaman Bank", path: "/pinjaman-bank" },
     { title: "Multifinance", path: "/multi-finance" },
     { title: "Paylater", path: "/paylater" },
+    { title: "KPR", path: "/kpr" },
   ];
 
   const informationLinks = [
     { title: "Tentang Kami", path: "/legal/about" },
     { title: "Syarat & Ketentuan", path: "/legal/terms" },
     { title: "Kebijakan Privasi", path: "/legal/privacy" },
+    { title: "FAQ", path: "/legal/faq" },
     { title: "Hubungi Kami", path: "/legal/hubungi-kami" },
   ];
 
@@ -210,6 +212,27 @@ const Footer = () => {
                   <p className="font-semibold text-sm sm:text-base">Email</p>
 
                   <p className="text-red-100 text-sm break-all">cs@pindar.id</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div
+                  className="
+      w-11 h-11
+      rounded-2xl
+      bg-white/10
+      flex items-center justify-center
+      shrink-0
+    ">
+                  <Phone className="w-5 h-5" />
+                </div>
+
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">Nomor Telepon</p>
+
+                  <a href="https://wa.me/628134262738" target="_blank" rel="noopener noreferrer" className="text-red-100 text-sm break-all hover:underline">
+                    +62 812-3456-7890
+                  </a>
                 </div>
               </div>
             </div>

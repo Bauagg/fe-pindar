@@ -58,7 +58,10 @@ const LoanCard = ({ data, checked, onCompare }: Props) => {
 
         <div className="flex justify-between gap-3 w-full pt-3 pb-2">
           <button
-            onClick={() => setOpenRedirect(true)}
+            // onClick={() => setOpenRedirect(true)}
+            onClick={() => {
+              navigate(`/pindardetail/${data.id}`);
+            }}
             rel="noopener noreferrer"
             className="w-full text-center px-3.5 py-1.5 md:py-2 rounded-xl max-md:text-lg text-xs font-semibold text-white
             bg-gradient-to-r from-rose-600 via-red-600 to-red-700

@@ -57,6 +57,7 @@ export interface Application {
   activities?: unknown[];
   approval_infos?: ApprovalInfo[];
   can_edit?: boolean;
+  is_shared?: boolean;
   is_read?: boolean;
   latest_activity?: LatestActivity | null;
 }

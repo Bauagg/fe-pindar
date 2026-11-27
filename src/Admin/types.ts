@@ -102,6 +102,7 @@ export interface Application {
   activities?: Activity[];
   approval_infos?: ApprovalInfo[];
   is_read?: boolean;
+  is_shared?: boolean;
   latest_activity?: Activity | null;
   can_edit?: boolean;
   created_at: string;

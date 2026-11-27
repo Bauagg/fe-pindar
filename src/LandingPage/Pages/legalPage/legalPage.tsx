@@ -7,6 +7,7 @@ import AboutUs from "../../Components/Legal/AboutUs";
 import TermsCondition from "../../Components/Legal/TermsCondition";
 import PrivacyPolicy from "../../Components/Legal/PrivacyPolicy";
 import ContactUs from "../../Components/Legal/Contactus";
+import FAQ from "../../Components/Legal/FAQ";
 
 const LegalPage = () => {
   const { tab } = useParams();
@@ -45,6 +46,8 @@ const LegalPage = () => {
             {activeTab === "terms" && <TermsCondition />}
 
             {activeTab === "privacy" && <PrivacyPolicy />}
+
+            {activeTab === "faq" && <FAQ />}
 
             {activeTab === "hubungi-kami" && <ContactUs />}
           </div>

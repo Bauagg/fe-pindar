@@ -9,6 +9,7 @@ import Navbar from "../../Components/Navbar";
 import RedirectModal from "../../Components/Riderect/RiderectModal";
 
 import { CreditCardDetail as CreditCardDetailType } from "../../../types/creditcard";
+import { FaqKartuKredit } from "../../Components/Legal/FAQ";
 
 const CreditCardDetail = () => {
   const navigate = useNavigate();
@@ -419,6 +420,8 @@ const CreditCardDetail = () => {
             </div>
           </div>
         </div>
+
+        <FaqKartuKredit className="mt-10" />
 
         {/* TERMS */}
       </section>

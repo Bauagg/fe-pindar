@@ -6,6 +6,7 @@ export interface ModuleConfig {
   productPlaceholder: string;
   byKey: "by_card" | "by_bank";
   hasCompany: boolean;
+  biddingShare?: boolean;
   addressLabel: string;
   /** Kalau diisi, semua request API modul ini membawa ?role_dummy=<nilai> (BE mengembalikan data kosong). */
   dummy?: string;
@@ -30,6 +31,7 @@ export const creditCardConfig: ModuleConfig = {
   productLabel: "Nama kartu kredit",
   productPlaceholder: "mis. Visa Platinum",
   byKey: "by_card",
+  biddingShare: true,
   hasCompany: false,
   addressLabel: "Alamat",
   api: { admin: "/admin/credit-card", disbursement: "/admin/disbursement-credit-card" },
@@ -50,6 +52,7 @@ export const bankLoanConfig: ModuleConfig = {
   productLabel: "Nama bank",
   productPlaceholder: "mis. Bank Mandiri",
   byKey: "by_bank",
+  biddingShare: true,
   hasCompany: true,
   addressLabel: "Alamat domisili",
   api: { admin: "/admin/bank-loan", disbursement: "/admin/disbursement-bank-loan" },
