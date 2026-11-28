@@ -32,15 +32,17 @@ const LandingPageUdin: React.FC = () => {
           <div className="mt-6 md:mt-12">
             <VideoPindar />
           </div>
-          <div className="mt-6 md:mt-12">
-            <PopularPlus />
-          </div>
-          <div>
-            <RekomendasiApp />
-          </div>
+
           <div>
             <KprSection />
           </div>
+          {/* <div className="mt-6 md:mt-12">
+            <PopularPlus />
+          </div> */}
+          <div>
+            <RekomendasiApp />
+          </div>
+
           <div className="mt-10 md:mt-12">
             <BannerMultifinance />
           </div>
@@ -53,13 +55,12 @@ const LandingPageUdin: React.FC = () => {
           <div>
             <RekomendasiPinjamanBank />
           </div>
-
-          <div>
-            <EducationLanding />
+          <div className="mt-10 md:mt-14">
+            <PopularDeal />
           </div>
 
           <div>
-            <PopularDeal />
+            <EducationLanding />
           </div>
 
           <Footer />

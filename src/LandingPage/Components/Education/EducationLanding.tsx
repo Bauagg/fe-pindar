@@ -46,7 +46,7 @@ const EducationLanding = () => {
   };
 
   return (
-    <section className="bg-gradient-to-b from-white to-red-50/40 py-14">
+    <section className="bg-gradient-to-b from-white to-red-50/40 pb-8">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-5">

@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BadgeCheck, Building2, CalendarDays, CheckCircle2, FileText, Info, Percent, ShieldCheck, Wallet } from "lucide-react";
+import { BadgeCheck, Building2, CalendarDays, CheckCircle2, FileText, Info, Percent, ShieldCheck, Wallet } from "lucide-react";
 // import { ArrowRight } from "lucide-react"; // aktifkan lagi bersama tombol "Ajukan Sekarang"
 
 import Navbars from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import { dummyPayLater } from "../../../types/dummyPayLater";
+import { FaqPaylater } from "../../Components/Legal/FAQ";
 
 const DetailPayLater = () => {
   const navigate = useNavigate();
@@ -196,6 +197,8 @@ const DetailPayLater = () => {
             </div>
           </div>
         </div>
+
+        <FaqPaylater className="max-w-7xl mx-auto mt-6" />
 
         <p className="max-w-7xl mx-auto mt-6 text-xs text-gray-400 leading-relaxed">
           Informasi limit, bunga, dan biaya bersifat indikatif dan dapat berubah sewaktu-waktu. Ketentuan resmi mengikuti penyedia layanan. Gunakan PayLater sesuai kemampuan bayar.

@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowRight, BadgeCheck, Calculator, CircleCheck, Clipboa
 import Navbars from "../../Components/Navbar/index";
 import KprSimulator from "./KprSimulator"; // sesuaikan path
 import { kprBanks } from "./kprBanks"; // sesuaikan path
+import { FaqKpr } from "../../Components/Legal/FAQ";
 
 const FORM_PATH = "/kpr/form";
 
@@ -324,7 +325,7 @@ const Kpr = () => {
       </section>
 
       {/* PENTING DIKETAHUI */}
-      <section className="px-4 lg:px-8 pb-16 sm:pb-24">
+      <section className="px-4 lg:px-8 pb-8 sm:pb-12">
         <div className="max-w-7xl mx-auto rounded-2xl sm:rounded-[2rem] border border-amber-200 bg-amber-50 p-4 sm:p-6 lg:p-8">
           <div className="flex items-center gap-3 sm:gap-4 mb-5">
             <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
@@ -353,6 +354,10 @@ const Kpr = () => {
             </button>
           </div>
         </div>
+      </section>
+
+      <section className="px-4 lg:px-8 pb-16 sm:pb-24">
+        <FaqKpr className="max-w-7xl mx-auto" />
       </section>
     </div>
   );

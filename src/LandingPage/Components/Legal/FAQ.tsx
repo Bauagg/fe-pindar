@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Banknote, Car, ChevronDown, CircleCheck, CircleHelp, CreditCard, Info, ShieldCheck, Wallet } from "lucide-react";
+import { Banknote, Car, ChevronDown, CircleCheck, CircleHelp, CreditCard, Home, Info, ShieldCheck, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /* ================================================================== */
@@ -348,6 +348,219 @@ const multifinance: FaqCategory = {
   ],
 };
 
+const paylater: FaqCategory = {
+  id: "paylater",
+  title: "Tentang Paylater",
+  icon: CreditCard,
+  items: [
+    {
+      q: "Apa itu Paylater?",
+      a: [
+        "Paylater adalah fasilitas pembayaran yang memungkinkan pengguna melakukan transaksi sekarang dan membayarnya kemudian, baik secara sekaligus maupun dengan cicilan sesuai ketentuan penyedia layanan.",
+        "Paylater dapat digunakan untuk berbagai kebutuhan transaksi, seperti belanja online, pembelian barang, pembayaran layanan, atau kebutuhan lainnya sesuai kebijakan penyedia.",
+      ],
+    },
+    {
+      q: "Apa manfaat menggunakan Paylater?",
+      a: [
+        "Paylater memberikan fleksibilitas dalam melakukan pembayaran dan membantu pengguna mengatur waktu pembayaran sesuai kebutuhan.",
+        "Beberapa manfaat Paylater antara lain:",
+        [
+          "Mempermudah transaksi digital.",
+          "Memberikan pilihan pembayaran secara cicilan.",
+          "Memungkinkan pembelian tanpa harus membayar seluruh nilai transaksi di awal.",
+          "Menyediakan pilihan tenor pembayaran.",
+          "Mendukung transaksi pada merchant atau platform yang bekerja sama.",
+        ],
+      ],
+    },
+    {
+      q: "Siapa yang dapat mengajukan Paylater?",
+      a: [
+        "Calon pengguna Paylater umumnya harus memenuhi persyaratan penyedia layanan, seperti:",
+        [
+          "Memiliki identitas diri yang valid.",
+          "Memenuhi batas usia minimum.",
+          "Memiliki nomor telepon aktif.",
+          "Memiliki rekening atau metode pembayaran yang sesuai.",
+          "Memenuhi proses verifikasi identitas.",
+          "Memenuhi penilaian kelayakan kredit.",
+        ],
+        "Persyaratan dapat berbeda pada setiap penyedia Paylater.",
+      ],
+    },
+    {
+      q: "Apakah Paylater memiliki limit?",
+      a: [
+        "Ya. Penyedia Paylater umumnya memberikan limit transaksi kepada pengguna yang telah memenuhi persyaratan.",
+        "Besaran limit ditentukan berdasarkan hasil penilaian penyedia layanan, termasuk profil pengguna, riwayat transaksi, dan kemampuan pembayaran.",
+        "Limit dapat berubah sesuai kebijakan penyedia.",
+      ],
+    },
+    {
+      q: "Apakah Paylater memiliki bunga dan biaya?",
+      a: [
+        "Paylater dapat memiliki bunga, biaya administrasi, biaya layanan, atau biaya lainnya, tergantung pada produk dan tenor yang dipilih.",
+        "Beberapa produk juga menawarkan pembayaran tanpa bunga untuk transaksi atau periode tertentu dengan syarat yang berlaku.",
+        "Pengguna disarankan memeriksa seluruh rincian biaya sebelum melakukan transaksi.",
+      ],
+    },
+    {
+      q: "Apakah Paylater bisa digunakan untuk pembayaran cicilan?",
+      a: ["Ya. Beberapa layanan Paylater menyediakan pilihan pembayaran dengan cicilan dalam jangka waktu tertentu.", "Pilihan tenor, jumlah cicilan, bunga, dan biaya administrasi bergantung pada ketentuan masing-masing penyedia layanan."],
+    },
+    {
+      q: "Apakah Paylater dapat digunakan untuk semua transaksi?",
+      a: [
+        "Tidak selalu. Penggunaan Paylater bergantung pada merchant, platform, kategori transaksi, dan kebijakan penyedia layanan.",
+        "Pengguna perlu memastikan bahwa transaksi yang akan dilakukan termasuk dalam kategori yang diperbolehkan.",
+      ],
+    },
+    {
+      q: "Apa yang terjadi jika terlambat membayar Paylater?",
+      a: [
+        "Keterlambatan pembayaran dapat menimbulkan denda, biaya tambahan, pembatasan penggunaan layanan, atau dampak terhadap riwayat kredit sesuai ketentuan penyedia.",
+        "Pengguna disarankan membayar tagihan tepat waktu dan segera menghubungi penyedia layanan apabila mengalami kesulitan pembayaran.",
+      ],
+    },
+    {
+      q: "Apakah Paylater aman digunakan?",
+      a: [
+        "Paylater dapat digunakan secara aman apabila pengguna memilih penyedia layanan yang memiliki izin atau legalitas sesuai ketentuan yang berlaku serta memahami seluruh persyaratan transaksi.",
+        "Pengguna juga perlu menjaga kerahasiaan data pribadi dan tidak membagikan kode OTP, PIN, atau informasi akun kepada pihak lain.",
+      ],
+    },
+  ],
+};
+
+const kpr: FaqCategory = {
+  id: "kpr",
+  title: "Tentang KPR (Kredit Pemilikan Rumah)",
+  icon: Home,
+  items: [
+    {
+      q: "Apa itu KPR?",
+      a: [
+        "Kredit Pemilikan Rumah (KPR) adalah fasilitas pembiayaan yang diberikan oleh bank atau lembaga keuangan untuk membantu masyarakat membeli rumah atau properti dengan pembayaran secara angsuran dalam jangka waktu tertentu.",
+        "KPR memungkinkan calon pembeli memiliki rumah tanpa harus membayar seluruh harga properti secara tunai di awal.",
+      ],
+    },
+    {
+      q: "Apa manfaat menggunakan KPR?",
+      a: [
+        "KPR memberikan kemudahan bagi masyarakat untuk memiliki rumah dengan sistem pembayaran bertahap.",
+        "Beberapa manfaat KPR antara lain:",
+        [
+          "Membantu memiliki rumah dengan dana awal yang lebih terjangkau.",
+          "Menyediakan pilihan tenor pembayaran.",
+          "Memungkinkan pembayaran rumah secara angsuran.",
+          "Memberikan pilihan pembiayaan untuk rumah baru maupun rumah bekas sesuai ketentuan bank.",
+          "Membantu perencanaan keuangan jangka panjang.",
+        ],
+      ],
+    },
+    {
+      q: "Siapa yang dapat mengajukan KPR?",
+      a: [
+        "Calon pemohon KPR umumnya harus memenuhi persyaratan berikut:",
+        [
+          "Warga Negara Indonesia.",
+          "Memenuhi batas usia minimum.",
+          "Memiliki penghasilan tetap atau sumber penghasilan yang dapat diverifikasi.",
+          "Memiliki identitas diri yang valid.",
+          "Memiliki riwayat kredit yang memenuhi ketentuan.",
+          "Memiliki kemampuan membayar angsuran.",
+          "Memenuhi persyaratan administrasi bank.",
+        ],
+        "Persyaratan dapat berbeda pada setiap bank dan jenis KPR.",
+      ],
+    },
+    {
+      q: "Apa saja jenis KPR yang tersedia?",
+      a: [
+        "Secara umum, terdapat beberapa jenis KPR, antara lain:",
+        [
+          "KPR Rumah Baru: pembiayaan untuk pembelian rumah baru dari pengembang atau developer.",
+          "KPR Rumah Bekas: pembiayaan untuk pembelian rumah yang sebelumnya telah dimiliki atau ditempati.",
+          "KPR Subsidi: program pembiayaan rumah yang ditujukan bagi masyarakat yang memenuhi kriteria tertentu sesuai program pemerintah.",
+          "KPR Non-Subsidi: pembiayaan rumah komersial yang diberikan oleh bank dengan persyaratan dan ketentuan sesuai kebijakan bank.",
+        ],
+        "Ketersediaan jenis KPR bergantung pada produk bank dan program pembiayaan yang sedang berjalan.",
+      ],
+    },
+    {
+      q: "Apa itu uang muka atau DP KPR?",
+      a: [
+        "Down Payment (DP) atau uang muka adalah sejumlah dana yang dibayarkan oleh pembeli kepada penjual atau pengembang sebagai bagian dari harga rumah.",
+        "Besaran DP bergantung pada harga properti, ketentuan bank, jenis pembiayaan, serta kebijakan yang berlaku.",
+      ],
+    },
+    {
+      q: "Berapa lama tenor KPR?",
+      a: [
+        "Tenor KPR merupakan jangka waktu pembayaran kredit rumah.",
+        "Bank umumnya menyediakan pilihan tenor yang dapat mencapai beberapa tahun hingga jangka panjang, tergantung jenis produk dan kebijakan bank.",
+        "Pemilihan tenor perlu disesuaikan dengan usia pemohon, penghasilan, serta kemampuan membayar angsuran.",
+      ],
+    },
+    {
+      q: "Apakah KPR memiliki bunga?",
+      a: [
+        "Ya. KPR umumnya memiliki bunga atau margin pembiayaan sesuai jenis produk dan kebijakan bank.",
+        "Beberapa produk menawarkan:",
+        ["Bunga tetap (fixed rate) untuk periode tertentu.", "Bunga mengambang (floating rate) yang dapat berubah mengikuti ketentuan bank.", "Skema bunga kombinasi, yaitu bunga tetap pada periode awal dan bunga mengambang setelahnya."],
+        "Pengguna perlu memahami perubahan bunga dan dampaknya terhadap angsuran sebelum mengajukan KPR.",
+      ],
+    },
+    {
+      q: "Apa saja biaya yang perlu disiapkan saat mengajukan KPR?",
+      a: [
+        "Selain uang muka, calon pemohon KPR perlu memperhitungkan biaya lain, seperti:",
+        [
+          "Biaya administrasi.",
+          "Biaya provisi.",
+          "Biaya appraisal atau penilaian properti.",
+          "Biaya notaris dan pengurusan dokumen.",
+          "Biaya asuransi sesuai ketentuan.",
+          "Pajak dan biaya transaksi properti yang menjadi kewajiban pembeli.",
+        ],
+        "Rincian biaya dapat berbeda pada setiap bank dan transaksi properti.",
+      ],
+    },
+    {
+      q: "Apakah KPR bisa diajukan untuk rumah bekas?",
+      a: ["Ya. Beberapa bank menyediakan fasilitas KPR untuk pembelian rumah bekas.", "Bank akan melakukan penilaian terhadap calon pemohon dan properti yang akan dibeli, termasuk legalitas dokumen serta nilai properti."],
+    },
+    {
+      q: "Apakah KPR bisa diajukan oleh karyawan dan wiraswasta?",
+      a: [
+        "Ya. Karyawan maupun wiraswasta dapat mengajukan KPR selama memenuhi persyaratan bank.",
+        "Karyawan umumnya diminta menyediakan bukti penghasilan dan dokumen pekerjaan.",
+        "Wiraswasta biasanya perlu menyediakan dokumen usaha, bukti penghasilan, serta dokumen pendukung lainnya.",
+      ],
+    },
+    {
+      q: "Apakah pengajuan KPR pasti disetujui?",
+      a: ["Tidak. Persetujuan KPR sepenuhnya menjadi kewenangan bank atau lembaga pembiayaan yang bersangkutan.", "Bank akan melakukan penilaian terhadap kemampuan membayar, riwayat kredit, kelengkapan dokumen, serta kelayakan properti."],
+    },
+    {
+      q: "Bagaimana cara memilih KPR yang tepat?",
+      a: [
+        "Sebelum memilih KPR, calon pemohon disarankan untuk:",
+        [
+          "Membandingkan suku bunga dan skema pembiayaan.",
+          "Memeriksa besaran uang muka.",
+          "Memahami tenor dan jumlah angsuran.",
+          "Memperhitungkan seluruh biaya tambahan.",
+          "Memastikan kemampuan membayar dalam jangka panjang.",
+          "Memeriksa legalitas dan dokumen properti.",
+        ],
+        "Pilihlah produk KPR yang sesuai dengan kebutuhan dan kondisi keuangan Anda.",
+      ],
+    },
+  ],
+};
+
 const keamanan: FaqCategory = {
   id: "keamanan",
   title: "Tentang Keamanan dan Perlindungan Pengguna",
@@ -390,7 +603,7 @@ const keamanan: FaqCategory = {
 };
 
 /** Semua kategori, berurutan seperti di halaman FAQ lengkap. */
-export const faqCategories: FaqCategory[] = [umum, pindar, kartuKredit, kta, multifinance, keamanan];
+export const faqCategories: FaqCategory[] = [umum, pindar, kartuKredit, kta, multifinance, paylater, kpr, keamanan];
 
 /* ================================================================== */
 /* Komponen dasar                                                      */
@@ -482,6 +695,8 @@ export const FaqPindar = (props: FaqCardProps) => <FaqCategoryCard category={pin
 export const FaqKartuKredit = (props: FaqCardProps) => <FaqCategoryCard category={kartuKredit} {...props} />;
 export const FaqKta = (props: FaqCardProps) => <FaqCategoryCard category={kta} {...props} />;
 export const FaqMultifinance = (props: FaqCardProps) => <FaqCategoryCard category={multifinance} {...props} />;
+export const FaqPaylater = (props: FaqCardProps) => <FaqCategoryCard category={paylater} {...props} />;
+export const FaqKpr = (props: FaqCardProps) => <FaqCategoryCard category={kpr} {...props} />;
 export const FaqKeamanan = (props: FaqCardProps) => <FaqCategoryCard category={keamanan} {...props} />;
 
 /* ================================================================== */
